@@ -16,8 +16,8 @@ func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 	if path == "PatientList" || path == "/mhtml/partials.PatientList" {
 		return PatientList(ctx)
 	}
-	if path == "AddPatientForm" || path == "/mhtml/partials.AddPatientForm" {
-		return AddPatientForm(ctx)
+	if path == "AddPatientSheet" || path == "/mhtml/partials.AddPatientSheet" {
+		return AddPatientSheet(ctx)
 	}
 	if path == "Close" || path == "/mhtml/partials/sheet.Close" {
 		return sheet.Close(ctx)

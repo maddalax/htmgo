@@ -4,9 +4,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"log"
+	"mhtml/database"
 	"mhtml/h"
 	"mhtml/pages"
 	"mhtml/partials"
+	"mhtml/partials/sheet"
 	"time"
 )
 
@@ -49,6 +51,23 @@ func main() {
 	})
 
 	pages.RegisterPages(f)
+
+	f.Post("/api/patients", func(ctx *fiber.Ctx) error {
+		name := ctx.FormValue("name")
+		reason := ctx.FormValue("reason-for-visit")
+		location := ctx.FormValue("location-name")
+
+		database.HSet("patients", uuid.New().String(), partials.Patient{
+			Name:            name,
+			ReasonForVisit:  reason,
+			AppointmentDate: time.Now(),
+			LocationName:    location,
+		})
+
+		return h.PartialViewWithHeaders(ctx, &map[string]string{
+			"HX-Trigger": "patient-added",
+		}, sheet.Close(ctx))
+	})
 
 	h.Start(f, h.App{
 		LiveReload: true,

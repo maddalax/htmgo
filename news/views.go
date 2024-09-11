@@ -21,7 +21,7 @@ func StoryList() *h.Node {
 	}
 
 	return h.Fragment(
-		h.Div(h.List(*posts, func(item Post) *h.Node {
+		h.Div(h.List(*posts, func(item Post, index int) *h.Node {
 			return StoryCard(item)
 		})),
 	)

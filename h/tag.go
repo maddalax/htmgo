@@ -251,13 +251,13 @@ func Input(inputType string, children ...*Node) *Node {
 	}
 }
 
-func List[T any](items []T, mapper func(item T) *Node) *Node {
+func List[T any](items []T, mapper func(item T, index int) *Node) *Node {
 	node := &Node{
 		tag:      "",
 		children: make([]*Node, len(items)),
 	}
 	for index, value := range items {
-		node.children[index] = mapper(value)
+		node.children[index] = mapper(value, index)
 	}
 	return node
 }
@@ -296,6 +296,10 @@ func P(text string, children ...*Node) *Node {
 		children: children,
 		text:     text,
 	}
+}
+
+func Form(children ...*Node) *Node {
+	return Tag("form", children...)
 }
 
 func A(text string, children ...*Node) *Node {
@@ -372,6 +376,10 @@ func Children(children []*Node) *Node {
 		tag:      FlagChildrenList,
 		children: children,
 	}
+}
+
+func Label(text string) *Node {
+	return Tag("label", Text(text))
 }
 
 func If(condition bool, node *Node) *Node {

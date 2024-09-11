@@ -8,6 +8,7 @@ type ButtonProps struct {
 	Id       string
 	Text     string
 	Target   string
+	Type     string
 	Trigger  string
 	Get      string
 	Class    string
@@ -35,6 +36,7 @@ func Button(props ButtonProps) *h.Node {
 		h.Class("flex gap-1 items-center border p-4 rounded cursor-hover", props.Class),
 		h.If(props.Get != "", h.Get(props.Get)),
 		h.If(props.Target != "", h.Target(props.Target)),
+		h.IfElse(props.Type != "", h.Type(props.Type), h.Type("button")),
 		text,
 	)
 

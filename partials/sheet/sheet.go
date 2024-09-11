@@ -5,17 +5,25 @@ import (
 	"mhtml/h"
 )
 
-func Opened(children ...*h.Node) *h.Node {
+type Props struct {
+	ClassName string
+	Root      *h.Node
+}
+
+var Id = "#active-modal"
+
+func Opened(props Props) *h.Node {
 	return h.Fragment(h.Div(
-		h.Class(`fixed top-0 right-0 h-full w-96 bg-gray-100 shadow-lg z-50`),
-		CloseButton(),
+		h.Class(`fixed top-0 right-0 h-full shadow-lg z-50`,
+			h.Ternary(props.ClassName != "", props.ClassName, "w-96 bg-gray-100")),
+		closeButton(),
 		h.Div(
-			children...,
+			props.Root,
 		)))
 }
 
 func Closed() *h.Node {
-	return h.Div(h.Id("active-modal"))
+	return h.Div(h.Id(Id))
 }
 
 func Close(ctx *fiber.Ctx) *h.Partial {
@@ -24,7 +32,7 @@ func Close(ctx *fiber.Ctx) *h.Partial {
 	)
 }
 
-func CloseButton() *h.Node {
+func closeButton() *h.Node {
 	return h.Div(
 		h.Class("absolute top-0 right-0 p-3"),
 		h.Button(

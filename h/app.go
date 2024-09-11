@@ -55,6 +55,27 @@ func HtmlView(c *fiber.Ctx, page *Page) error {
 	)
 }
 
+func PartialViewWithHeaders(c *fiber.Ctx, headers *Headers, partial *Partial) error {
+	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
+	if partial.Headers != nil {
+		for s, a := range *partial.Headers {
+			c.Set(s, a)
+		}
+	}
+
+	if headers != nil {
+		for s, a := range *headers {
+			c.Set(s, a)
+		}
+	}
+
+	return c.SendString(
+		Render(
+			partial.Root,
+		),
+	)
+}
+
 func PartialView(c *fiber.Ctx, partial *Partial) error {
 	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
 	if partial.Headers != nil {
