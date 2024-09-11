@@ -3,9 +3,13 @@ package h
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 const FlagSkip = "skip"
+const FlagText = "text"
+const FlagRaw = "raw"
+const FlagAttributeList = "attribute-list"
 
 type Builder struct {
 	builder *strings.Builder
@@ -35,8 +39,23 @@ func (page Builder) renderNode(node *Node) {
 		}
 
 		for _, child := range node.children {
+
+			if child == nil {
+				continue
+			}
+
 			if child.tag == "class" {
 				insertAttribute(node, "class", child.value)
+				child.tag = FlagSkip
+			}
+
+			if child.tag == FlagAttributeList {
+				for _, gc := range child.children {
+					for key, value := range gc.attributes {
+						insertAttribute(node, key, value)
+					}
+					gc.tag = FlagSkip
+				}
 				child.tag = FlagSkip
 			}
 
@@ -68,6 +87,19 @@ func (page Builder) renderNode(node *Node) {
 		}
 	}
 	for _, child := range node.children {
+
+		if child == nil {
+			continue
+		}
+
+		if child.tag == FlagText {
+			page.builder.WriteString(child.text)
+			continue
+		}
+		if child.tag == FlagRaw {
+			page.builder.WriteString(child.value)
+			continue
+		}
 		if child.tag != FlagSkip {
 			page.renderNode(child)
 		}
@@ -78,6 +110,7 @@ func (page Builder) renderNode(node *Node) {
 }
 
 func Render(node *Node) string {
+	start := time.Now()
 	builder := strings.Builder{}
 	page := Builder{
 		builder: &builder,
@@ -85,5 +118,7 @@ func Render(node *Node) string {
 	}
 	page.render()
 	d := page.builder.String()
+	duration := time.Since(start)
+	fmt.Printf("render took %s\n", duration)
 	return d
 }

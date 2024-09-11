@@ -2,6 +2,8 @@ package httpjson
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -21,10 +23,6 @@ func getClient() *http.Client {
 		}
 		httpClient := &http.Client{
 			Transport: tr,
-			// do not follow redirects
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
 		}
 		client = httpClient
 	})
@@ -43,6 +41,10 @@ func Get[T any](url string) (T, error) {
 		resp.Body.Close()
 	}()
 
+	if resp.StatusCode > 299 {
+		return *new(T), errors.New(fmt.Sprintf("get to %s failed with %d code", url, resp.StatusCode))
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return *new(T), err
@@ -52,5 +54,10 @@ func Get[T any](url string) (T, error) {
 	if err != nil {
 		return *new(T), err
 	}
+
+	if d == nil {
+		return *new(T), errors.New("failed to create T")
+	}
+
 	return *d, nil
 }

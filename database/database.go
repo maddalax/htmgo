@@ -35,6 +35,12 @@ func Connect() *redis.Client {
 	return rdb
 }
 
+func Incr(key string) int64 {
+	db := Connect()
+	result := db.Incr(context.Background(), key)
+	return result.Val()
+}
+
 func Set[T any](key string, value T) error {
 	db := Connect()
 	serialized, err := json.Marshal(value)
@@ -53,6 +59,45 @@ func HSet[T any](set string, key string, value T) error {
 	}
 	result := db.HSet(context.Background(), set, key, serialized)
 	return result.Err()
+}
+
+func HIncr(set string, key string) int64 {
+	db := Connect()
+	result := db.HIncrBy(context.Background(), set, key, 1)
+	return result.Val()
+}
+
+func HGet[T any](set string, key string) *T {
+	db := Connect()
+	val, err := db.HGet(context.Background(), set, key).Result()
+	if err != nil || val == "" {
+		return nil
+	}
+	result := new(T)
+	err = json.Unmarshal([]byte(val), result)
+	if err != nil {
+		return nil
+	}
+	return result
+}
+
+func GetOrSet[T any](key string, cb func() T) (*T, error) {
+	db := Connect()
+	val, err := db.Get(context.Background(), key).Result()
+	if err == nil {
+		result := new(T)
+		err = json.Unmarshal([]byte(val), result)
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
+	}
+	value := cb()
+	err = Set(key, value)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
 func Get[T any](key string) (*T, error) {

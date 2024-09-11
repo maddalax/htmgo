@@ -1,18 +1,78 @@
 package h
 
+import (
+	"encoding/json"
+	"github.com/gofiber/fiber/v2"
+	"html"
+	"net/url"
+	"strings"
+)
+
 type Node struct {
+	id         string
 	tag        string
 	attributes map[string]string
 	children   []*Node
 	text       string
 	value      string
+	changed    bool
 }
 
-func Class(value string) *Node {
+func NewNode(tag string) Node {
+	return Node{
+		tag:        tag,
+		attributes: nil,
+		children:   nil,
+		text:       "",
+		value:      "",
+		id:         "",
+	}
+}
+
+type Action struct {
+	Type   string
+	Target *Node
+	Value  any
+}
+
+func (node *Node) AppendChild(child *Node) *Node {
+	node.children = append(node.children, child)
+	return node
+}
+
+func (node *Node) SetChanged(changed bool) *Node {
+	node.changed = changed
+	return node
+}
+
+func Data(data map[string]any) *Node {
+	serialized, err := json.Marshal(data)
+	if err != nil {
+		return Empty()
+	}
+	return Attribute("x-data", string(serialized))
+}
+
+func ClassIf(condition bool, value string) *Node {
+	if condition {
+		return Class(value)
+	}
+	return Empty()
+}
+
+func Class(value ...string) *Node {
 	return &Node{
 		tag:   "class",
-		value: value,
+		value: MergeClasses(value...),
 	}
+}
+
+func MergeClasses(classes ...string) string {
+	builder := ""
+	for _, s := range classes {
+		builder += s + " "
+	}
+	return builder
 }
 
 func Id(value string) *Node {
@@ -28,8 +88,43 @@ func Attribute(key string, value string) *Node {
 	}
 }
 
-func Get(url string) *Node {
-	return Attribute("hx-get", url)
+func Get(path string) *Node {
+	return Attribute("hx-get", path)
+}
+
+func CreateTriggers(triggers ...string) []string {
+	return triggers
+}
+
+type ReloadParams struct {
+	Triggers []string
+}
+
+func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) *Node {
+	return &Node{
+		tag: "attribute",
+		attributes: map[string]string{
+			"hx-get":     GetPartialPath(partial),
+			"hx-trigger": strings.Join(params.Triggers, ", "),
+		},
+	}
+}
+
+func GetWithQs(path string, qs map[string]string) *Node {
+	u, err := url.Parse(path)
+	if err != nil {
+		return Empty()
+	}
+
+	q := u.Query()
+
+	for s := range qs {
+		q.Add(s, qs[s])
+	}
+
+	u.RawQuery = q.Encode()
+
+	return Get(u.String())
 }
 
 func Post(url string) *Node {
@@ -38,6 +133,13 @@ func Post(url string) *Node {
 
 func Trigger(trigger string) *Node {
 	return Attribute("hx-trigger", trigger)
+}
+
+func Text(text string) *Node {
+	return &Node{
+		tag:  "text",
+		text: text,
+	}
 }
 
 func Target(target string) *Node {
@@ -72,7 +174,11 @@ func Click(value string) *Node {
 	return Attribute("onclick", value)
 }
 
-func Page(children ...*Node) *Node {
+func OnClickWs(handler string) *Node {
+	return Attribute("data-ws-click", handler)
+}
+
+func Html(children ...*Node) *Node {
 	return &Node{
 		tag:      "html",
 		children: children,
@@ -101,6 +207,18 @@ func Script(url string) *Node {
 		},
 		children: make([]*Node, 0),
 	}
+}
+
+func Raw(text string) *Node {
+	return &Node{
+		tag:      "raw",
+		children: make([]*Node, 0),
+		value:    text,
+	}
+}
+
+func RawScript(text string) *Node {
+	return Raw("<script>" + text + "</script>")
 }
 
 func Div(children ...*Node) *Node {
@@ -158,11 +276,28 @@ func Fragment(children ...*Node) *Node {
 	}
 }
 
+func AttributeList(children ...*Node) *Node {
+	return &Node{
+		tag:      FlagAttributeList,
+		children: children,
+	}
+}
+
+func AppendChildren(node *Node, children ...*Node) *Node {
+	node.children = append(node.children, children...)
+	return node
+
+}
+
 func Button(children ...*Node) *Node {
 	return &Node{
 		tag:      "button",
 		children: children,
 	}
+}
+
+func Indicator(tag string) *Node {
+	return Attribute("hx-indicator", tag)
 }
 
 func P(text string, children ...*Node) *Node {
@@ -187,12 +322,35 @@ func Empty() *Node {
 	}
 }
 
+func BeforeRequestSetHtml(children ...*Node) *Node {
+	serialized := Render(Fragment(children...))
+	return Attribute("hx-on::before-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
+}
+
+func AfterRequestSetHtml(children ...*Node) *Node {
+	serialized := Render(Fragment(children...))
+	return Attribute("hx-on::after-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
+}
+
 func If(condition bool, node *Node) *Node {
 	if condition {
 		return node
 	} else {
 		return Empty()
 	}
+}
+
+func JsIf(condition string, node *Node) *Node {
+	node1 := &Node{tag: "template"}
+	node1.AppendChild(Attribute("x-if", condition))
+	node1.AppendChild(node)
+	return node
+}
+
+func JsIfElse(condition string, node *Node, node2 *Node) *Node {
+	node1Template := Div(Attribute("x-show", condition), node)
+	node2Template := Div(Attribute("x-show", "!("+condition+")"), node2)
+	return Fragment(node1Template, node2Template)
 }
 
 func IfElse(condition bool, node *Node, node2 *Node) *Node {

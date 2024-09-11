@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="site.db">
-  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.51">
-    <root id="1">
-      <ServerVersion>3.40.1</ServerVersion>
-    </root>
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.53">
+    <root id="1"/>
     <collation id="2" parent="1" name="RTRIM"/>
     <collation id="3" parent="1" name="NOCASE"/>
     <collation id="4" parent="1" name="BINARY"/>
@@ -1428,34 +1426,34 @@
     </table>
     <table id="505" parent="173" name="users"/>
     <column id="506" parent="504" name="type">
-      <DasType>TEXT|0s</DasType>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="507" parent="504" name="name">
-      <DasType>TEXT|0s</DasType>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="508" parent="504" name="tbl_name">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="509" parent="504" name="rootpage">
-      <DasType>INT|0s</DasType>
       <Position>4</Position>
+      <StoredType>INT|0s</StoredType>
     </column>
     <column id="510" parent="504" name="sql">
-      <DasType>TEXT|0s</DasType>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="511" parent="505" name="id">
-      <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>text|0s</StoredType>
     </column>
     <column id="512" parent="505" name="name">
-      <DasType>text|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>text|0s</StoredType>
     </column>
     <index id="513" parent="505" name="sqlite_autoindex_users_1">
       <ColNames>id</ColNames>

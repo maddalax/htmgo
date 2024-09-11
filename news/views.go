@@ -2,22 +2,23 @@ package news
 
 import (
 	"fmt"
+	"mhtml/database"
 	"mhtml/h"
 )
 
 func StoryList() *h.Node {
-	posts, err := List()
 
-	if err != nil {
-		return h.P(err.Error())
-	}
+	posts, _ := database.GetOrSet[[]Post]("posts", func() []Post {
+		p, _ := List()
+		return p
+	})
 
-	if len(posts) == 0 {
+	if len(*posts) == 0 {
 		return h.P("No results found")
 	}
 
 	return h.Fragment(
-		h.VStack(h.List(posts, func(item Post) *h.Node {
+		h.VStack(h.List(*posts, func(item Post) *h.Node {
 			return StoryCard(item)
 		})),
 	)
@@ -26,7 +27,7 @@ func StoryList() *h.Node {
 func StoryCard(post Post) *h.Node {
 	url := fmt.Sprintf("/news/%d", post.Id)
 	return h.VStack(
-		h.Class("items-center bg-red-200 p-4 rounded"),
+		h.Class("items-center bg-indigo-200 p-4 rounded"),
 		h.A(post.Title, h.Href(url)),
 	)
 }
