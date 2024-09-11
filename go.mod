@@ -3,10 +3,12 @@ module mhtml
 go 1.20
 
 require (
+	github.com/dave/jennifer v1.7.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.0.5
+	golang.org/x/net v0.21.0
 	golang.org/x/tools v0.4.0
 )
 

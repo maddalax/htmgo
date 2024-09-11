@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"mhtml/h"
 	"mhtml/pages/base"
-	"mhtml/partials"
+	"mhtml/partials/patient"
 )
 
 func PatientsIndex(ctx *fiber.Ctx) *h.Page {
@@ -15,9 +15,9 @@ func PatientsIndex(ctx *fiber.Ctx) *h.Page {
 				h.Div(
 					h.Class("flex justify-between items-center"),
 					h.P("Manage Patients", h.Class("text-lg font-bold")),
-					partials.AddPatientButton(),
+					patient.AddPatientButton(),
 				),
-				h.ViewWithTriggers(partials.PatientList, "load", "patient-added from:body"),
+				h.ViewWithTriggers(patient.List, "load", "patient-added from:body"),
 			),
 		),
 	))

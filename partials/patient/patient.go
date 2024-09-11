@@ -1,4 +1,4 @@
-package partials
+package patient
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +16,7 @@ type Patient struct {
 	LocationName    string
 }
 
-func PatientList(ctx *fiber.Ctx) *h.Partial {
+func List(ctx *fiber.Ctx) *h.Partial {
 	patients, err := database.HList[Patient]("patients")
 
 	if err != nil {
@@ -36,7 +36,7 @@ func PatientList(ctx *fiber.Ctx) *h.Partial {
 	return h.NewPartial(h.Div(
 		h.Class("mt-8"),
 		h.Id("patient-list"),
-		h.List(patients, PatientRow),
+		h.List(patients, Row),
 	))
 }
 
@@ -54,7 +54,7 @@ func AddPatientSheet(ctx *fiber.Ctx) *h.Partial {
 
 func addPatientForm() *h.Node {
 	return h.Form(
-		h.Post("/api/patients"),
+		h.Post(h.GetPartialPath(Create)),
 		h.Class("flex flex-col gap-2"),
 		ui.Input(ui.InputProps{
 			Type:  "text",
@@ -84,7 +84,7 @@ func addPatientForm() *h.Node {
 	)
 }
 
-func PatientRow(patient *Patient, index int) *h.Node {
+func Row(patient *Patient, index int) *h.Node {
 	return h.Div(
 		h.Class("flex flex-col gap-2 rounded p-4", h.Ternary(index%2 == 0, "bg-red-100", "")),
 		h.Pf("Name: %s", patient.Name),

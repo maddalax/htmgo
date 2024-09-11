@@ -15,8 +15,10 @@ func NavBar() *h.Node {
 		{"Patients", "/patients"},
 	}
 
-	return h.Nav(h.Class("flex gap-4 items-center p-4 text-slate-600"), h.Children(h.Map(links, func(link Link) *h.Node {
-		return h.A(link.Name, h.Href(link.Path), h.Class("cursor-pointer hover:text-blue-400"))
-	}),
-	))
+	return h.Nav(h.Class("flex gap-4 items-center p-4 text-slate-600"),
+		h.Children(
+			h.Map(links, func(link Link) *h.Node {
+				return h.A(link.Name, h.Href(link.Path), h.Class("cursor-pointer hover:text-blue-400"))
+			}),
+		))
 }

@@ -38,6 +38,10 @@ func NewPageWithHttpMethod(httpMethod string, root *Node) *Page {
 	}
 }
 
+func WrapPartial(ctx *fiber.Ctx, cb func(ctx *fiber.Ctx) *Partial) *Node {
+	return cb(ctx).Root
+}
+
 func NewPartialWithHeaders(headers *Headers, root *Node) *Partial {
 	return &Partial{
 		Headers: headers,
