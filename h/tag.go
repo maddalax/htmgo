@@ -2,6 +2,7 @@ package h
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"html"
 	"net/url"
@@ -16,17 +17,6 @@ type Node struct {
 	text       string
 	value      string
 	changed    bool
-}
-
-func NewNode(tag string) Node {
-	return Node{
-		tag:        tag,
-		attributes: nil,
-		children:   nil,
-		text:       "",
-		value:      "",
-		id:         "",
-	}
 }
 
 type Action struct {
@@ -76,20 +66,37 @@ func MergeClasses(classes ...string) string {
 }
 
 func Id(value string) *Node {
+	if strings.HasPrefix(value, "#") {
+		value = value[1:]
+	}
 	return Attribute("id", value)
 }
 
-func Attribute(key string, value string) *Node {
+func Attributes(attrs map[string]string) *Node {
 	return &Node{
-		tag: "attribute",
-		attributes: map[string]string{
-			key: value,
-		},
+		tag:        "attribute",
+		attributes: attrs,
 	}
+}
+
+func Attribute(key string, value string) *Node {
+	return Attributes(map[string]string{key: value})
+}
+
+func Disabled() *Node {
+	return Attribute("disabled", "")
 }
 
 func Get(path string) *Node {
 	return Attribute("hx-get", path)
+}
+
+func GetPartial(partial func(ctx *fiber.Ctx) *Partial) *Node {
+	return Get(GetPartialPath(partial))
+}
+
+func GetPartialWithQs(partial func(ctx *fiber.Ctx) *Partial, qs string) *Node {
+	return Get(GetPartialPathWithQs(partial, qs))
 }
 
 func CreateTriggers(triggers ...string) []string {
@@ -100,14 +107,24 @@ type ReloadParams struct {
 	Triggers []string
 }
 
+func ViewOnLoad(partial func(ctx *fiber.Ctx) *Partial) *Node {
+	return View(partial, ReloadParams{
+		Triggers: CreateTriggers("load"),
+	})
+}
+
 func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) *Node {
-	return &Node{
-		tag: "attribute",
-		attributes: map[string]string{
-			"hx-get":     GetPartialPath(partial),
-			"hx-trigger": strings.Join(params.Triggers, ", "),
-		},
-	}
+	return Div(Attributes(map[string]string{
+		"hx-get":     GetPartialPath(partial),
+		"hx-trigger": strings.Join(params.Triggers, ", "),
+	}))
+}
+
+func ViewWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string) *Node {
+	return Div(Attributes(map[string]string{
+		"hx-get":     GetPartialPath(partial),
+		"hx-trigger": strings.Join(triggers, ", "),
+	}))
 }
 
 func GetWithQs(path string, qs map[string]string) *Node {
@@ -142,6 +159,10 @@ func Text(text string) *Node {
 	}
 }
 
+func Pf(format string, args ...interface{}) *Node {
+	return P(fmt.Sprintf(format, args...))
+}
+
 func Target(target string) *Node {
 	return Attribute("hx-target", target)
 }
@@ -166,37 +187,32 @@ func Placeholder(placeholder string) *Node {
 	return Attribute("placeholder", placeholder)
 }
 
-func Swap(swap string) *Node {
-	return Attribute("hx-swap", swap)
+func OutOfBandSwap(selector string) *Node {
+	return Attribute("hx-swap-oob",
+		Ternary(selector == "", "true", selector))
 }
 
 func Click(value string) *Node {
 	return Attribute("onclick", value)
 }
 
-func OnClickWs(handler string) *Node {
-	return Attribute("data-ws-click", handler)
+func Tag(tag string, children ...*Node) *Node {
+	return &Node{
+		tag:      tag,
+		children: children,
+	}
 }
 
 func Html(children ...*Node) *Node {
-	return &Node{
-		tag:      "html",
-		children: children,
-	}
+	return Tag("html", children...)
 }
 
 func Head(children ...*Node) *Node {
-	return &Node{
-		tag:      "head",
-		children: children,
-	}
+	return Tag("head", children...)
 }
 
 func Body(children ...*Node) *Node {
-	return &Node{
-		tag:      "body",
-		children: children,
-	}
+	return Tag("body", children...)
 }
 
 func Script(url string) *Node {
@@ -222,10 +238,7 @@ func RawScript(text string) *Node {
 }
 
 func Div(children ...*Node) *Node {
-	return &Node{
-		tag:      "div",
-		children: children,
-	}
+	return Tag("div", children...)
 }
 
 func Input(inputType string, children ...*Node) *Node {
@@ -233,26 +246,6 @@ func Input(inputType string, children ...*Node) *Node {
 		tag: "input",
 		attributes: map[string]string{
 			"type": inputType,
-		},
-		children: children,
-	}
-}
-
-func HStack(children ...*Node) *Node {
-	return &Node{
-		tag: "div",
-		attributes: map[string]string{
-			"class": "flex gap-2",
-		},
-		children: children,
-	}
-}
-
-func VStack(children ...*Node) *Node {
-	return &Node{
-		tag: "div",
-		attributes: map[string]string{
-			"class": "flex flex-col gap-2",
 		},
 		children: children,
 	}
@@ -290,10 +283,7 @@ func AppendChildren(node *Node, children ...*Node) *Node {
 }
 
 func Button(children ...*Node) *Node {
-	return &Node{
-		tag:      "button",
-		children: children,
-	}
+	return Tag("button", children...)
 }
 
 func Indicator(tag string) *Node {
@@ -316,6 +306,10 @@ func A(text string, children ...*Node) *Node {
 	}
 }
 
+func Nav(children ...*Node) *Node {
+	return Tag("nav", children...)
+}
+
 func Empty() *Node {
 	return &Node{
 		tag: "",
@@ -327,9 +321,57 @@ func BeforeRequestSetHtml(children ...*Node) *Node {
 	return Attribute("hx-on::before-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
 }
 
+func BeforeRequestSetAttribute(key string, value string) *Node {
+	return Attribute("hx-on::before-request", `this.setAttribute('`+key+`', '`+value+`')`)
+}
+
+func BeforeRequestSetText(text string) *Node {
+	return Attribute("hx-on::before-request", `this.innerText = '`+text+`'`)
+}
+
+func AfterRequestRemoveAttribute(key string, value string) *Node {
+	return Attribute("hx-on::after-request", `this.removeAttribute('`+key+`')`)
+}
+
+func IfQueryParam(key string, node *Node) *Node {
+	return Fragment(Attribute("hx-if-qp:"+key, "true"), node)
+}
+
+func Hidden() *Node {
+	return Attribute("style", "display:none")
+}
+
+func MatchQueryParam(defaultValue string, active string, m map[string]*Node) *Node {
+
+	rendered := make(map[string]string)
+	for s, node := range m {
+		rendered[s] = Render(node)
+	}
+
+	root := Tag("span",
+		m[active],
+		Trigger("url"),
+		Attribute("hx-match-qp", "true"),
+		Attribute("hx-match-qp-default", defaultValue),
+	)
+
+	for s, node := range rendered {
+		root = AppendChildren(root, Attribute("hx-match-qp-mapping:"+s, ``+html.EscapeString(node)+``))
+	}
+
+	return root
+}
+
 func AfterRequestSetHtml(children ...*Node) *Node {
 	serialized := Render(Fragment(children...))
 	return Attribute("hx-on::after-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
+}
+
+func Children(children []*Node) *Node {
+	return &Node{
+		tag:      FlagChildrenList,
+		children: children,
+	}
 }
 
 func If(condition bool, node *Node) *Node {
@@ -340,23 +382,77 @@ func If(condition bool, node *Node) *Node {
 	}
 }
 
-func JsIf(condition string, node *Node) *Node {
-	node1 := &Node{tag: "template"}
-	node1.AppendChild(Attribute("x-if", condition))
-	node1.AppendChild(node)
-	return node
-}
-
-func JsIfElse(condition string, node *Node, node2 *Node) *Node {
-	node1Template := Div(Attribute("x-show", condition), node)
-	node2Template := Div(Attribute("x-show", "!("+condition+")"), node2)
-	return Fragment(node1Template, node2Template)
-}
-
 func IfElse(condition bool, node *Node, node2 *Node) *Node {
 	if condition {
 		return node
 	} else {
 		return node2
 	}
+}
+
+func IfElseLazy(condition bool, cb1 func() *Node, cb2 func() *Node) *Node {
+	if condition {
+		return cb1()
+	} else {
+		return cb2()
+	}
+}
+
+func IfHtmxRequest(ctx *fiber.Ctx, node *Node) *Node {
+	if ctx.Get("HX-Request") != "" {
+		return node
+	}
+	return Empty()
+}
+
+type SwapArg struct {
+	Selector string
+	Content  *Node
+}
+
+func NewSwap(selector string, content *Node) SwapArg {
+	return SwapArg{
+		Selector: selector,
+		Content:  content,
+	}
+}
+
+func Swap(ctx *fiber.Ctx, content *Node) *Node {
+	return SwapWithSelector(ctx, "", content)
+}
+
+func SwapWithSelector(ctx *fiber.Ctx, selector string, content *Node) *Node {
+	if ctx == nil || ctx.Get("HX-Request") == "" {
+		return Empty()
+	}
+	return content.AppendChild(OutOfBandSwap(selector))
+}
+
+func SwapMany(ctx *fiber.Ctx, args ...SwapArg) *Node {
+	if ctx.Get("HX-Request") == "" {
+		return Empty()
+	}
+	for _, arg := range args {
+		arg.Content.AppendChild(OutOfBandSwap(arg.Selector))
+	}
+	return Fragment(Map(args, func(arg SwapArg) *Node {
+		return arg.Content
+	})...)
+}
+
+type OnRequestSwapArgs struct {
+	Target        string
+	Get           string
+	Default       *Node
+	BeforeRequest *Node
+	AfterRequest  *Node
+}
+
+func OnRequestSwap(args OnRequestSwapArgs) *Node {
+	return Div(args.Default,
+		BeforeRequestSetHtml(args.BeforeRequest),
+		AfterRequestSetHtml(args.AfterRequest),
+		Get(args.Get),
+		Target(args.Target),
+	)
 }

@@ -2,6 +2,7 @@ package h
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"html"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -12,6 +13,10 @@ type Headers = map[string]string
 type Partial struct {
 	Headers *Headers
 	Root    *Node
+}
+
+func (p *Partial) ToNode() *Node {
+	return p.Root
 }
 
 type Page struct {
@@ -55,5 +60,5 @@ func GetPartialPath(partial func(ctx *fiber.Ctx) *Partial) string {
 }
 
 func GetPartialPathWithQs(partial func(ctx *fiber.Ctx) *Partial, qs string) string {
-	return GetPartialPath(partial) + "?" + qs
+	return html.EscapeString(GetPartialPath(partial) + "?" + qs)
 }

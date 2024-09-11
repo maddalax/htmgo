@@ -3,14 +3,24 @@ package partials
 
 import "mhtml/h"
 import "github.com/gofiber/fiber/v2"
+import "mhtml/partials/sheet"
 
 func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 	path := ctx.Path()
-	if path == "SheetOpenCount" || path == "/mhtml/partials.SheetOpenCount" {
-		return SheetOpenCount(ctx)
+	if path == "NewsSheet" || path == "/mhtml/partials.NewsSheet" {
+		return NewsSheet(ctx)
 	}
-	if path == "Sheet" || path == "/mhtml/partials.Sheet" {
-		return Sheet(ctx)
+	if path == "NewsSheetOpenCount" || path == "/mhtml/partials.NewsSheetOpenCount" {
+		return NewsSheetOpenCount(ctx)
+	}
+	if path == "PatientList" || path == "/mhtml/partials.PatientList" {
+		return PatientList(ctx)
+	}
+	if path == "AddPatientForm" || path == "/mhtml/partials.AddPatientForm" {
+		return AddPatientForm(ctx)
+	}
+	if path == "Close" || path == "/mhtml/partials/sheet.Close" {
+		return sheet.Close(ctx)
 	}
 	return nil
 }

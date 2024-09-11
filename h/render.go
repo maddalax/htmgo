@@ -9,7 +9,8 @@ import (
 const FlagSkip = "skip"
 const FlagText = "text"
 const FlagRaw = "raw"
-const FlagAttributeList = "attribute-list"
+const FlagAttributeList = "x-attribute-list"
+const FlagChildrenList = "x-children-list"
 
 type Builder struct {
 	builder *strings.Builder
@@ -36,6 +37,21 @@ func (page Builder) renderNode(node *Node) {
 
 		if node.attributes == nil {
 			node.attributes = map[string]string{}
+		}
+
+		flatChildren := make([]*Node, 0)
+		for _, child := range node.children {
+			flatChildren = append(flatChildren, child)
+			if child.tag == FlagChildrenList {
+				for _, gc := range child.children {
+					flatChildren = append(flatChildren, gc)
+				}
+				child.tag = FlagSkip
+			}
+		}
+
+		if len(flatChildren) > 0 {
+			node.children = flatChildren
 		}
 
 		for _, child := range node.children {

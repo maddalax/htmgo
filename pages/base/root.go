@@ -2,19 +2,22 @@ package base
 
 import (
 	"mhtml/h"
+	"mhtml/partials"
+	"mhtml/partials/sheet"
 )
 
 func RootPage(children ...*h.Node) *h.Node {
 	return h.Html(
 		h.Head(
 			h.Script("https://cdn.tailwindcss.com"),
-			h.Script("https://unpkg.com/htmx.org@1.9.12"),
-			h.Script("https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"),
+			h.Script("https://unpkg.com/htmx.org@2.0.2"),
 			h.Script("/js/mhtml.js"),
 		),
 		h.Body(
-			h.VStack(
-				h.Class("flex flex-col gap-2 bg-gray-100 h-full"),
+			partials.NavBar(),
+			sheet.Closed(),
+			h.Div(
+				h.Class("flex flex-col gap-2 bg-white h-full"),
 				h.Fragment(children...),
 			),
 		),

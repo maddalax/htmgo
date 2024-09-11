@@ -43,7 +43,7 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 	}
 
 	bytes = []byte(cb(f))
-	formatEnabled := true
+	formatEnabled := false
 
 	if formatEnabled {
 		bytes, err = format.Source(bytes)

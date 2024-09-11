@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mhtml/database"
 	"mhtml/h"
+	"time"
 )
 
 func StoryList() *h.Node {
@@ -13,12 +14,14 @@ func StoryList() *h.Node {
 		return p
 	})
 
+	time.Sleep(200 * time.Millisecond)
+
 	if len(*posts) == 0 {
 		return h.P("No results found")
 	}
 
 	return h.Fragment(
-		h.VStack(h.List(*posts, func(item Post) *h.Node {
+		h.Div(h.List(*posts, func(item Post) *h.Node {
 			return StoryCard(item)
 		})),
 	)
@@ -26,7 +29,7 @@ func StoryList() *h.Node {
 
 func StoryCard(post Post) *h.Node {
 	url := fmt.Sprintf("/news/%d", post.Id)
-	return h.VStack(
+	return h.Div(
 		h.Class("items-center bg-indigo-200 p-4 rounded"),
 		h.A(post.Title, h.Href(url)),
 	)

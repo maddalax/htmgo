@@ -14,4 +14,7 @@ func RegisterPages(f *fiber.App) {
 	f.Get("/news", func(ctx *fiber.Ctx) error {
 		return h.HtmlView(ctx, ListPage(ctx))
 	})
+	f.Get("/patients", func(ctx *fiber.Ctx) error {
+		return h.HtmlView(ctx, PatientsIndex(ctx))
+	})
 }

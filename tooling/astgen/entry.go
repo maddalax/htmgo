@@ -17,8 +17,45 @@ type Page struct {
 	Import   string
 }
 
-func findPublicFuncsReturningHPartial(dir string) ([]string, error) {
-	var functions []string
+type Partial struct {
+	FuncName string
+	Package  string
+	Import   string
+}
+
+func sliceCommonPrefix(dir1, dir2 string) string {
+	// Use filepath.Clean to normalize the paths
+	dir1 = filepath.Clean(dir1)
+	dir2 = filepath.Clean(dir2)
+
+	// Find the common prefix
+	commonPrefix := dir1
+	if len(dir1) > len(dir2) {
+		commonPrefix = dir2
+	}
+
+	for !strings.HasPrefix(dir1, commonPrefix) {
+		commonPrefix = filepath.Dir(commonPrefix)
+	}
+
+	// Slice off the common prefix
+	slicedDir1 := strings.TrimPrefix(dir1, commonPrefix)
+	slicedDir2 := strings.TrimPrefix(dir2, commonPrefix)
+
+	// Remove leading slashes
+	slicedDir1 = strings.TrimPrefix(slicedDir1, string(filepath.Separator))
+	slicedDir2 = strings.TrimPrefix(slicedDir2, string(filepath.Separator))
+
+	// Return the longer one
+	if len(slicedDir1) > len(slicedDir2) {
+		return slicedDir1
+	}
+	return slicedDir2
+}
+
+func findPublicFuncsReturningHPartial(dir string) ([]Partial, error) {
+	var partials []Partial
+	cwd, _ := os.Getwd()
 
 	// Walk through the directory to find all Go files.
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -42,7 +79,7 @@ func findPublicFuncsReturningHPartial(dir string) ([]string, error) {
 		ast.Inspect(node, func(n ast.Node) bool {
 			// Check if the node is a function declaration.
 			if funcDecl, ok := n.(*ast.FuncDecl); ok {
-				// Only consider exported (public) functions.
+				// Only consider exported (public) partials.
 				if funcDecl.Name.IsExported() {
 					// Check the return type.
 					if funcDecl.Type.Results != nil {
@@ -53,7 +90,11 @@ func findPublicFuncsReturningHPartial(dir string) ([]string, error) {
 									// Check if the package name is 'h' and type is 'Partial'.
 									if ident, ok := selectorExpr.X.(*ast.Ident); ok && ident.Name == "h" {
 										if selectorExpr.Sel.Name == "Partial" {
-											functions = append(functions, funcDecl.Name.Name)
+											partials = append(partials, Partial{
+												Package:  node.Name.Name,
+												Import:   sliceCommonPrefix(cwd, filepath.Dir(path)),
+												FuncName: funcDecl.Name.Name,
+											})
 											break
 										}
 									}
@@ -73,7 +114,7 @@ func findPublicFuncsReturningHPartial(dir string) ([]string, error) {
 		return nil, err
 	}
 
-	return functions, nil
+	return partials, nil
 }
 
 func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
@@ -114,7 +155,7 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 										if selectorExpr.Sel.Name == "Page" {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
-												Import:   fmt.Sprintf("mhtml/%s", filepath.Dir(path)),
+												Import:   filepath.Dir(path),
 												Path:     path,
 												FuncName: funcDecl.Name.Name,
 											})
@@ -140,22 +181,30 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 	return pages, nil
 }
 
-func buildGetPartialFromContext(builder *CodeBuilder, funcs []string) {
+func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	fName := "GetPartialFromContext"
 
 	body := `
 		path := ctx.Path()
 	`
 
-	for _, f := range funcs {
-		if f == fName {
+	for _, f := range partials {
+		if f.FuncName == fName {
 			continue
 		}
+		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
+		path := fmt.Sprintf("/mhtml/%s.%s", f.Import, f.FuncName)
+
+		if f.Package == "partials" {
+			caller = f.FuncName
+			path = fmt.Sprintf("/mhtml/partials.%s", f.FuncName)
+		}
+
 		body += fmt.Sprintf(`
-			if path == "%s" || path == "/mhtml/partials.%s" {
+			if path == "%s" || path == "%s" {
 				return %s(ctx)
 			}
-		`, f, f, f)
+		`, f.FuncName, path, caller)
 	}
 
 	body += "return nil"
@@ -177,7 +226,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, funcs []string) {
 func writePartialsFile() {
 	cwd, _ := os.Getwd()
 	partialPath := filepath.Join(cwd, "partials")
-	funcs, err := findPublicFuncsReturningHPartial(partialPath)
+	partials, err := findPublicFuncsReturningHPartial(partialPath)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -189,7 +238,13 @@ func writePartialsFile() {
 	builder.AddImport("mhtml/h")
 	builder.AddImport("github.com/gofiber/fiber/v2")
 
-	buildGetPartialFromContext(builder, funcs)
+	for _, partial := range partials {
+		if partial.Import != "partials" {
+			builder.AddImport(fmt.Sprintf(`mhtml/%s`, partial.Import))
+		}
+	}
+
+	buildGetPartialFromContext(builder, partials)
 
 	WriteFile(filepath.Join("partials", "generated.go"), func(content *ast.File) string {
 		return builder.String()
