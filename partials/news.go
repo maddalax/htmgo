@@ -43,15 +43,15 @@ func NewsSheetOpenCount(ctx *fiber.Ctx) *h.Partial {
 	)
 }
 
-func SheetWrapper(children ...*h.Node) *h.Node {
+func SheetWrapper(children ...h.Renderable) h.Renderable {
 	return h.Div(h.Id("sheet-partial"), h.Fragment(children...))
 }
 
-func SheetClosed() *h.Node {
+func SheetClosed() h.Renderable {
 	return h.Div()
 }
 
-func SheetOpen() *h.Node {
+func SheetOpen() h.Renderable {
 	return h.Fragment(h.Div(
 		h.Class(`fixed top-0 right-0 h-full w-96 bg-gray-100 shadow-lg z-50`),
 		h.Div(

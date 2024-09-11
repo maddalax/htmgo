@@ -39,7 +39,7 @@ func (a App) start(app *fiber.App) {
 }
 
 func HtmlView(c *fiber.Ctx, page *Page) error {
-	root := page.Root
+	root := page.Root.Render()
 	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
 
 	if GetApp().LiveReload && root.tag == "html" {

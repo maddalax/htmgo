@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func StoryList() *h.Node {
+func StoryList() h.Renderable {
 
 	posts, _ := database.GetOrSet[[]Post]("posts", func() []Post {
 		p, _ := List()
@@ -21,13 +21,13 @@ func StoryList() *h.Node {
 	}
 
 	return h.Fragment(
-		h.Div(h.List(*posts, func(item Post, index int) *h.Node {
+		h.Div(h.List(*posts, func(item Post, index int) h.Renderable {
 			return StoryCard(item)
 		})),
 	)
 }
 
-func StoryCard(post Post) *h.Node {
+func StoryCard(post Post) h.Renderable {
 	url := fmt.Sprintf("/news/%d", post.Id)
 	return h.Div(
 		h.Class("items-center bg-indigo-200 p-4 rounded"),
@@ -35,7 +35,7 @@ func StoryCard(post Post) *h.Node {
 	)
 }
 
-func StoryFull(id string) *h.Node {
+func StoryFull(id string) h.Renderable {
 	post, err := Get(id)
 	if err != nil {
 		return h.P(err.Error())

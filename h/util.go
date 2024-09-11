@@ -6,6 +6,10 @@ import (
 	"net/url"
 )
 
+type Renderable interface {
+	Render() *Node
+}
+
 func Ternary[T any](value bool, a T, b T) T {
 	if value {
 		return a

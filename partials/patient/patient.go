@@ -52,7 +52,7 @@ func AddPatientSheet(ctx *fiber.Ctx) *h.Partial {
 		}))
 }
 
-func addPatientForm() *h.Node {
+func addPatientForm() h.Renderable {
 	return h.Form(
 		h.Post(h.GetPartialPath(Create)),
 		h.Class("flex flex-col gap-2"),
@@ -84,7 +84,7 @@ func addPatientForm() *h.Node {
 	)
 }
 
-func Row(patient *Patient, index int) *h.Node {
+func Row(patient *Patient, index int) h.Renderable {
 	return h.Div(
 		h.Class("flex flex-col gap-2 rounded p-4", h.Ternary(index%2 == 0, "bg-red-100", "")),
 		h.Pf("Name: %s", patient.Name),
@@ -92,7 +92,7 @@ func Row(patient *Patient, index int) *h.Node {
 	)
 }
 
-func AddPatientButton() *h.Node {
+func AddPatientButton() h.Renderable {
 	return ui.Button(ui.ButtonProps{
 		Id:     "add-patient",
 		Text:   "Add Patient",

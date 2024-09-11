@@ -7,12 +7,12 @@ import (
 
 type Props struct {
 	ClassName string
-	Root      *h.Node
+	Root      h.Renderable
 }
 
 var Id = "#active-modal"
 
-func Opened(props Props) *h.Node {
+func Opened(props Props) h.Renderable {
 	return h.Fragment(h.Div(
 		h.Class(`fixed top-0 right-0 h-full shadow-lg z-50`,
 			h.Ternary(props.ClassName != "", props.ClassName, "w-96 bg-gray-100")),
@@ -22,7 +22,7 @@ func Opened(props Props) *h.Node {
 		)))
 }
 
-func Closed() *h.Node {
+func Closed() h.Renderable {
 	return h.Div(h.Id(Id))
 }
 
@@ -32,7 +32,7 @@ func Close(ctx *fiber.Ctx) *h.Partial {
 	)
 }
 
-func closeButton() *h.Node {
+func closeButton() h.Renderable {
 	return h.Div(
 		h.Class("absolute top-0 right-0 p-3"),
 		h.Button(

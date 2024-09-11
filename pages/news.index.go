@@ -13,7 +13,7 @@ func ListPage(ctx *fiber.Ctx) *h.Page {
 	))
 }
 
-func list(ctx *fiber.Ctx) *h.Node {
+func list(ctx *fiber.Ctx) h.Renderable {
 	return h.Fragment(
 		h.ViewOnLoad(partials.NewsSheet),
 		h.Div(

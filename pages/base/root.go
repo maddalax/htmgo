@@ -6,7 +6,7 @@ import (
 	"mhtml/partials/sheet"
 )
 
-func RootPage(children ...*h.Node) *h.Node {
+func RootPage(children ...h.Renderable) h.Renderable {
 	return h.Html(
 		h.Head(
 			h.Script("https://cdn.tailwindcss.com"),

@@ -5,7 +5,7 @@ import (
 	"mhtml/ui"
 )
 
-func OpenSheetButton(open bool, children ...*h.Node) *h.Node {
+func OpenSheetButton(open bool, children ...h.Renderable) h.Renderable {
 	if open {
 		return ui.PrimaryButton(ui.ButtonProps{
 			Id:       "open-sheet",

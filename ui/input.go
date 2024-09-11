@@ -10,7 +10,7 @@ type InputProps struct {
 	DefaultValue string
 }
 
-func Input(props InputProps) *h.Node {
+func Input(props InputProps) h.Renderable {
 	input := h.Input(
 		props.Type,
 		h.Class("border p-2 rounded"),

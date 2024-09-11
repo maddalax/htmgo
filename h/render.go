@@ -39,14 +39,15 @@ func (page Builder) renderNode(node *Node) {
 			node.attributes = map[string]string{}
 		}
 
-		flatChildren := make([]*Node, 0)
+		flatChildren := make([]Renderable, 0)
 		for _, child := range node.children {
+			c := child.Render()
 			flatChildren = append(flatChildren, child)
-			if child.tag == FlagChildrenList {
-				for _, gc := range child.children {
+			if c.tag == FlagChildrenList {
+				for _, gc := range c.children {
 					flatChildren = append(flatChildren, gc)
 				}
-				child.tag = FlagSkip
+				c.tag = FlagSkip
 			}
 		}
 
@@ -56,30 +57,32 @@ func (page Builder) renderNode(node *Node) {
 
 		for _, child := range node.children {
 
+			c := child.Render()
 			if child == nil {
 				continue
 			}
 
-			if child.tag == "class" {
-				insertAttribute(node, "class", child.value)
-				child.tag = FlagSkip
+			if c.tag == "class" {
+				insertAttribute(node, "class", c.value)
+				c.tag = FlagSkip
 			}
 
-			if child.tag == FlagAttributeList {
-				for _, gc := range child.children {
-					for key, value := range gc.attributes {
+			if c.tag == FlagAttributeList {
+				for _, gc := range c.children {
+					gcr := gc.Render()
+					for key, value := range gcr.attributes {
 						insertAttribute(node, key, value)
 					}
-					gc.tag = FlagSkip
+					gcr.tag = FlagSkip
 				}
-				child.tag = FlagSkip
+				c.tag = FlagSkip
 			}
 
-			if child.tag == "attribute" {
-				for key, value := range child.attributes {
+			if c.tag == "attribute" {
+				for key, value := range c.attributes {
 					insertAttribute(node, key, value)
 				}
-				child.tag = FlagSkip
+				c.tag = FlagSkip
 			}
 		}
 
@@ -108,16 +111,18 @@ func (page Builder) renderNode(node *Node) {
 			continue
 		}
 
-		if child.tag == FlagText {
-			page.builder.WriteString(child.text)
+		c := child.Render()
+
+		if c.tag == FlagText {
+			page.builder.WriteString(c.text)
 			continue
 		}
-		if child.tag == FlagRaw {
-			page.builder.WriteString(child.value)
+		if c.tag == FlagRaw {
+			page.builder.WriteString(c.value)
 			continue
 		}
-		if child.tag != FlagSkip {
-			page.renderNode(child)
+		if c.tag != FlagSkip {
+			page.renderNode(c)
 		}
 	}
 	if node.tag != "" {
@@ -125,12 +130,12 @@ func (page Builder) renderNode(node *Node) {
 	}
 }
 
-func Render(node *Node) string {
+func Render(node Renderable) string {
 	start := time.Now()
 	builder := strings.Builder{}
 	page := Builder{
 		builder: &builder,
-		root:    node,
+		root:    node.Render(),
 	}
 	page.render()
 	d := page.builder.String()

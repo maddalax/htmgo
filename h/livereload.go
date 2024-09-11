@@ -24,7 +24,7 @@ func LiveReloadHandler(c *fiber.Ctx) error {
 	return c.SendString("")
 }
 
-func LiveReload() *Node {
+func LiveReload() Renderable {
 	return Div(Get("/livereload"), Trigger("every 200ms"))
 }
 

@@ -7,7 +7,7 @@ type Link struct {
 	Path string
 }
 
-func NavBar() *h.Node {
+func NavBar() h.Renderable {
 
 	links := []Link{
 		{"Home", "/"},
@@ -17,7 +17,7 @@ func NavBar() *h.Node {
 
 	return h.Nav(h.Class("flex gap-4 items-center p-4 text-slate-600"),
 		h.Children(
-			h.Map(links, func(link Link) *h.Node {
+			h.Map(links, func(link Link) h.Renderable {
 				return h.A(link.Name, h.Href(link.Path), h.Class("cursor-pointer hover:text-blue-400"))
 			}),
 		))

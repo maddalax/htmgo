@@ -15,23 +15,27 @@ type Partial struct {
 	Root    *Node
 }
 
+func (p *Partial) Render() *Node {
+	return p.Root
+}
+
 func (p *Partial) ToNode() *Node {
 	return p.Root
 }
 
 type Page struct {
-	Root       *Node
+	Root       Renderable
 	HttpMethod string
 }
 
-func NewPage(root *Node) *Page {
+func NewPage(root Renderable) *Page {
 	return &Page{
 		HttpMethod: http.MethodGet,
 		Root:       root,
 	}
 }
 
-func NewPageWithHttpMethod(httpMethod string, root *Node) *Page {
+func NewPageWithHttpMethod(httpMethod string, root Renderable) *Page {
 	return &Page{
 		HttpMethod: httpMethod,
 		Root:       root,
@@ -42,16 +46,16 @@ func WrapPartial(ctx *fiber.Ctx, cb func(ctx *fiber.Ctx) *Partial) *Node {
 	return cb(ctx).Root
 }
 
-func NewPartialWithHeaders(headers *Headers, root *Node) *Partial {
+func NewPartialWithHeaders(headers *Headers, root Renderable) *Partial {
 	return &Partial{
 		Headers: headers,
-		Root:    root,
+		Root:    root.Render(),
 	}
 }
 
-func NewPartial(root *Node) *Partial {
+func NewPartial(root Renderable) *Partial {
 	return &Partial{
-		Root: root,
+		Root: root.Render(),
 	}
 }
 
