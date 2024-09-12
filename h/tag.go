@@ -81,6 +81,10 @@ func Attribute(key string, value string) Renderable {
 	return Attributes(map[string]string{key: value})
 }
 
+func TriggerChildren() Renderable {
+	return Attribute("hx-trigger-children", "")
+}
+
 func Disabled() Renderable {
 	return Attribute("disabled", "")
 }
@@ -103,6 +107,7 @@ func CreateTriggers(triggers ...string) []string {
 
 type ReloadParams struct {
 	Triggers []string
+	Target   string
 }
 
 func ViewOnLoad(partial func(ctx *fiber.Ctx) *Partial) Renderable {
@@ -115,10 +120,11 @@ func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) Renderable
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(params.Triggers, ", "),
+		"hx-target":  params.Target,
 	}))
 }
 
-func ViewWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string) Renderable {
+func PartialWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string) Renderable {
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(triggers, ", "),
@@ -126,20 +132,7 @@ func ViewWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string)
 }
 
 func GetWithQs(path string, qs map[string]string) Renderable {
-	u, err := url.Parse(path)
-	if err != nil {
-		return Empty()
-	}
-
-	q := u.Query()
-
-	for s := range qs {
-		q.Add(s, qs[s])
-	}
-
-	u.RawQuery = q.Encode()
-
-	return Get(u.String())
+	return Get(SetQueryParams(path, qs))
 }
 
 func Post(url string) Renderable {
@@ -239,6 +232,49 @@ func Div(children ...Renderable) Renderable {
 	return Tag("div", children...)
 }
 
+func PushUrlHeader(url string) *Headers {
+	return NewHeaders("HX-Push-Url", url)
+}
+
+func CombineHeaders(headers ...*Headers) *Headers {
+	m := make(Headers)
+	for _, h := range headers {
+		for k, v := range *h {
+			m[k] = v
+		}
+	}
+	return &m
+}
+
+func CurrentPath(ctx *fiber.Ctx) string {
+	current := ctx.Get("Hx-Current-Url")
+	parsed, err := url.Parse(current)
+	if err != nil {
+		return ""
+	}
+	return parsed.Path
+}
+
+func PushQsHeader(ctx *fiber.Ctx, key string, value string) *Headers {
+	current := ctx.Get("Hx-Current-Url")
+	parsed, err := url.Parse(current)
+	if err != nil {
+		return NewHeaders()
+	}
+	return NewHeaders("HX-Push-Url", SetQueryParams(parsed.Path, map[string]string{
+		key: value,
+	}))
+}
+
+func NewHeaders(headers ...string) *Headers {
+	m := make(Headers)
+	for i := 0; i < len(headers); i++ {
+		m[headers[i]] = headers[i+1]
+		i++
+	}
+	return &m
+}
+
 func Input(inputType string, children ...Renderable) Renderable {
 	return &Node{
 		tag: "input",
@@ -329,6 +365,10 @@ func BeforeRequestSetAttribute(key string, value string) Renderable {
 
 func BeforeRequestSetText(text string) Renderable {
 	return Attribute("hx-on::before-request", `this.innerText = '`+text+`'`)
+}
+
+func AfterRequestSetText(text string) Renderable {
+	return Attribute("hx-on::after-request", `this.innerText = '`+text+`'`)
 }
 
 func AfterRequestRemoveAttribute(key string, value string) Renderable {

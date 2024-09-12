@@ -40,26 +40,36 @@ func List(ctx *fiber.Ctx) *h.Partial {
 	))
 }
 
-func AddPatientSheet(ctx *fiber.Ctx) *h.Partial {
-	return h.NewPartial(sheet.Opened(
+func AddPatientSheetPartial(ctx *fiber.Ctx) *h.Partial {
+	return h.NewPartialWithHeaders(
+		h.PushQsHeader(ctx, "adding", "true"),
+		AddPatientSheet(h.CurrentPath(ctx)),
+	)
+}
+
+func AddPatientSheet(onClosePath string) h.Renderable {
+	return sheet.Opened(
 		sheet.Props{
-			ClassName: "w-[400px] bg-gray-100 p-4",
+			OnClosePath: onClosePath,
+			ClassName:   "w-[400px] bg-gray-100 p-4",
 			Root: h.Div(
 				h.Class("flex flex-col gap-4"),
 				h.P("Add Patient", h.Class("text-lg font-bold")),
 				addPatientForm(),
 			),
-		}))
+		})
 }
 
 func addPatientForm() h.Renderable {
 	return h.Form(
+		h.TriggerChildren(),
 		h.Post(h.GetPartialPath(Create)),
 		h.Class("flex flex-col gap-2"),
 		ui.Input(ui.InputProps{
-			Type:  "text",
-			Label: "Name",
-			Name:  "name",
+			Type:         "text",
+			Label:        "Name",
+			Name:         "name",
+			DefaultValue: "fart",
 		}),
 		ui.Input(ui.InputProps{
 			Type:  "text",
@@ -98,6 +108,6 @@ func AddPatientButton() h.Renderable {
 		Text:   "Add Patient",
 		Class:  "bg-blue-700 text-white rounded p-2 h-12",
 		Target: sheet.Id,
-		Get:    h.GetPartialPath(AddPatientSheet),
+		Get:    h.GetPartialPath(AddPatientSheetPartial),
 	})
 }

@@ -25,7 +25,7 @@ func LiveReloadHandler(c *fiber.Ctx) error {
 }
 
 func LiveReload() Renderable {
-	return Div(Get("/livereload"), Trigger("every 200ms"))
+	return Div(Get("/livereload"), Trigger("every 2s"))
 }
 
 func AddLiveReloadHandler(path string, app *fiber.App) {

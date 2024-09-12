@@ -21,9 +21,11 @@ func Create(ctx *fiber.Ctx) *h.Partial {
 		LocationName:    location,
 	})
 
-	headers := &map[string]string{
+	headers := h.CombineHeaders(h.PushQsHeader(ctx, "adding", ""), &map[string]string{
 		"HX-Trigger": "patient-added",
-	}
+	})
 
-	return h.NewPartialWithHeaders(headers, h.WrapPartial(ctx, sheet.Close))
+	return h.NewPartialWithHeaders(
+		headers,
+		sheet.Close(ctx))
 }

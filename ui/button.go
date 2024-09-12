@@ -36,7 +36,10 @@ func Button(props ButtonProps) h.Renderable {
 		h.Class("flex gap-1 items-center border p-4 rounded cursor-hover", props.Class),
 		h.If(props.Get != "", h.Get(props.Get)),
 		h.If(props.Target != "", h.Target(props.Target)),
+		//h.Attribute("hx-indicator", "#spinner"),
 		h.IfElse(props.Type != "", h.Type(props.Type), h.Type("button")),
+		h.BeforeRequestSetText("Loading..."),
+		h.AfterRequestSetText(props.Text),
 		text,
 	)
 

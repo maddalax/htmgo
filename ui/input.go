@@ -16,7 +16,7 @@ func Input(props InputProps) h.Renderable {
 		h.Class("border p-2 rounded"),
 		h.If(props.Id != "", h.Id(props.Id)),
 		h.If(props.Name != "", h.Name(props.Name)),
-		h.If(props.DefaultValue != "", h.Attribute("defaultValue", props.DefaultValue)),
+		h.If(props.DefaultValue != "", h.Attribute("value", props.DefaultValue)),
 	)
 	if props.Label != "" {
 		return h.Div(

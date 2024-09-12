@@ -19,10 +19,6 @@ func (p *Partial) Render() *Node {
 	return p.Root
 }
 
-func (p *Partial) ToNode() *Node {
-	return p.Root
-}
-
 type Page struct {
 	Root       Renderable
 	HttpMethod string
@@ -40,10 +36,6 @@ func NewPageWithHttpMethod(httpMethod string, root Renderable) *Page {
 		HttpMethod: httpMethod,
 		Root:       root,
 	}
-}
-
-func WrapPartial(ctx *fiber.Ctx, cb func(ctx *fiber.Ctx) *Partial) *Node {
-	return cb(ctx).Root
 }
 
 func NewPartialWithHeaders(headers *Headers, root Renderable) *Partial {

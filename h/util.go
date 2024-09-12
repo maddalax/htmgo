@@ -46,3 +46,20 @@ func GetQueryParam(ctx *fiber.Ctx, key string) string {
 	}
 	return value
 }
+
+func SetQueryParams(href string, qs map[string]string) string {
+	u, err := url.Parse(href)
+	if err != nil {
+		return href
+	}
+	q := u.Query()
+	for key, value := range qs {
+		if value == "" {
+			q.Del(key)
+		} else {
+			q.Set(key, value)
+		}
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
+}

@@ -1,11 +1,29 @@
 window.onload = function () {
     // htmx.logger = function(elt, event, data) {
     //     if(console) {
-    //         console.log(event);
+    //         console.log(elt, event, data);
     //     }
     // }
     // onUrlChange(window.location.href);
 
+
+    function triggerChildren(event) {
+        const target = event.detail.target
+        const type = event.type
+        if(target && target.children && target.hasAttribute('hx-trigger-children')) {
+            Array.from(target.children).forEach(function(element) {
+                htmx.trigger(element, type);
+            });
+        }
+    }
+
+    const events = ['htmx:beforeRequest', 'htmx:afterRequest', 'htmx:responseError', 'htmx:sendError',
+        'htmx:timeout', 'htmx:xhr:abort',
+        'htmx:xhr:loadstart', 'htmx:xhr:loadend', 'htmx:xhr:progress']
+
+    events.forEach(function(event) {
+        document.addEventListener(event, triggerChildren)
+    })
 
     window.history.pushState = new Proxy(window.history.pushState, {
         apply: (target, thisArg, argArray) => {

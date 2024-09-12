@@ -36,19 +36,13 @@ func main() {
 		duration := time.Since(now)
 		ctx.Set("X-Response-Time", duration.String())
 		// Log or print the request method, URL, and duration
-		log.Printf("Request: %s %s took %v", ctx.Method(), ctx.OriginalURL(), duration)
+		log.Printf("Request: %s %s took %dms", ctx.Method(), ctx.OriginalURL(), duration.Milliseconds())
 		return err
 	})
 
-	f.All("/mhtml/partials*", func(ctx *fiber.Ctx) error {
-		partial := partials.GetPartialFromContext(ctx)
-		if partial == nil {
-			return ctx.SendStatus(404)
-		}
-		return h.PartialView(ctx, partial)
-	})
-
+	partials.RegisterPartials(f)
 	pages.RegisterPages(f)
+
 	h.Start(f, h.App{
 		LiveReload: true,
 	})

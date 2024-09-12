@@ -57,10 +57,11 @@ func (page Builder) renderNode(node *Node) {
 
 		for _, child := range node.children {
 
-			c := child.Render()
 			if child == nil {
 				continue
 			}
+
+			c := child.Render()
 
 			if c.tag == "class" {
 				insertAttribute(node, "class", c.value)
@@ -140,6 +141,6 @@ func Render(node Renderable) string {
 	page.render()
 	d := page.builder.String()
 	duration := time.Since(start)
-	fmt.Printf("render took %s\n", duration)
+	fmt.Printf("render took %d\n", duration.Microseconds())
 	return d
 }
