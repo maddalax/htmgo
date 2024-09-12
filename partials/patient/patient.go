@@ -34,6 +34,7 @@ func List(ctx *fiber.Ctx) *h.Partial {
 	}
 
 	return h.NewPartial(h.Div(
+		h.HxExtension("debug"),
 		h.Class("mt-8"),
 		h.Id("patient-list"),
 		h.List(patients, Row),
@@ -41,9 +42,12 @@ func List(ctx *fiber.Ctx) *h.Partial {
 }
 
 func AddPatientSheetPartial(ctx *fiber.Ctx) *h.Partial {
+	closePathQs := h.GetQueryParam(ctx, "onClosePath")
 	return h.NewPartialWithHeaders(
 		h.PushQsHeader(ctx, "adding", "true"),
-		AddPatientSheet(h.CurrentPath(ctx)),
+		AddPatientSheet(
+			h.Ternary(closePathQs != "", closePathQs, h.CurrentPath(ctx)),
+		),
 	)
 }
 
@@ -104,10 +108,11 @@ func Row(patient *Patient, index int) h.Renderable {
 
 func AddPatientButton() h.Renderable {
 	return ui.Button(ui.ButtonProps{
-		Id:     "add-patient",
-		Text:   "Add Patient",
-		Class:  "bg-blue-700 text-white rounded p-2 h-12",
-		Target: sheet.Id,
-		Get:    h.GetPartialPath(AddPatientSheetPartial),
+		Id:      "add-patient",
+		Text:    "Add Patient",
+		Class:   "bg-blue-700 text-white rounded p-2 h-12",
+		Trigger: "qs:adding, click",
+		Target:  sheet.Id,
+		Get:     h.GetPartialPathWithQs(AddPatientSheetPartial, "onClosePath=/patients"),
 	})
 }

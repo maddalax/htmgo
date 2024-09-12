@@ -31,7 +31,7 @@ func Button(props ButtonProps) h.Renderable {
 
 	button := h.Button(
 		h.If(props.Id != "", h.Id(props.Id)),
-		h.If(props.Children != nil, h.Children(props.Children)),
+		h.If(props.Children != nil, h.Children(props.Children...)),
 		h.If(props.Trigger != "", h.Trigger(props.Trigger)),
 		h.Class("flex gap-1 items-center border p-4 rounded cursor-hover", props.Class),
 		h.If(props.Get != "", h.Get(props.Get)),

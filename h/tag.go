@@ -77,12 +77,20 @@ func Attributes(attrs map[string]string) Renderable {
 	}
 }
 
+func Boost() Renderable {
+	return Attribute("hx-boost", "true")
+}
+
 func Attribute(key string, value string) Renderable {
 	return Attributes(map[string]string{key: value})
 }
 
 func TriggerChildren() Renderable {
-	return Attribute("hx-trigger-children", "")
+	return HxExtension("trigger-children")
+}
+
+func HxExtension(value string) Renderable {
+	return Attribute("hx-ext", value)
 }
 
 func Disabled() Renderable {
@@ -108,6 +116,7 @@ func CreateTriggers(triggers ...string) []string {
 type ReloadParams struct {
 	Triggers []string
 	Target   string
+	Children Renderable
 }
 
 func ViewOnLoad(partial func(ctx *fiber.Ctx) *Partial) Renderable {
@@ -121,7 +130,7 @@ func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) Renderable
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(params.Triggers, ", "),
 		"hx-target":  params.Target,
-	}))
+	}), params.Children)
 }
 
 func PartialWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string) Renderable {
@@ -232,8 +241,8 @@ func Div(children ...Renderable) Renderable {
 	return Tag("div", children...)
 }
 
-func PushUrlHeader(url string) *Headers {
-	return NewHeaders("HX-Push-Url", url)
+func ReplaceUrlHeader(url string) *Headers {
+	return NewHeaders("HX-Replace-Url", url)
 }
 
 func CombineHeaders(headers ...*Headers) *Headers {
@@ -261,7 +270,7 @@ func PushQsHeader(ctx *fiber.Ctx, key string, value string) *Headers {
 	if err != nil {
 		return NewHeaders()
 	}
-	return NewHeaders("HX-Push-Url", SetQueryParams(parsed.Path, map[string]string{
+	return NewHeaders("HX-Replace-Url", SetQueryParams(parsed.Path, map[string]string{
 		key: value,
 	}))
 }
@@ -409,7 +418,7 @@ func AfterRequestSetHtml(children ...Renderable) Renderable {
 	return Attribute("hx-on::after-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
 }
 
-func Children(children []Renderable) Renderable {
+func Children(children ...Renderable) Renderable {
 	return &Node{
 		tag:      FlagChildrenList,
 		children: children,

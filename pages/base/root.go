@@ -8,10 +8,10 @@ import (
 
 func RootPage(children ...h.Renderable) h.Renderable {
 	return h.Html(
+		h.HxExtension("path-deps"),
 		h.Head(
 			h.Script("https://cdn.tailwindcss.com"),
-			h.Script("https://unpkg.com/htmx.org@2.0.2"),
-			h.Script("/js/mhtml.js"),
+			h.Script("/js/dist/mhtml.js"),
 		),
 		h.Body(
 			partials.NavBar(),

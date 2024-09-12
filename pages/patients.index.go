@@ -5,7 +5,6 @@ import (
 	"mhtml/h"
 	"mhtml/pages/base"
 	"mhtml/partials/patient"
-	"mhtml/partials/sheet"
 )
 
 func PatientsIndex(ctx *fiber.Ctx) *h.Page {
@@ -18,13 +17,10 @@ func PatientsIndex(ctx *fiber.Ctx) *h.Page {
 					h.P("Manage Patients", h.Class("text-lg font-bold")),
 					patient.AddPatientButton(),
 				),
-				h.PartialWithTriggers(patient.List, "load", "patient-added from:body", "every 5s"),
-				h.If(
-					h.GetQueryParam(ctx, "adding") == "true",
-					h.View(patient.AddPatientSheetPartial, h.ReloadParams{
-						Triggers: h.CreateTriggers("load"),
-						Target:   sheet.Id,
-					})),
+				h.View(patient.List, h.ReloadParams{
+					Triggers: h.CreateTriggers("load", "path-deps"),
+					Children: h.Children(h.Attribute("path-deps", h.GetPartialPath(patient.Create))),
+				}),
 			),
 		),
 	))
