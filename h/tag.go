@@ -453,6 +453,10 @@ func IfElseLazy(condition bool, cb1 func() Renderable, cb2 func() Renderable) Re
 	}
 }
 
+func GetTriggerName(ctx *fiber.Ctx) string {
+	return ctx.Get("HX-Trigger-Name")
+}
+
 func IfHtmxRequest(ctx *fiber.Ctx, node Renderable) Renderable {
 	if ctx.Get("HX-Request") != "" {
 		return node

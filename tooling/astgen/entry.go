@@ -195,11 +195,6 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
 		path := fmt.Sprintf("/mhtml/%s.%s", f.Import, f.FuncName)
 
-		if f.Package == "partials" {
-			caller = f.FuncName
-			path = fmt.Sprintf("/mhtml/partials.%s", f.FuncName)
-		}
-
 		body += fmt.Sprintf(`
 			if path == "%s" || path == "%s" {
 				return %s(ctx)
@@ -234,19 +229,21 @@ func writePartialsFile() {
 
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
-	builder.AppendLine("package partials")
+	builder.AppendLine("package load")
 	builder.AddImport("mhtml/h")
 	builder.AddImport("github.com/gofiber/fiber/v2")
 
 	for _, partial := range partials {
-		if partial.Import != "partials" {
-			builder.AddImport(fmt.Sprintf(`mhtml/%s`, partial.Import))
+		if partial.Import == "partials/load" {
+			continue
 		}
+		fmt.Println(partial.Import)
+		builder.AddImport(fmt.Sprintf(`mhtml/%s`, partial.Import))
 	}
 
 	buildGetPartialFromContext(builder, partials)
 
-	WriteFile(filepath.Join("partials", "generated.go"), func(content *ast.File) string {
+	WriteFile(filepath.Join("partials", "load", "generated.go"), func(content *ast.File) string {
 		return builder.String()
 	})
 }

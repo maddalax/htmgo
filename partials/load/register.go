@@ -1,4 +1,4 @@
-package partials
+package load
 
 import (
 	"github.com/gofiber/fiber/v2"

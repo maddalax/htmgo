@@ -6,7 +6,7 @@ import (
 	"log"
 	"mhtml/h"
 	"mhtml/pages"
-	"mhtml/partials"
+	"mhtml/partials/load"
 	"time"
 )
 
@@ -40,7 +40,7 @@ func main() {
 		return err
 	})
 
-	partials.RegisterPartials(f)
+	load.RegisterPartials(f)
 	pages.RegisterPages(f)
 
 	h.Start(f, h.App{

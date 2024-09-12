@@ -6,6 +6,7 @@ import (
 	"mhtml/h"
 	"mhtml/partials/sheet"
 	"mhtml/ui"
+	"strings"
 	"time"
 )
 
@@ -64,21 +65,48 @@ func AddPatientSheet(onClosePath string) h.Renderable {
 		})
 }
 
+func ValidateForm(ctx *fiber.Ctx) *h.Partial {
+	trigger := h.GetTriggerName(ctx)
+	value := ctx.FormValue(trigger)
+
+	if trigger == "name" {
+		if strings.ToLower(value) == "sydne" {
+			return h.NewPartial(h.P("that name is reserved"))
+		}
+	}
+
+	if trigger == "reason-for-visit" {
+		if strings.ToLower(value) == "arm hurts" {
+			return h.NewPartial(h.P("lol that reason is fake"))
+		}
+	}
+
+	if trigger == "location-name" {
+		if strings.ToLower(value) == "hospital" {
+			return h.NewPartial(h.P("that location is reserved"))
+		}
+	}
+
+	return h.NewPartial(h.Fragment())
+}
+
 func addPatientForm() h.Renderable {
 	return h.Form(
 		h.TriggerChildren(),
 		h.Post(h.GetPartialPath(Create)),
 		h.Class("flex flex-col gap-2"),
 		ui.Input(ui.InputProps{
-			Type:         "text",
-			Label:        "Name",
-			Name:         "name",
-			DefaultValue: "fart",
+			Type:           "text",
+			Label:          "Name",
+			Name:           "name",
+			DefaultValue:   "",
+			ValidationPath: h.GetPartialPath(ValidateForm),
 		}),
 		ui.Input(ui.InputProps{
-			Type:  "text",
-			Label: "Reason for visit",
-			Name:  "reason-for-visit",
+			Type:           "text",
+			Label:          "Reason for visit",
+			Name:           "reason-for-visit",
+			ValidationPath: h.GetPartialPath(ValidateForm),
 		}),
 		ui.Input(ui.InputProps{
 			Type:  "date",
@@ -86,9 +114,10 @@ func addPatientForm() h.Renderable {
 			Name:  "appointment-date",
 		}),
 		ui.Input(ui.InputProps{
-			Type:  "text",
-			Label: "Location Name",
-			Name:  "location-name",
+			Type:           "text",
+			Label:          "Location Name",
+			Name:           "location-name",
+			ValidationPath: h.GetPartialPath(ValidateForm),
 		}),
 		ui.PrimaryButton(ui.ButtonProps{
 			Text:  "Add Patient",

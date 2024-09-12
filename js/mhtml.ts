@@ -1,6 +1,6 @@
 import * as htmx from "htmx.org";
 import "./extensions/pathdeps";
-import "./extensions/triggerchildren";
+import "./extensions/trigger-children";
 import "./extensions/debug";
 
 declare module "htmx.org" {

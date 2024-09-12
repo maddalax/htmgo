@@ -1,6 +1,6 @@
 # Command to run and watch the Go application using Air
 run-app:
-    air
+    just run-gen && air & just watch-js & just watch-gen
 
 run-gen:
     go run ./tooling/astgen
