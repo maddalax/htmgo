@@ -1,0 +1,57 @@
+version: '3'
+
+interval: 500ms
+
+tasks:
+
+  setup:
+    deps: [copy-framework-assets, ast]
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Setup the project
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  run:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Run the project
+    cmds:
+      - task: setup
+        dir: '{{.USER_WORKING_DIR}}'
+      - go run .
+
+  build:
+    deps: [setup]
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Build the project
+    cmds:
+      - rm -rf ./dist
+      - mkdir -p ./dist/assets
+      - cp -r ./assets ./dist/assets
+      - go build -o "./dist" .
+      - echo "Build successful"
+
+  copy-framework-assets:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Copy framework assets
+    cmds:
+      - go run github.com/maddalax/mhtml/framework/tooling/copyassets
+
+  ast:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate AST from source code
+    generates:
+      - '**/generated.go'
+    cmds:
+      - go run github.com/maddalax/mhtml/framework/tooling/astgen
+
+  ast-watch:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate AST from source code and watch for changes
+    watch: true
+    generates:
+      - '**/generated.go'
+    sources:
+      - '**/*.go'
+    cmds:
+      - go run github.com/maddalax/mhtml/framework/tooling/astgen

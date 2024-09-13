@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/mhtml/framework v0.0.0-20240913182902-723438a677ae
+	github.com/maddalax/mhtml/framework v0.0.0-20240913185752-4130d7fab5eb
 	github.com/maddalax/mhtml/framework-ui v0.0.0-20240913172832-ad335247426d
 	github.com/redis/go-redis/v9 v9.6.1
 )

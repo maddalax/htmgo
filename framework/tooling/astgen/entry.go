@@ -344,6 +344,7 @@ func GetModuleName() string {
 }
 
 func main() {
+	fmt.Println("Generating partials...")
 	writePartialsFile()
 	writePagesFile()
 }
