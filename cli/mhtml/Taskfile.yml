@@ -1,0 +1,23 @@
+version: '3'
+
+interval: 500ms
+
+tasks:
+  ast:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate AST from source code
+    generates:
+      - '**/generated.go'
+    cmds:
+      - go run github.com/maddalax/mhtml/framework/tooling/astgen
+
+  ast-watch:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate AST from source code and watch for changes
+    watch: true
+    generates:
+      - '**/generated.go'
+    sources:
+      - '**/*.go'
+    cmds:
+      - go run github.com/maddalax/mhtml/framework/tooling/astgen

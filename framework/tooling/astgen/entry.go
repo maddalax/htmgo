@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"golang.org/x/mod/modfile"
 	"os"
 	"path/filepath"
 	"strings"
@@ -188,12 +189,13 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 		path := ctx.Path()
 	`
 
+	moduleName := GetModuleName()
 	for _, f := range partials {
 		if f.FuncName == fName {
 			continue
 		}
 		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
-		path := fmt.Sprintf("/mhtml/%s.%s", f.Import, f.FuncName)
+		path := fmt.Sprintf("/%s/%s.%s", moduleName, f.Import, f.FuncName)
 
 		body += fmt.Sprintf(`
 			if path == "%s" || path == "%s" {
@@ -216,6 +218,20 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	}
 
 	builder.Append(builder.BuildFunction(f))
+
+	registerFunction := fmt.Sprintf(`
+		func RegisterPartials(f *fiber.App) {
+			f.All("%s/partials*", func(ctx *fiber.Ctx) error {
+			partial := GetPartialFromContext(ctx)
+			if partial == nil {
+				return ctx.SendStatus(404)
+			}
+			return h.PartialView(ctx, partial)
+			})
+		}
+	`, moduleName)
+
+	builder.AppendLine(registerFunction)
 }
 
 func writePartialsFile() {
@@ -230,15 +246,16 @@ func writePartialsFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package load")
-	builder.AddImport("mhtml/h")
+	builder.AddImport("github.com/maddalax/mhtml/framework/h")
 	builder.AddImport("github.com/gofiber/fiber/v2")
 
+	moduleName := GetModuleName()
 	for _, partial := range partials {
 		if partial.Import == "partials/load" {
 			continue
 		}
 		fmt.Println(partial.Import)
-		builder.AddImport(fmt.Sprintf(`mhtml/%s`, partial.Import))
+		builder.AddImport(fmt.Sprintf(`%s/%s`, moduleName, partial.Import))
 	}
 
 	buildGetPartialFromContext(builder, partials)
@@ -272,7 +289,7 @@ func writePagesFile() {
 	builder.AppendLine(`// Package pages THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package pages")
 	builder.AddImport("github.com/gofiber/fiber/v2")
-	builder.AddImport("mhtml/h")
+	builder.AddImport("github.com/maddalax/mhtml/framework/h")
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
 
@@ -312,6 +329,18 @@ func writePagesFile() {
 	WriteFile("pages/generated.go", func(content *ast.File) string {
 		return builder.String()
 	})
+}
+
+func GetModuleName() string {
+	wd, _ := os.Getwd()
+	modPath := filepath.Join(wd, "go.mod")
+	goModBytes, err := os.ReadFile(modPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading go.mod: %v\n", err)
+		os.Exit(1)
+	}
+	modName := modfile.ModulePath(goModBytes)
+	return modName
 }
 
 func main() {

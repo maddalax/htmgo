@@ -1,10 +1,8 @@
 // Package pages THIS FILE IS GENERATED. DO NOT EDIT.
 package pages
 
-import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/maddalax/mhtml/framework/h"
-)
+import "github.com/gofiber/fiber/v2"
+import "github.com/maddalax/mhtml/framework/h"
 
 func RegisterPages(f *fiber.App) {
 	f.Get("/", func(ctx *fiber.Ctx) error {
