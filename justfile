@@ -1,17 +1,24 @@
-# Command to run and watch the Go application using Air
 run-app:
     just run-gen && air & just watch-js & just watch-gen
 
 bundle:
     rm -rf dist
     rm -rf assets/dist
+    mkdir -p dist/assets/dist
     just run-gen
-    go build .
+    GOOS=linux GOARCH=amd64 go build -o dist/mhtml .
     cd assets/js && npm run build
     just build-css
-    mkdir -p dist/assets/dist
     cp -r assets/dist/* dist/assets/dist
-    cp mhtml dist/
+    tar -czvf mhtml-release.tar.gz ./dist
+    rm -rf dist
+    mkdir -p dist
+    mv mhtml-release.tar.gz dist
+
+release-version := '1.0.0'
+release:
+    just bundle
+    gh release create {{release-version}} dist/mhtml-release.tar.gz --title "Release {{release-version}}" --prerelease --notes "new release"
 
 run-gen:
     go run ./tooling/astgen
