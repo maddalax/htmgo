@@ -38,7 +38,15 @@ func deleteAllExceptTemplate(outPath string, excludeDir string) {
 }
 
 func main() {
-	outPath := "new-app"
+	var outPath string
+	fmt.Print("What should we call your new app? ")
+	fmt.Scanln(&outPath) // Reads user input from the command line
+
+	if outPath == "" {
+		fmt.Println("Please provide a name for your app.")
+		return
+	}
+
 	excludeDir := "starter-template"
 
 	install := exec.Command("git", "clone", "https://github.com/maddalax/mhtml", "--depth=1", outPath)
@@ -53,7 +61,21 @@ func main() {
 
 	deleteAllExceptTemplate(outPath, excludeDir)
 
-	//exec.Command("mv", "starter-template/*", "./ 2>/dev/null && rmdir starter-template")
+	templateDir := filepath.Join(outPath, excludeDir)
+
+	err = exec.Command("mv", templateDir+"/*", "./"+outPath).Run()
+
+	if err != nil {
+		println("Error moving files %v\n", err)
+		return
+	}
+
+	err = exec.Command("rm", "-rf", templateDir).Run()
+
+	if err != nil {
+		println("Error removing directory %v\n", err)
+		return
+	}
 
 	println("Template downloaded successfully!")
 }
