@@ -3,15 +3,13 @@ package partials
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/maddalax/mhtml/framework-ui/ui"
 	"github.com/maddalax/mhtml/framework/h"
 	"github.com/maddalax/mhtml/starter-template/news"
 )
 
 func NewsSheet(ctx *fiber.Ctx) *h.Partial {
 	open := h.GetQueryParam(ctx, "open") == "true"
-	if open {
-		h.SessionIncr(ctx, "sheet-open-count")
-	}
 	return h.NewPartialWithHeaders(
 		&map[string]string{
 			"hx-trigger":  "sheetOpened",
@@ -26,17 +24,13 @@ func NewsSheet(ctx *fiber.Ctx) *h.Partial {
 }
 
 func NewsSheetOpenCount(ctx *fiber.Ctx) *h.Partial {
-	rnd := h.SessionGet[int64](ctx, "sheet-open-count")
-	if rnd == nil {
-		rnd = new(int64)
-	}
 
 	open := h.GetQueryParam(ctx, "open") == "true"
 
 	return h.NewPartial(h.Div(
 		h.Id("sheet-open-count"),
 		h.IfElse(open,
-			h.Text(fmt.Sprintf("you opened sheet %d times", *rnd)),
+			h.Text(fmt.Sprintf("you opened sheet %d times", 1)),
 			h.Text("sheet is not open")),
 	),
 	)
