@@ -55,4 +55,11 @@ func main() {
 		fmt.Printf("Error running task command: %v\n", err)
 		return
 	}
+
+	err = cmd.Wait()
+
+	if err != nil {
+		fmt.Printf("Error waiting for task command: %v\n", err)
+		return
+	}
 }
