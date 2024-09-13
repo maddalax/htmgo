@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func deleteAllExceptTemplate(outPath string, excludeDir string) {
@@ -38,9 +40,14 @@ func deleteAllExceptTemplate(outPath string, excludeDir string) {
 }
 
 func main() {
+	cwd, _ := os.Getwd()
 	var outPath string
-	fmt.Print("What should we call your new app? ")
-	fmt.Scanln(&outPath) // Reads user input from the command line
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("What should we call your new app? Enter name: ")
+	outPath, _ = reader.ReadString('\n')
+	outPath = strings.ReplaceAll(outPath, "\n", "")
+	outPath = strings.ReplaceAll(outPath, " ", "-")
+	outPath = strings.ToLower(outPath)
 
 	if outPath == "" {
 		fmt.Println("Please provide a name for your app.")
@@ -61,19 +68,23 @@ func main() {
 
 	deleteAllExceptTemplate(outPath, excludeDir)
 
-	templateDir := filepath.Join(outPath, excludeDir)
+	newDir := filepath.Join(cwd, outPath)
 
-	err = exec.Command("mv", templateDir+"/*", "./"+outPath).Run()
+	mvCmd := exec.Command("cp", "-vaR", "starter-template/.", ".")
+	mvCmd.Dir = newDir
+	err = mvCmd.Run()
 
 	if err != nil {
 		println("Error moving files %v\n", err)
 		return
 	}
 
-	err = exec.Command("rm", "-rf", templateDir).Run()
+	rmCmd := exec.Command("rm", "-rf", "starter-template")
+	rmCmd.Dir = newDir
+	err = rmCmd.Run()
 
 	if err != nil {
-		println("Error removing directory %v\n", err)
+		println("Error removing starter-template %v\n", err)
 		return
 	}
 
