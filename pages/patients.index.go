@@ -14,7 +14,7 @@ func PatientsIndex(ctx *fiber.Ctx) *h.Page {
 			h.Div(
 				h.Div(
 					h.Class("flex justify-between items-center"),
-					h.P("Manage Patients", h.Class("text-lg font-bold")),
+					h.P(h.Text("Manage Patients"), h.Class("text-lg font-bold")),
 					patient.AddPatientButton(),
 				),
 				h.View(patient.List, h.ReloadParams{

@@ -160,7 +160,7 @@ func Text(text string) Renderable {
 }
 
 func Pf(format string, args ...interface{}) Renderable {
-	return P(fmt.Sprintf(format, args...))
+	return P(Text(fmt.Sprintf(format, args...)))
 }
 
 func Target(target string) Renderable {
@@ -230,7 +230,8 @@ func Script(url string) Renderable {
 	return &Node{
 		tag: "script",
 		attributes: map[string]string{
-			"src": url,
+			"src":  url,
+			"type": "module",
 		},
 		children: make([]Renderable, 0),
 	}
@@ -244,8 +245,24 @@ func Raw(text string) Renderable {
 	}
 }
 
+func MultiLineQuotes(text string) string {
+	return "`" + text + "`"
+}
+
+func RawF(text string, args any) Renderable {
+	return &Node{
+		tag:      "raw",
+		children: make([]Renderable, 0),
+		value:    fmt.Sprintf(text, args),
+	}
+}
+
 func RawScript(text string) Renderable {
 	return Raw("<script>" + text + "</script>")
+}
+
+func Pre(children ...Renderable) Renderable {
+	return Tag("pre", children...)
 }
 
 func Div(children ...Renderable) Renderable {
@@ -347,24 +364,48 @@ func Indicator(tag string) Renderable {
 	return Attribute("hx-indicator", tag)
 }
 
-func P(text string, children ...Renderable) Renderable {
-	return &Node{
-		tag:      "p",
-		children: children,
-		text:     text,
-	}
+func P(children ...Renderable) Renderable {
+	return Tag("p", children...)
+}
+
+func H1(children ...Renderable) Renderable {
+	return Tag("h1", children...)
+}
+
+func H2(children ...Renderable) Renderable {
+	return Tag("h2", children...)
+}
+
+func H3(children ...Renderable) Renderable {
+	return Tag("h3", children...)
+}
+
+func H4(children ...Renderable) Renderable {
+	return Tag("h4", children...)
+}
+
+func H5(children ...Renderable) Renderable {
+	return Tag("h5", children...)
+}
+
+func H6(children ...Renderable) Renderable {
+	return Tag("h6", children...)
+}
+
+func Img(children ...Renderable) Renderable {
+	return Tag("img", children...)
+}
+
+func Src(src string) Renderable {
+	return Attribute("src", src)
 }
 
 func Form(children ...Renderable) Renderable {
 	return Tag("form", children...)
 }
 
-func A(text string, children ...Renderable) Renderable {
-	return &Node{
-		tag:      "a",
-		children: children,
-		text:     text,
-	}
+func A(children ...Renderable) Renderable {
+	return Tag("a", children...)
 }
 
 func Nav(children ...Renderable) Renderable {

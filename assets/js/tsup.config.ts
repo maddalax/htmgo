@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   format: ["esm"],
-  entry: ["./src/mhtml.ts"],
+  entry: ["mhtml.ts", "./scripts/*.ts"],
   outDir: "./../dist",
   dts: false,
   shims: true,
@@ -20,5 +20,4 @@ export default defineConfig({
   bundle: true,
   // https://github.com/egoist/tsup/issues/619
   noExternal: [/(.*)/],
-  splitting: false,
 });

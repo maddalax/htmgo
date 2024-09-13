@@ -15,14 +15,14 @@ func List(ctx *fiber.Ctx) *h.Partial {
 	if err != nil {
 		return h.NewPartial(h.Div(
 			h.Class("patient-list"),
-			h.P("Error loading patients"),
+			h.Pf("Error loading patients"),
 		))
 	}
 
 	if len(patients) == 0 {
 		return h.NewPartial(h.Div(
 			h.Class("patient-list"),
-			h.P("No patients found"),
+			h.Pf("No patients found"),
 		))
 	}
 
@@ -50,7 +50,7 @@ func AddPatientSheet(onClosePath string) h.Renderable {
 			ClassName:   "w-[400px] bg-gray-100 p-4",
 			Root: h.Div(
 				h.Class("flex flex-col gap-4"),
-				h.P("Add Patient", h.Class("text-lg font-bold")),
+				h.P(h.Text("Add Patient"), h.Class("text-lg font-bold")),
 				addPatientForm(),
 			),
 		})
@@ -62,19 +62,19 @@ func ValidateForm(ctx *fiber.Ctx) *h.Partial {
 
 	if trigger == "name" {
 		if strings.ToLower(value) == "sydne" {
-			return h.NewPartial(h.P("that name is reserved"))
+			return h.NewPartial(h.Pf("that name is reserved"))
 		}
 	}
 
 	if trigger == "reason-for-visit" {
 		if strings.ToLower(value) == "arm hurts" {
-			return h.NewPartial(h.P("lol that reason is fake"))
+			return h.NewPartial(h.Pf("lol that reason is fake"))
 		}
 	}
 
 	if trigger == "location-name" {
 		if strings.ToLower(value) == "hospital" {
-			return h.NewPartial(h.P("that location is reserved"))
+			return h.NewPartial(h.Pf("that location is reserved"))
 		}
 	}
 

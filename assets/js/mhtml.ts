@@ -1,9 +1,9 @@
 import htmx from "htmx.org";
-import "./extensions/pathdeps";
-import "./extensions/trigger-children";
-import "./extensions/debug";
-import "./extensions/response-targets";
-import "./extensions/mutation-error";
+import "./htmxextensions/pathdeps";
+import "./htmxextensions/trigger-children";
+import "./htmxextensions/debug";
+import "./htmxextensions/response-targets";
+import "./htmxextensions/mutation-error";
 
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;

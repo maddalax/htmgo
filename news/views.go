@@ -17,7 +17,7 @@ func StoryList() h.Renderable {
 	time.Sleep(200 * time.Millisecond)
 
 	if len(*posts) == 0 {
-		return h.P("No results found")
+		return h.Pf("No results found")
 	}
 
 	return h.Fragment(
@@ -31,14 +31,14 @@ func StoryCard(post Post) h.Renderable {
 	url := fmt.Sprintf("/news/%d", post.Id)
 	return h.Div(
 		h.Class("items-center bg-indigo-200 p-4 rounded"),
-		h.A(post.Title, h.Href(url)),
+		h.A(h.Text(post.Title), h.Href(url)),
 	)
 }
 
 func StoryFull(id string) h.Renderable {
 	post, err := Get(id)
 	if err != nil {
-		return h.P(err.Error())
+		return h.Pf(err.Error())
 	}
 	return StoryCard(post)
 }

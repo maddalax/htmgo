@@ -19,7 +19,7 @@ func NavBar() h.Renderable {
 		h.Boost(),
 		h.Children(
 			h.Map(links, func(link Link) h.Renderable {
-				return h.A(link.Name, h.Href(link.Path), h.Class("cursor-pointer hover:text-blue-400"))
+				return h.A(h.Text(link.Name), h.Href(link.Path), h.Class("cursor-pointer hover:text-blue-400"))
 			})...,
 		))
 }

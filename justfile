@@ -1,5 +1,5 @@
-run-app:
-    just run-gen && air & just watch-js & just watch-gen
+dev:
+    just run-gen && just build-css && air & just watch-js & just watch-gen & just watch-css
 
 bundle:
     rm -rf dist

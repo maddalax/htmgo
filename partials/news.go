@@ -56,10 +56,10 @@ func SheetOpen() h.Renderable {
 		h.Class(`fixed top-0 right-0 h-full w-96 bg-gray-100 shadow-lg z-50`),
 		h.Div(
 			h.Class("p-4 overflow-y-auto h-full w-full flex flex-col gap-4"),
-			h.P("My NewsSheet",
+			h.P(h.Text("News Sheet"),
 				h.Class("text-lg font-bold"),
 			),
-			h.P("This is a sheet",
+			h.P(h.Text("Here are the latest news stories."),
 				h.Class("text-sm mt-2"),
 			),
 			ui.Button(ui.ButtonProps{
