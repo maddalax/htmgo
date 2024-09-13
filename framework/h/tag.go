@@ -364,7 +364,7 @@ func Indicator(tag string) Renderable {
 	return Attribute("hx-indicator", tag)
 }
 
-func P(text string, children ...Renderable) Renderable {
+func P(children ...Renderable) Renderable {
 	return Tag("p", children...)
 }
 
