@@ -70,7 +70,7 @@ func main() {
 
 	newDir := filepath.Join(cwd, outPath)
 
-	mvCmd := exec.Command("cp", "-vaR", "starter-template/.", ".")
+	mvCmd := exec.Command("cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), ".")
 	mvCmd.Dir = newDir
 	err = mvCmd.Run()
 
