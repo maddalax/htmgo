@@ -17,6 +17,15 @@ func main() {
 	// Parse the command-line flags
 	flag.Parse()
 
+	install := exec.Command("go", "install", "github.com/go-task/task/v3/cmd/task@latest")
+	install.Stdout = os.Stdout
+	install.Stderr = os.Stderr
+	err := install.Run()
+	if err != nil {
+		fmt.Printf("Error installing task: %v\n", err)
+		return
+	}
+
 	temp, err := os.CreateTemp("", "Taskfile.yml")
 
 	if err != nil {

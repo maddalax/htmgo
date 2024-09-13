@@ -254,7 +254,6 @@ func writePartialsFile() {
 		if partial.Import == "partials/load" {
 			continue
 		}
-		fmt.Println(partial.Import)
 		builder.AddImport(fmt.Sprintf(`%s/%s`, moduleName, partial.Import))
 	}
 
@@ -344,7 +343,6 @@ func GetModuleName() string {
 }
 
 func main() {
-	fmt.Println("Generating partials...")
 	writePartialsFile()
 	writePagesFile()
 }
