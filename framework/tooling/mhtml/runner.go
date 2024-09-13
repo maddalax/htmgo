@@ -12,7 +12,7 @@ import (
 var taskFile string
 
 func main() {
-	taskFlag := flag.String("task", "", "Specify the task to run (e.g., build, clean, deploy)")
+	taskFlag := flag.String("task", "", "Specify the task to run (e.g., build, setup). Type -task list to see the list of tasks to run.")
 
 	// Parse the command-line flags
 	flag.Parse()
@@ -31,6 +31,10 @@ func main() {
 		return
 	}
 
+	if *taskFlag == "list" {
+		*taskFlag = "--list"
+	}
+
 	// Define the command and arguments
 	cmd := exec.Command("task", "-t", temp.Name(), *taskFlag)
 	// Set the standard output and error to be the same as the Go program
@@ -42,5 +46,4 @@ func main() {
 		fmt.Printf("Error running task command: %v\n", err)
 		return
 	}
-	fmt.Println("Task executed successfully!")
 }
