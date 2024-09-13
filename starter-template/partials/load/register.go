@@ -2,7 +2,7 @@ package load
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"mhtml/h"
+	"github.com/maddalax/mhtml/framework/h"
 )
 
 func RegisterPartials(f *fiber.App) {

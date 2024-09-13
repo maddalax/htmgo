@@ -1,11 +1,13 @@
 // Package partials THIS FILE IS GENERATED. DO NOT EDIT.
 package load
 
-import "mhtml/h"
-import "github.com/gofiber/fiber/v2"
-import "mhtml/partials"
-import "mhtml/partials/patient"
-import "mhtml/partials/sheet"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/mhtml/starter-template/partials"
+	"github.com/maddalax/mhtml/starter-template/partials/patient"
+	"github.com/maddalax/mhtml/starter-template/partials/sheet"
+)
 
 func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 	path := ctx.Path()

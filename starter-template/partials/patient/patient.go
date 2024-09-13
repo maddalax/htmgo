@@ -2,10 +2,9 @@ package patient
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"mhtml/features/patient"
-	"mhtml/h"
-	"mhtml/partials/sheet"
-	"mhtml/ui"
+	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/mhtml/starter-template/features/patient"
+	"github.com/maddalax/mhtml/starter-template/partials/sheet"
 	"strings"
 )
 

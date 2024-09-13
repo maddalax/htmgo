@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"mhtml/database"
+	"github.com/maddalax/mhtml/starter-template/database"
 	"time"
 )
 

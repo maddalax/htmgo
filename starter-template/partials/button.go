@@ -1,9 +1,6 @@
 package partials
 
-import (
-	"mhtml/h"
-	"mhtml/ui"
-)
+import "github.com/maddalax/mhtml/framework/h"
 
 func OpenSheetButton(open bool, children ...h.Renderable) h.Renderable {
 	if open {

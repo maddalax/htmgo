@@ -3,9 +3,8 @@ package partials
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"mhtml/h"
-	"mhtml/news"
-	"mhtml/ui"
+	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/mhtml/starter-template/news"
 )
 
 func NewsSheet(ctx *fiber.Ctx) *h.Partial {
