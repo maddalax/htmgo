@@ -2,8 +2,8 @@ package news
 
 import (
 	"fmt"
-	"mhtml/database"
-	"mhtml/h"
+	"mhtml/framework/h"
+	"mhtml/starter-template/database"
 	"time"
 )
 
