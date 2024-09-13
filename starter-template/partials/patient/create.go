@@ -3,8 +3,8 @@ package patient
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maddalax/mhtml/framework/h"
-	"github.com/maddalax/mhtml/starter-template/features/patient"
-	"github.com/maddalax/mhtml/starter-template/partials/sheet"
+	"starter-template/features/patient"
+	"starter-template/partials/sheet"
 )
 
 func Create(ctx *fiber.Ctx) *h.Partial {

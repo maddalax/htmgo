@@ -1,2 +1,1 @@
-go install github.com/maddalax/mhtml/framework/tooling/mhtml
-
+go run github.com/maddalax/mhtml/framework/tooling/mhtml@latest -task template

@@ -3,9 +3,9 @@ package load
 
 import "github.com/maddalax/mhtml/framework/h"
 import "github.com/gofiber/fiber/v2"
-import "github.com/maddalax/mhtml/starter-template/partials"
-import "github.com/maddalax/mhtml/starter-template/partials/patient"
-import "github.com/maddalax/mhtml/starter-template/partials/sheet"
+import "starter-template/partials"
+import "starter-template/partials/patient"
+import "starter-template/partials/sheet"
 
 func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 	path := ctx.Path()
@@ -34,7 +34,7 @@ func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 }
 
 func RegisterPartials(f *fiber.App) {
-	f.All("github.com/maddalax/mhtml/starter-template/partials*", func(ctx *fiber.Ctx) error {
+	f.All("starter-template/partials*", func(ctx *fiber.Ctx) error {
 		partial := GetPartialFromContext(ctx)
 		if partial == nil {
 			return ctx.SendStatus(404)

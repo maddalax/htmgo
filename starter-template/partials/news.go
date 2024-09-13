@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maddalax/mhtml/framework-ui/ui"
 	"github.com/maddalax/mhtml/framework/h"
-	"github.com/maddalax/mhtml/starter-template/news"
+	"starter-template/news"
 )
 
 func NewsSheet(ctx *fiber.Ctx) *h.Partial {

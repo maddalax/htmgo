@@ -1,4 +1,4 @@
-module github.com/maddalax/mhtml/starter-template
+module starter-template
 
 go 1.23.0
 

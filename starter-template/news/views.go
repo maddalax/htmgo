@@ -3,7 +3,7 @@ package news
 import (
 	"fmt"
 	"github.com/maddalax/mhtml/framework/h"
-	"github.com/maddalax/mhtml/starter-template/database"
+	"starter-template/database"
 	"time"
 )
 

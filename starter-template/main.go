@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/maddalax/mhtml/framework/h"
-	"github.com/maddalax/mhtml/starter-template/pages"
-	"github.com/maddalax/mhtml/starter-template/partials/load"
 	"log"
+	"starter-template/pages"
+	"starter-template/partials/load"
 	"time"
 )
 
