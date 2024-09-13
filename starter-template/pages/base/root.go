@@ -1,9 +1,9 @@
 package base
 
 import (
-	"mhtml/h"
-	"mhtml/partials"
-	"mhtml/partials/sheet"
+	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/mhtml/starter-template/partials"
+	"github.com/maddalax/mhtml/starter-template/partials/sheet"
 )
 
 func RootPage(children ...h.Renderable) h.Renderable {

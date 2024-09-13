@@ -2,9 +2,9 @@ package pages
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"mhtml/h"
-	"mhtml/pages/base"
-	"mhtml/partials/patient"
+	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/mhtml/starter-template/pages/base"
+	"github.com/maddalax/mhtml/starter-template/partials/patient"
 )
 
 func PatientsIndex(ctx *fiber.Ctx) *h.Page {
