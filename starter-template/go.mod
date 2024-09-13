@@ -1,4 +1,4 @@
-module mhtml/starter-template
+module github.com/maddalax/mhtml/starter-template
 
 go 1.23.0
 
@@ -6,7 +6,6 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.6.1
-	github.com/maddalax/mhtml/framework v1.0.0
 )
 
 require (
