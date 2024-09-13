@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -41,22 +41,23 @@ func deleteAllExceptTemplate(outPath string, excludeDir string) {
 
 func main() {
 	cwd, _ := os.Getwd()
-	var outPath string
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("What should we call your new app? Enter name: ")
-	outPath, _ = reader.ReadString('\n')
-	outPath = strings.ReplaceAll(outPath, "\n", "")
-	outPath = strings.ReplaceAll(outPath, " ", "-")
-	outPath = strings.ToLower(outPath)
 
-	if outPath == "" {
+	outPath := flag.String("out", "", "Specify the output path for the new app")
+
+	flag.Parse()
+
+	*outPath = strings.ReplaceAll(*outPath, "\n", "")
+	*outPath = strings.ReplaceAll(*outPath, " ", "-")
+	*outPath = strings.ToLower(*outPath)
+
+	if *outPath == "" {
 		fmt.Println("Please provide a name for your app.")
 		return
 	}
 
 	excludeDir := "starter-template"
 
-	install := exec.Command("git", "clone", "https://github.com/maddalax/mhtml", "--depth=1", outPath)
+	install := exec.Command("git", "clone", "https://github.com/maddalax/mhtml", "--depth=1", *outPath)
 	install.Stdout = os.Stdout
 	install.Stderr = os.Stderr
 	err := install.Run()
@@ -66,9 +67,9 @@ func main() {
 		return
 	}
 
-	deleteAllExceptTemplate(outPath, excludeDir)
+	deleteAllExceptTemplate(*outPath, excludeDir)
 
-	newDir := filepath.Join(cwd, outPath)
+	newDir := filepath.Join(cwd, *outPath)
 
 	mvCmd := exec.Command("cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), ".")
 	mvCmd.Dir = newDir
