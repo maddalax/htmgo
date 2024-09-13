@@ -7,3 +7,4 @@ js/node_modules
 go.work
 go.work.sum
 .idea
+!framework/assets/dist
