@@ -1,8 +1,6 @@
 package ui
 
-import (
-	"mhtml/h"
-)
+import "github.com/maddalax/mhtml/framework/h"
 
 type ButtonProps struct {
 	Id       string
