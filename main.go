@@ -12,7 +12,8 @@ import (
 
 func main() {
 	f := fiber.New()
-	f.Static("/js", "./js")
+
+	f.Static("/public", "./assets/dist")
 
 	f.Use(func(ctx *fiber.Ctx) error {
 		if ctx.Cookies("mhtml-session") != "" {

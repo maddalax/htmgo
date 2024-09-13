@@ -2,23 +2,15 @@ package patient
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"mhtml/database"
+	"mhtml/features/patient"
 	"mhtml/h"
 	"mhtml/partials/sheet"
 	"mhtml/ui"
 	"strings"
-	"time"
 )
 
-type Patient struct {
-	Name            string
-	ReasonForVisit  string
-	AppointmentDate time.Time
-	LocationName    string
-}
-
 func List(ctx *fiber.Ctx) *h.Partial {
-	patients, err := database.HList[Patient]("patients")
+	patients, err := patient.NewService(ctx).List()
 
 	if err != nil {
 		return h.NewPartial(h.Div(
@@ -35,7 +27,6 @@ func List(ctx *fiber.Ctx) *h.Partial {
 	}
 
 	return h.NewPartial(h.Div(
-		h.HxExtension("debug"),
 		h.Class("mt-8"),
 		h.Id("patient-list"),
 		h.List(patients, Row),
@@ -92,7 +83,8 @@ func ValidateForm(ctx *fiber.Ctx) *h.Partial {
 
 func addPatientForm() h.Renderable {
 	return h.Form(
-		h.TriggerChildren(),
+		h.HxExtension("debug, trigger-children"),
+		h.Attribute("hx-target-5*", "#submit-error"),
 		h.Post(h.GetPartialPath(Create)),
 		h.Class("flex flex-col gap-2"),
 		ui.Input(ui.InputProps{
@@ -124,10 +116,14 @@ func addPatientForm() h.Renderable {
 			Class: "rounded p-2",
 			Type:  "submit",
 		}),
+		h.Div(
+			h.Id("submit-error"),
+			h.Class("text-red-500"),
+		),
 	)
 }
 
-func Row(patient *Patient, index int) h.Renderable {
+func Row(patient *patient.Patient, index int) h.Renderable {
 	return h.Div(
 		h.Class("flex flex-col gap-2 rounded p-4", h.Ternary(index%2 == 0, "bg-red-100", "")),
 		h.Pf("Name: %s", patient.Name),

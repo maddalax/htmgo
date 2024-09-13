@@ -1,4 +1,4 @@
-import * as htmx from "htmx.org";
+import htmx from "htmx.org";
 
 function dependsOn(pathSpec: any, url: string) {
   if (pathSpec === "ignore") {
@@ -33,7 +33,11 @@ function refreshPath(path: string) {
 }
 
 htmx.defineExtension("path-deps", {
+  // @ts-ignore
   onEvent: function (name, evt) {
+    if (!(evt instanceof CustomEvent)) {
+      return false;
+    }
     if (name === "htmx:beforeOnLoad") {
       const config = evt.detail.requestConfig;
       // mutating call

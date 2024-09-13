@@ -3,9 +3,15 @@ package pages
 import (
 	"github.com/gofiber/fiber/v2"
 	"mhtml/h"
-	"mhtml/pages/base"
 )
 
 func IndexPage(c *fiber.Ctx) *h.Page {
-	return h.NewPage(base.RootPage(h.P("this is cool")))
+	return h.NewPage(h.Html(
+		h.HxExtension("path-deps, response-targets, mutation-error"),
+		h.Head(
+			h.Script("https://cdn.tailwindcss.com"),
+			h.Script("/js/dist/mhtml.js"),
+		),
+		h.Body(),
+	))
 }

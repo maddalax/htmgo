@@ -276,6 +276,9 @@ func PushQsHeader(ctx *fiber.Ctx, key string, value string) *Headers {
 }
 
 func NewHeaders(headers ...string) *Headers {
+	if len(headers)%2 != 0 {
+		return &Headers{}
+	}
 	m := make(Headers)
 	for i := 0; i < len(headers); i++ {
 		m[headers[i]] = headers[i+1]
@@ -370,6 +373,10 @@ func BeforeRequestSetHtml(children ...Renderable) Renderable {
 
 func BeforeRequestSetAttribute(key string, value string) Renderable {
 	return Attribute("hx-on::before-request", `this.setAttribute('`+key+`', '`+value+`')`)
+}
+
+func OnMutationErrorSetText(text string) Renderable {
+	return Attribute("hx-on::mutation-error", `this.innerText = '`+text+`'`)
 }
 
 func BeforeRequestSetText(text string) Renderable {

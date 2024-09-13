@@ -51,12 +51,8 @@ func NewPartial(root Renderable) *Partial {
 	}
 }
 
-func GetFunctionName(i interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
-}
-
 func GetPartialPath(partial func(ctx *fiber.Ctx) *Partial) string {
-	return GetFunctionName(partial)
+	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }
 
 func GetPartialPathWithQs(partial func(ctx *fiber.Ctx) *Partial, qs string) string {

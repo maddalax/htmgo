@@ -41,7 +41,13 @@ func (page Builder) renderNode(node *Node) {
 
 		flatChildren := make([]Renderable, 0)
 		for _, child := range node.children {
+
+			if child == nil {
+				continue
+			}
+
 			c := child.Render()
+
 			flatChildren = append(flatChildren, child)
 			if c.tag == FlagChildrenList {
 				for _, gc := range c.children {

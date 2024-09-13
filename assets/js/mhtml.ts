@@ -1,18 +1,9 @@
-import * as htmx from "htmx.org";
+import htmx from "htmx.org";
 import "./extensions/pathdeps";
 import "./extensions/trigger-children";
 import "./extensions/debug";
-
-declare module "htmx.org" {
-  // Example: Adding type definitions for an exported function
-  export function swap(
-    target: Element,
-    content: string,
-    spec?: {
-      swapStyle?: "innerHTML" | "outerHTML";
-    },
-  ): any;
-}
+import "./extensions/response-targets";
+import "./extensions/mutation-error";
 
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;
@@ -38,7 +29,11 @@ function onUrlChange(newUrl: string) {
     }
     const split = triggers.split(", ");
     if (split.find((s) => s === "url")) {
-      htmx.swap(element, "url");
+      htmx.swap(element, "url", {
+        swapStyle: "outerHTML",
+        swapDelay: 0,
+        settleDelay: 0,
+      });
     } else {
       for (let [key, values] of url.searchParams) {
         let eventName = "qs:" + key;
@@ -60,6 +55,8 @@ function onUrlChange(newUrl: string) {
         if (value) {
           htmx.swap(el, el.getAttribute(name) ?? "", {
             swapStyle: "innerHTML",
+            swapDelay: 0,
+            settleDelay: 0,
           });
           hasMatch = true;
           break;
@@ -72,7 +69,7 @@ function onUrlChange(newUrl: string) {
         htmx.swap(
           el,
           el.getAttribute("hx-match-qp-mapping:" + defaultKey) ?? "",
-          { swapStyle: "innerHTML" },
+          { swapStyle: "innerHTML", swapDelay: 0, settleDelay: 0 },
         );
       }
     }

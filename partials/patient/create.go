@@ -2,11 +2,9 @@ package patient
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"mhtml/database"
+	"mhtml/features/patient"
 	"mhtml/h"
 	"mhtml/partials/sheet"
-	"time"
 )
 
 func Create(ctx *fiber.Ctx) *h.Partial {
@@ -14,12 +12,21 @@ func Create(ctx *fiber.Ctx) *h.Partial {
 	reason := ctx.FormValue("reason-for-visit")
 	location := ctx.FormValue("location-name")
 
-	database.HSet("patients", uuid.New().String(), Patient{
-		Name:            name,
-		ReasonForVisit:  reason,
-		AppointmentDate: time.Now(),
-		LocationName:    location,
+	err := patient.NewService(ctx).Create(patient.CreatePatientRequest{
+		Name:           name,
+		ReasonForVisit: reason,
+		LocationName:   location,
 	})
+
+	if err != nil {
+		ctx.Status(500)
+		return h.NewPartialWithHeaders(h.NewHeaders(""),
+			h.Div(
+				h.Text("Error creating patient"),
+				h.Class("text-red-500"),
+			),
+		)
+	}
 
 	headers := h.CombineHeaders(h.PushQsHeader(ctx, "adding", ""), &map[string]string{
 		"HX-Trigger": "patient-added",

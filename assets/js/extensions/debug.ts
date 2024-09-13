@@ -1,11 +1,12 @@
-import * as htmx from "htmx.org";
+import htmx from "htmx.org";
 
 htmx.defineExtension("debug", {
+  // @ts-ignore
   onEvent: function (name, evt) {
     if (console.debug) {
-      console.debug(name, evt.target, evt);
+      console.debug(name);
     } else if (console) {
-      console.log("DEBUG:", name, evt.target, evt);
+      console.log("DEBUG:", name);
     } else {
       // noop
     }

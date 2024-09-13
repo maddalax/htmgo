@@ -29,6 +29,23 @@ func Button(props ButtonProps) h.Renderable {
 
 	text := h.Text(props.Text)
 
+	lifecycle := h.NewLifeCycle().
+		BeforeRequest(
+			h.AddAttribute("disabled", "true"),
+			h.SetText("Loading..."),
+			h.AddClass("bg-gray-400"),
+		).
+		AfterRequest(
+			h.RemoveAttribute("disabled"),
+			h.RemoveClass("bg-gray-400"),
+			h.SetText(props.Text),
+		).
+		OnMutationError(
+			h.SetText("failed"),
+			h.AddClass("bg-red-400"),
+			h.RemoveAttribute("disabled"),
+		)
+
 	button := h.Button(
 		h.If(props.Id != "", h.Id(props.Id)),
 		h.If(props.Children != nil, h.Children(props.Children...)),
@@ -36,10 +53,8 @@ func Button(props ButtonProps) h.Renderable {
 		h.Class("flex gap-1 items-center border p-4 rounded cursor-hover", props.Class),
 		h.If(props.Get != "", h.Get(props.Get)),
 		h.If(props.Target != "", h.Target(props.Target)),
-		//h.Attribute("hx-indicator", "#spinner"),
 		h.IfElse(props.Type != "", h.Type(props.Type), h.Type("button")),
-		h.BeforeRequestSetText("Loading..."),
-		h.AfterRequestSetText(props.Text),
+		lifecycle,
 		text,
 	)
 
