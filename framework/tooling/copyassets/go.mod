@@ -1,0 +1,1 @@
+module github.com/maddalax/mhtml/framework/tooling/copyassets
