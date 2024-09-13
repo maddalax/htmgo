@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "mhtml.js",
   "scripts": {
-    "watch": "tsup ./mhtml.ts --watch --config ./tsup.config.ts",
+    "watch": "tsup ./mhtml.ts --watch --config ./tsup.config.ts --sourcemap inline",
     "build": "tsup ./mhtml.ts --minify --config ./tsup.config.ts",
     "tailwind:watch": "npx tailwindcss -i ./input.css -o ./output.css --watch",
     "pretty": "prettier --write ."

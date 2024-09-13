@@ -2,6 +2,17 @@
 run-app:
     just run-gen && air & just watch-js & just watch-gen
 
+bundle:
+    rm -rf dist
+    rm -rf assets/dist
+    just run-gen
+    go build .
+    cd assets/js && npm run build
+    just build-css
+    mkdir -p dist/assets/dist
+    cp -r assets/dist/* dist/assets/dist
+    cp mhtml dist/
+
 run-gen:
     go run ./tooling/astgen
 

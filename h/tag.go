@@ -215,6 +215,17 @@ func Body(children ...Renderable) Renderable {
 	return Tag("body", children...)
 }
 
+func Link(href string, rel string) Renderable {
+	return &Node{
+		tag: "link",
+		attributes: map[string]string{
+			"href": href,
+			"rel":  rel,
+		},
+		children: make([]Renderable, 0),
+	}
+}
+
 func Script(url string) Renderable {
 	return &Node{
 		tag: "script",

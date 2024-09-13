@@ -10,8 +10,8 @@ func RootPage(children ...h.Renderable) h.Renderable {
 	return h.Html(
 		h.HxExtension("path-deps, response-targets, mutation-error"),
 		h.Head(
-			h.Script("https://cdn.tailwindcss.com"),
-			h.Script("/js/dist/mhtml.js"),
+			h.Link("/public/main.css", "stylesheet"),
+			h.Script("/public/mhtml.js"),
 		),
 		h.Body(
 			partials.NavBar(),

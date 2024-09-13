@@ -10,7 +10,6 @@ export default defineConfig({
   clean: false,
   target: "esnext",
   treeshake: false,
-  sourcemap: true,
   platform: "browser",
   outExtension: () => {
     return {
