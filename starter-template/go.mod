@@ -5,8 +5,8 @@ go 1.23.0
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240913185752-4130d7fab5eb
-	github.com/maddalax/htmgo/framework-ui v0.0.0-20240913172832-ad335247426d
+	github.com/maddalax/htmgo/framework v0.0.0-20240914001102-13d0288b9f14
+	github.com/maddalax/htmgo/framework-ui v0.0.0-20240914001102-13d0288b9f14
 	github.com/redis/go-redis/v9 v9.6.1
 )
 
