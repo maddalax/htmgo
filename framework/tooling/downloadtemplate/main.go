@@ -84,6 +84,4 @@ func main() {
 			return
 		}
 	}
-
-	println("Template downloaded successfully!")
 }
