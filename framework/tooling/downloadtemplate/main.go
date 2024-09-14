@@ -84,4 +84,11 @@ func main() {
 			return
 		}
 	}
+
+	fmt.Println("Template downloaded successfully.")
+	fmt.Println("To start the development server, run the following commands:")
+	fmt.Printf("cd %s && htmgo run\n", *outPath)
+
+	fmt.Printf("To build the project, run the following command:\n")
+	fmt.Printf("cd %s && htmgo build\n", *outPath)
 }

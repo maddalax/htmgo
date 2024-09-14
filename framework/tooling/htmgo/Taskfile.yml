@@ -9,9 +9,6 @@ tasks:
     desc: Generate template from source code
     cmds:
       - go run github.com/maddalax/htmgo/framework/tooling/downloadtemplate@latest -out my-app
-      - echo "Template generated successfully to ./my-app"
-      - echo "To run the project, 'cd my-app && htmgo run'"
-      - echo "To build the project, 'cd my-app && htmgo build'"
 
   setup:
     dir: '{{.USER_WORKING_DIR}}'
