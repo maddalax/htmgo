@@ -20,6 +20,8 @@ tasks:
         dir: '{{.USER_WORKING_DIR}}'
       - task: ast
         dir: '{{.USER_WORKING_DIR}}'
+      - task: css
+        dir: '{{.USER_WORKING_DIR}}'
 
   run:
     dir: '{{.USER_WORKING_DIR}}'
@@ -45,6 +47,15 @@ tasks:
     desc: Copy framework assets
     cmds:
       - go run github.com/maddalax/htmgo/framework/tooling/copyassets@latest
+
+  css:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate CSS from source code
+    generates:
+      - '**/main.css'
+    cmds:
+      - chmod +x ./assets/css/tailwindcss
+      - ./assets/css/tailwindcss -i ./assets/css/input.css -o ./assets/dist/main.css -c ./assets/css/tailwind.config.js
 
   ast:
     dir: '{{.USER_WORKING_DIR}}'

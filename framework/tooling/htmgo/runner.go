@@ -14,7 +14,7 @@ var taskFile string
 
 func main() {
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "build", "setup"}
+	commands := []string{"template", "run", "build", "setup", "css"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -25,7 +25,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := commandMap[os.Args[1]].Parse(os.Args[2:])
+	c := commandMap[os.Args[1]]
+
+	if c == nil {
+		fmt.Println(fmt.Sprintf("Usage: htmgo [%s]", strings.Join(commands, " | ")))
+		os.Exit(1)
+		return
+	}
+
+	err := c.Parse(os.Args[2:])
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

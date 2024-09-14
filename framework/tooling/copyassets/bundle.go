@@ -93,19 +93,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	assetDir := fmt.Sprintf("%s/go/pkg/mod/%s@%s/assets/dist", dirname, modulePath, version)
+
+	assetDir := fmt.Sprintf("%s/go/pkg/mod/%s@%s/assets", dirname, modulePath, version)
+	assetDistDir := fmt.Sprintf("%s/dist", assetDir)
+	assetCssDir := fmt.Sprintf("%s/css", assetDir)
+
 	cwd, err := os.Getwd()
 
 	if err != nil {
 		log.Fatal("failed to get cwd")
 	}
 
-	destDir := fmt.Sprintf("%s/assets/dist", cwd)
+	destDir := fmt.Sprintf("%s/assets", cwd)
+	destDirDist := fmt.Sprintf("%s/dist", destDir)
+	destDirCss := fmt.Sprintf("%s/css", destDir)
 
-	err = copyDir(assetDir, destDir)
+	err = copyDir(assetDistDir, destDirDist)
+	err = copyDir(assetCssDir, destDirCss)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("Error: %v", err)
 	}
 
 	fmt.Printf("successfully copied assets to %s\n", destDir)
