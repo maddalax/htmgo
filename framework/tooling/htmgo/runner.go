@@ -15,7 +15,7 @@ var taskFile string
 
 func main() {
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "build", "setup", "css", "css-watch", "ast-watch", "watch", "go-watch", "watch"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "css-watch", "ast-watch", "go-watch"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
