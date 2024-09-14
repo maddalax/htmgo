@@ -66,26 +66,23 @@ func main() {
 
 	newDir := filepath.Join(cwd, *outPath)
 
-	mvCmd := exec.Command("cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), ".")
-	mvCmd.Dir = newDir
-	mvCmd.Stdout = os.DevNull
-	mvCmd.Stderr = os.DevNull
-	err = mvCmd.Run()
-
-	if err != nil {
-		println("Error moving files %v\n", err)
-		return
+	commands := [][]string{
+		{"cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), "."},
+		{"rm", "-rf", excludeDir},
+		{"go", "get", "github.com/maddalax/htmgo/framework"},
+		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
 	}
 
-	rmCmd := exec.Command("rm", "-rf", "starter-template")
-	rmCmd.Dir = newDir
-	mvCmd.Stdout = os.DevNull
-	mvCmd.Stderr = os.DevNull
-	err = rmCmd.Run()
-
-	if err != nil {
-		println("Error removing starter-template %v\n", err)
-		return
+	for _, command := range commands {
+		cmd := exec.Command(command[0], command[1:]...)
+		cmd.Dir = newDir
+		cmd.Stdout = nil
+		cmd.Stderr = nil
+		err = cmd.Run()
+		if err != nil {
+			println("Error executing command %s\n", err.Error())
+			return
+		}
 	}
 
 	println("Template downloaded successfully!")
