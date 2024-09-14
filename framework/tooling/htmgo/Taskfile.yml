@@ -12,12 +12,15 @@ tasks:
       - echo "Template generated successfully to ./my-app"
 
   setup:
-    deps: [copy-framework-assets, ast]
     dir: '{{.USER_WORKING_DIR}}'
     desc: Setup the project
     cmds:
       - go mod download
       - go mod tidy
+      - task: copy-framework-assets
+        dir: '{{.USER_WORKING_DIR}}'
+      - task: ast
+        dir: '{{.USER_WORKING_DIR}}'
 
   run:
     dir: '{{.USER_WORKING_DIR}}'
