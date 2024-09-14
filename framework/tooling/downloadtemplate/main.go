@@ -21,20 +21,15 @@ func deleteAllExceptTemplate(outPath string, excludeDir string) {
 	for _, file := range files {
 		// Skip the excluded directory
 		if file.Name() == excludeDir {
-			fmt.Printf("Skipping directory: %s\n", file.Name())
 			continue
 		}
 
 		// Get full path
 		fullPath := filepath.Join(outPath, file.Name())
 
-		// Remove the file or directory
-		fmt.Printf("Removing: %s\n", fullPath)
 		err := os.RemoveAll(fullPath)
 		if err != nil {
 			fmt.Printf("Error removing %s: %v\n", fullPath, err)
-		} else {
-			fmt.Printf("Successfully removed %s\n", fullPath)
 		}
 	}
 }
@@ -73,6 +68,8 @@ func main() {
 
 	mvCmd := exec.Command("cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), ".")
 	mvCmd.Dir = newDir
+	mvCmd.Stdout = os.DevNull
+	mvCmd.Stderr = os.DevNull
 	err = mvCmd.Run()
 
 	if err != nil {
@@ -82,6 +79,8 @@ func main() {
 
 	rmCmd := exec.Command("rm", "-rf", "starter-template")
 	rmCmd.Dir = newDir
+	mvCmd.Stdout = os.DevNull
+	mvCmd.Stderr = os.DevNull
 	err = rmCmd.Run()
 
 	if err != nil {
