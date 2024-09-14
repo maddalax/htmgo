@@ -71,6 +71,7 @@ func main() {
 		{"rm", "-rf", excludeDir},
 		{"go", "get", "github.com/maddalax/htmgo/framework"},
 		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
+		{"git", "init"},
 	}
 
 	for _, command := range commands {
