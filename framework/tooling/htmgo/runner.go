@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 //go:embed Taskfile.yml
@@ -14,7 +15,7 @@ var taskFile string
 
 func main() {
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "build", "setup", "css"}
+	commands := []string{"template", "run", "build", "setup", "css", "css-watch", "ast-watch", "watch", "go-watch", "watch"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -58,15 +59,36 @@ func main() {
 
 	os.WriteFile(temp.Name(), []byte(taskFile), 0644)
 
-	// Define the command and arguments
-	cmd := exec.Command("task", "-t", temp.Name(), os.Args[1])
-	// Set the standard output and error to be the same as the Go program
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	// Run the command
-	err = cmd.Run()
-	if err != nil {
-		fmt.Printf("Error running task command: %v\n", err)
-		return
+	taskName := os.Args[1]
+
+	if taskName == "watch" {
+		tasks := []string{"css-watch", "ast-watch", "go-watch"}
+		wg := sync.WaitGroup{}
+		for _, task := range tasks {
+			wg.Add(1)
+			go func() {
+				cmd := exec.Command("task", "-t", temp.Name(), task)
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				err := cmd.Run()
+				if err != nil {
+					fmt.Printf("Error running task command: %v\n", err)
+				}
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	} else {
+		// Define the command and arguments
+		cmd := exec.Command("task", "-t", temp.Name(), os.Args[1])
+		// Set the standard output and error to be the same as the Go program
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		// Run the command
+		err = cmd.Run()
+		if err != nil {
+			fmt.Printf("Error running task command: %v\n", err)
+			return
+		}
 	}
 }

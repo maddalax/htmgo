@@ -57,6 +57,26 @@ tasks:
       - chmod +x ./assets/css/tailwindcss
       - ./assets/css/tailwindcss -i ./assets/css/input.css -o ./assets/dist/main.css -c ./assets/css/tailwind.config.js
 
+  go-watch:
+    deps: [setup]
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Run the project and watch for changes
+    cmds:
+      - air -build.exclude_dir "dist"
+
+  css-watch:
+    dir: '{{.USER_WORKING_DIR}}'
+    desc: Generate CSS from source code and watch for changes
+    watch: true
+    generates:
+      - '**/main.css'
+    sources:
+      - '**/*.css'
+      - '**/*.go'
+    cmds:
+      - task: css
+        dir: '{{.USER_WORKING_DIR}}'
+
   ast:
     dir: '{{.USER_WORKING_DIR}}'
     desc: Generate AST from source code
@@ -72,7 +92,8 @@ tasks:
     generates:
       - '**/generated.go'
     sources:
-      - '**/*.go'
+      - 'pages/**/*.go'
+      - 'partials/**/*.go'
     cmds:
       - task: ast
         dir: '{{.USER_WORKING_DIR}}'
