@@ -1,1 +1,2 @@
-go run github.com/maddalax/htmgo/framework/tooling/htmgo@latest -task template
+go install github.com/maddalax/htmgo/framework/tooling/htmgo@latest
+go run htmgo -task template
