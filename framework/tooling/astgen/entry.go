@@ -246,7 +246,7 @@ func writePartialsFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package load")
-	builder.AddImport("github.com/maddalax/mhtml/framework/h")
+	builder.AddImport("github.com/maddalax/htmgo/framework/h")
 	builder.AddImport("github.com/gofiber/fiber/v2")
 
 	moduleName := GetModuleName()
@@ -288,7 +288,7 @@ func writePagesFile() {
 	builder.AppendLine(`// Package pages THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package pages")
 	builder.AddImport("github.com/gofiber/fiber/v2")
-	builder.AddImport("github.com/maddalax/mhtml/framework/h")
+	builder.AddImport("github.com/maddalax/htmgo/framework/h")
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
 

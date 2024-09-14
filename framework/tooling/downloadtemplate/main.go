@@ -57,7 +57,7 @@ func main() {
 
 	excludeDir := "starter-template"
 
-	install := exec.Command("git", "clone", "https://github.com/maddalax/mhtml", "--depth=1", *outPath)
+	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", *outPath)
 	install.Stdout = os.Stdout
 	install.Stderr = os.Stderr
 	err := install.Run()

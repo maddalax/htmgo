@@ -1,8 +1,8 @@
-module github.com/maddalax/mhtml/framework-ui
+module github.com/maddalax/htmgo/framework-ui
 
 go 1.23.0
 
-require github.com/maddalax/mhtml/framework v0.0.0-20240913172653-23dd1db77843
+require github.com/maddalax/htmgo/framework v0.0.0-20240913172653-23dd1db77843
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect

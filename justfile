@@ -6,19 +6,19 @@ bundle:
     rm -rf assets/dist
     mkdir -p dist/assets/dist
     just run-gen
-    GOOS=linux GOARCH=amd64 go build -o dist/mhtml .
+    GOOS=linux GOARCH=amd64 go build -o dist/htmgo .
     cd assets/js && npm run build
     just build-css
     cp -r assets/dist/* dist/assets/dist
-    tar -czvf mhtml-release.tar.gz ./dist
+    tar -czvf htmgo-release.tar.gz ./dist
     rm -rf dist
     mkdir -p dist
-    mv mhtml-release.tar.gz dist
+    mv htmgo-release.tar.gz dist
 
 release-version := '1.0.0'
 release:
     just bundle
-    gh release create {{release-version}} dist/mhtml-release.tar.gz --title "Release {{release-version}}" --prerelease --notes "new release"
+    gh release create {{release-version}} dist/htmgo-release.tar.gz --title "Release {{release-version}}" --prerelease --notes "new release"
 
 run-gen:
     go run ./tooling/astgen

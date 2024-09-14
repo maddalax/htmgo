@@ -3,8 +3,8 @@ package partials
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/maddalax/mhtml/framework-ui/ui"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework-ui/ui"
+	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/news"
 )
 

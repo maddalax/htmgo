@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   format: ["esm"],
-  entry: ["mhtml.ts"],
+  entry: ["htmgo.ts"],
   outDir: "./../dist",
   dts: false,
   shims: true,

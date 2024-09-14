@@ -1,4 +1,4 @@
-module github.com/maddalax/mhtml/framework
+module github.com/maddalax/htmgo/framework
 
 go 1.23.0
 

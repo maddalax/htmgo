@@ -1,7 +1,7 @@
 package base
 
 import (
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/partials"
 	"starter-template/partials/sheet"
 )
@@ -11,7 +11,7 @@ func RootPage(children ...h.Renderable) h.Renderable {
 		h.HxExtension("path-deps, response-targets, mutation-error"),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),
-			h.Script("/public/mhtml.js"),
+			h.Script("/public/htmgo.js"),
 		),
 		h.Body(
 			partials.NavBar(),

@@ -84,7 +84,7 @@ func copyDir(srcDir, dstDir string) error {
 }
 
 func main() {
-	modulePath := "github.com/maddalax/mhtml/framework"
+	modulePath := "github.com/maddalax/htmgo/framework"
 	version, err := getModuleVersion(modulePath)
 	if err != nil {
 		log.Fatalf("Error: %v", err)

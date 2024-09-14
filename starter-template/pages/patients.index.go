@@ -2,7 +2,7 @@ package pages
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/pages/base"
 	"starter-template/partials/patient"
 )

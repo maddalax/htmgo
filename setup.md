@@ -1,1 +1,1 @@
-go run github.com/maddalax/mhtml/framework/tooling/mhtml@latest -task template
+go run github.com/maddalax/htmgo/framework/tooling/htmgo@latest -task template

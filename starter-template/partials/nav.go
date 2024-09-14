@@ -1,6 +1,6 @@
 package partials
 
-import "github.com/maddalax/mhtml/framework/h"
+import "github.com/maddalax/htmgo/framework/h"
 
 type Link struct {
 	Name string

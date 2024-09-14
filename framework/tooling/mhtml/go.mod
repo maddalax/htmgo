@@ -1,3 +1,3 @@
-module github.com/maddalax/mhtml/framework/tooling/mhtml
+module github.com/maddalax/htmgo/framework/tooling/htmgo
 
 go 1.23.0

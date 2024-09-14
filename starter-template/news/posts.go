@@ -2,7 +2,7 @@ package news
 
 import (
 	"fmt"
-	"github.com/maddalax/mhtml/framework/util/httpjson"
+	"github.com/maddalax/htmgo/framework/util/httpjson"
 	"sync"
 )
 

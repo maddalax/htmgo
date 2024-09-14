@@ -1,3 +1,3 @@
-module github.com/maddalax/mhtml/framework/tooling/downloadtemplate
+module github.com/maddalax/htmgo/framework/tooling/downloadtemplate
 
 go 1.23.0

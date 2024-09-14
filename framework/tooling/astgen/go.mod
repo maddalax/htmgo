@@ -1,3 +1,3 @@
-module github.com/maddalax/mhtml/framework/tooling/astgen
+module github.com/maddalax/htmgo/framework/tooling/astgen
 
 go 1.23.0

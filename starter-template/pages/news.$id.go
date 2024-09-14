@@ -3,7 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework/h"
 )
 
 func Test(ctx *fiber.Ctx) *h.Page {

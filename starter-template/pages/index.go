@@ -3,7 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework/h"
 	"os"
 	"time"
 )
@@ -13,7 +13,7 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 		h.Class("bg-background flex flex-col items-center"),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),
-			h.Script("/public/mhtml.js"),
+			h.Script("/public/htmgo.js"),
 			h.Script("/public/scripts/shiki.js"),
 		),
 		h.Body(
@@ -23,7 +23,7 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 				h.Class("flex justify-between items-center w-full p-6"),
 				h.Div(
 					h.Class("text-white text-xl font-bold"),
-					h.Text("MHTML"),
+					h.Text("htmgo"),
 				),
 				h.Div(
 					h.Class("flex gap-4"),
@@ -59,7 +59,7 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 			// Footer Section
 			h.Div(
 				h.Class("flex justify-center items-center py-6"),
-				h.Text(fmt.Sprintf("© %d MHTML", time.Now().Year())),
+				h.Text(fmt.Sprintf("© %d htmgo", time.Now().Year())),
 			),
 		),
 	))

@@ -1,7 +1,7 @@
 {
-  "name": "mhtml-js",
+  "name": "htmgo-js",
   "version": "1.0.0",
-  "main": "mhtml.js",
+  "main": "htmgo.js",
   "scripts": {
     "watch": "tsup --watch --config ./tsup.config.ts --sourcemap inline",
     "build": "tsup --minify --config ./tsup.config.ts",

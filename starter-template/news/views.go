@@ -2,7 +2,7 @@ package news
 
 import (
 	"fmt"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/database"
 	"time"
 )

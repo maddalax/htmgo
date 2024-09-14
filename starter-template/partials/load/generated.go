@@ -1,7 +1,7 @@
 // Package partials THIS FILE IS GENERATED. DO NOT EDIT.
 package load
 
-import "github.com/maddalax/mhtml/framework/h"
+import "github.com/maddalax/htmgo/framework/h"
 import "github.com/gofiber/fiber/v2"
 import "starter-template/partials"
 import "starter-template/partials/patient"

@@ -1,8 +1,8 @@
 package partials
 
 import (
-	"github.com/maddalax/mhtml/framework-ui/ui"
-	"github.com/maddalax/mhtml/framework/h"
+	"github.com/maddalax/htmgo/framework-ui/ui"
+	"github.com/maddalax/htmgo/framework/h"
 )
 
 func OpenSheetButton(open bool, children ...h.Renderable) h.Renderable {
