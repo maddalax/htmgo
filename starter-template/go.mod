@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
-	github.com/maddalax/htmgo/framework v0.0.0-20240914010415-2397bf9fb057
+	github.com/maddalax/htmgo/framework v0.0.0-20240916224719-9e5d8edada65
 )
 
 require (

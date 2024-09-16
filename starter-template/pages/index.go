@@ -34,7 +34,7 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 
 func Button() h.Renderable {
 	return h.Button(h.Class("btn bg-slate-500 p-4 rounded text-white"),
-		h.Text("Click here use my ytes"),
+		h.Text("Ctest"),
 		h.AfterRequest(
 			h.SetDisabled(true),
 			h.RemoveClass("bg-red-600"),

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/tasks/astgen"
@@ -61,23 +62,29 @@ func main() {
 			copyassets.CopyAssets()
 			_ = astgen.GenAst(true)
 			_ = css.GenerateCss(true)
-		}
-		if taskName == "css" {
+		} else if taskName == "css" {
 			_ = css.GenerateCss(true)
-		}
-		if taskName == "ast" {
+		} else if taskName == "ast" {
 			_ = astgen.GenAst(true)
-		}
-		if taskName == "run" {
+		} else if taskName == "run" {
 			_ = astgen.GenAst(true)
 			_ = css.GenerateCss(true)
 			_ = run.Server(true)
+		} else if taskName == "template" {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print("What would you like to call your new app?: ")
+			text, _ := reader.ReadString('\n')
+			text = strings.TrimSuffix(text, "\n")
+			text = strings.ReplaceAll(text, " ", "-")
+			text = strings.ToLower(text)
+			downloadtemplate.DownloadTemplate(fmt.Sprintf("./%s", text))
+		} else if taskName == "build" {
+			run.Build()
+		} else {
+			fmt.Println(fmt.Sprintf("Usage: htmgo [%s]", strings.Join(commands, " | ")))
 		}
-		if taskName == "template" {
-			downloadtemplate.DownloadTemplate("./my-app")
-		}
+		os.Exit(1)
 	}
 
 	<-done
-	fmt.Println("Cleanup complete. Exiting.")
 }
