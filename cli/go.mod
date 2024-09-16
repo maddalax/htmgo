@@ -1,4 +1,4 @@
-module github.com/maddalax/htmgo/htmgo
+module github.com/maddalax/htmgo/cli
 
 go 1.23.0
 
