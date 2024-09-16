@@ -1,4 +1,4 @@
-package main
+package downloadtemplate
 
 import (
 	"flag"
@@ -34,25 +34,23 @@ func deleteAllExceptTemplate(outPath string, excludeDir string) {
 	}
 }
 
-func main() {
+func DownloadTemplate(outPath string) {
 	cwd, _ := os.Getwd()
-
-	outPath := flag.String("out", "", "Specify the output path for the new app")
 
 	flag.Parse()
 
-	*outPath = strings.ReplaceAll(*outPath, "\n", "")
-	*outPath = strings.ReplaceAll(*outPath, " ", "-")
-	*outPath = strings.ToLower(*outPath)
+	outPath = strings.ReplaceAll(outPath, "\n", "")
+	outPath = strings.ReplaceAll(outPath, " ", "-")
+	outPath = strings.ToLower(outPath)
 
-	if *outPath == "" {
+	if outPath == "" {
 		fmt.Println("Please provide a name for your app.")
 		return
 	}
 
 	excludeDir := "starter-template"
 
-	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", *outPath)
+	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", outPath)
 	install.Stdout = os.Stdout
 	install.Stderr = os.Stderr
 	err := install.Run()
@@ -62,9 +60,9 @@ func main() {
 		return
 	}
 
-	deleteAllExceptTemplate(*outPath, excludeDir)
+	deleteAllExceptTemplate(outPath, excludeDir)
 
-	newDir := filepath.Join(cwd, *outPath)
+	newDir := filepath.Join(cwd, outPath)
 
 	commands := [][]string{
 		{"cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), "."},
@@ -88,8 +86,8 @@ func main() {
 
 	fmt.Println("Template downloaded successfully.")
 	fmt.Println("To start the development server, run the following commands:")
-	fmt.Printf("cd %s && htmgo run\n", *outPath)
+	fmt.Printf("cd %s && htmgo run\n", outPath)
 
 	fmt.Printf("To build the project, run the following command:\n")
-	fmt.Printf("cd %s && htmgo build\n", *outPath)
+	fmt.Printf("cd %s && htmgo build\n", outPath)
 }

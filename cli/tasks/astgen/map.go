@@ -1,4 +1,4 @@
-package main
+package astgen
 
 // OrderedMap is a generic data structure that maintains the order of keys.
 type OrderedMap[K comparable, V any] struct {

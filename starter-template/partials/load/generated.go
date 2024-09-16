@@ -13,6 +13,9 @@ func GetPartialFromContext(ctx *fiber.Ctx) *h.Partial {
 	if path == "NewPartial" || path == "/starter-template/partials.NewPartial" {
 		return partials.NewPartial(ctx)
 	}
+	if path == "NewPartial2" || path == "/starter-template/partials.NewPartial2" {
+		return partials.NewPartial2(ctx)
+	}
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package main
+package astgen
 
 import (
 	"fmt"
@@ -243,6 +243,10 @@ func writePartialsFile() {
 		return
 	}
 
+	if len(partials) == 0 {
+		return
+	}
+
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package load")
@@ -284,6 +288,7 @@ func formatRoute(path string) string {
 }
 
 func writePagesFile() {
+
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package pages THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package pages")
@@ -291,6 +296,10 @@ func writePagesFile() {
 	builder.AddImport("github.com/maddalax/htmgo/framework/h")
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
+
+	if len(pages) == 0 {
+		return
+	}
 
 	for _, page := range pages {
 		if page.Import != "" && page.Package != "pages" {
@@ -336,13 +345,20 @@ func GetModuleName() string {
 	goModBytes, err := os.ReadFile(modPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading go.mod: %v\n", err)
-		os.Exit(1)
+		return ""
 	}
 	modName := modfile.ModulePath(goModBytes)
 	return modName
 }
 
-func main() {
+func GenAst(exitOnError bool) error {
+	if GetModuleName() == "" {
+		if exitOnError {
+			os.Exit(1)
+		}
+		return fmt.Errorf("error getting module name")
+	}
 	writePartialsFile()
 	writePagesFile()
+	return nil
 }

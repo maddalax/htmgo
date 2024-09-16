@@ -21,9 +21,9 @@ func main() {
 		now := time.Now()
 		err := ctx.Next()
 		duration := time.Since(now)
-		ctx.Set("X-Response-Time", duration.String())
+		ctx.Set("X-Response-Times", duration.String())
 		// Log or print the request method, URL, and duration
-		log.Printf("Request: %s %s took %dms", ctx.Method(), ctx.OriginalURL(), duration.Milliseconds())
+		log.Printf("Requests: %s %s took %dms", ctx.Method(), ctx.OriginalURL(), duration.Milliseconds())
 		return err
 	})
 

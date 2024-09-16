@@ -1,4 +1,4 @@
-package main
+package copyassets
 
 import (
 	"fmt"
@@ -83,7 +83,7 @@ func copyDir(srcDir, dstDir string) error {
 	})
 }
 
-func main() {
+func CopyAssets() {
 	modulePath := "github.com/maddalax/htmgo/framework"
 	version, err := getModuleVersion(modulePath)
 	if err != nil {
