@@ -1,7 +1,7 @@
 package h
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"html"
 	"net/http"
 	"reflect"
@@ -51,10 +51,10 @@ func NewPartial(root Renderable) *Partial {
 	}
 }
 
-func GetPartialPath(partial func(ctx *fiber.Ctx) *Partial) string {
+func GetPartialPath(partial func(ctx echo.Context) *Partial) string {
 	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }
 
-func GetPartialPathWithQs(partial func(ctx *fiber.Ctx) *Partial, qs string) string {
+func GetPartialPathWithQs(partial func(ctx echo.Context) *Partial, qs string) string {
 	return html.EscapeString(GetPartialPath(partial) + "?" + qs)
 }

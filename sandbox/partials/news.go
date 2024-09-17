@@ -2,13 +2,13 @@ package partials
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework-ui/ui"
 	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/news"
 )
 
-func NewsSheet(ctx *fiber.Ctx) *h.Partial {
+func NewsSheet(ctx echo.Context) *h.Partial {
 	open := h.GetQueryParam(ctx, "open") == "true"
 	return h.NewPartialWithHeaders(
 		&map[string]string{
@@ -23,7 +23,7 @@ func NewsSheet(ctx *fiber.Ctx) *h.Partial {
 	)
 }
 
-func NewsSheetOpenCount(ctx *fiber.Ctx) *h.Partial {
+func NewsSheetOpenCount(ctx echo.Context) *h.Partial {
 
 	open := h.GetQueryParam(ctx, "open") == "true"
 

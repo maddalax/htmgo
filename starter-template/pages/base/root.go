@@ -6,7 +6,11 @@ import (
 )
 
 func Extensions() string {
-	return strings.Join([]string{"path-deps", "response-targets", "mutation-error"}, ", ")
+	extensions := []string{"path-deps", "response-targets", "mutation-error"}
+	if h.IsDevelopment() {
+		extensions = append(extensions, "livereload")
+	}
+	return strings.Join(extensions, ", ")
 }
 
 func RootPage(children ...h.Renderable) h.Renderable {

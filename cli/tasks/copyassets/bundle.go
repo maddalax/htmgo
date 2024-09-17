@@ -2,12 +2,14 @@ package copyassets
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/tasks/module"
 	"github.com/maddalax/htmgo/cli/tasks/process"
 	"golang.org/x/mod/modfile"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func getModuleVersion(modulePath string) (string, error) {
@@ -85,17 +87,25 @@ func copyDir(srcDir, dstDir string) error {
 }
 
 func CopyAssets() {
-	modulePath := "github.com/maddalax/htmgo/framework"
-	version, err := getModuleVersion(modulePath)
-	if err != nil {
-		log.Fatalf("Error: %v", err)
-	}
-	dirname, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
+	moduleName := "github.com/maddalax/htmgo/framework"
+	modulePath := module.GetDependencyPath(moduleName)
+
+	assetDir := ""
+	// Is hosted version and not local version from .work file
+	if strings.HasPrefix(modulePath, "github.com/") {
+		version, err := getModuleVersion(modulePath)
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
+		dirname, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		assetDir = fmt.Sprintf("%s/go/pkg/mod/%s@%s/assets", dirname, modulePath, version)
+	} else {
+		assetDir = fmt.Sprintf("%s/assets", modulePath)
 	}
 
-	assetDir := fmt.Sprintf("%s/go/pkg/mod/%s@%s/assets", dirname, modulePath, version)
 	assetDistDir := fmt.Sprintf("%s/dist", assetDir)
 	assetCssDir := fmt.Sprintf("%s/css", assetDir)
 
@@ -105,7 +115,7 @@ func CopyAssets() {
 	destDirDist := fmt.Sprintf("%s/dist", destDir)
 	destDirCss := fmt.Sprintf("%s/css", destDir)
 
-	err = copyDir(assetDistDir, destDirDist)
+	err := copyDir(assetDistDir, destDirDist)
 	err = copyDir(assetCssDir, destDirCss)
 
 	if err != nil {

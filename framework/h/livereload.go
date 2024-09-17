@@ -1,33 +1,30 @@
 package h
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"strconv"
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"golang.org/x/net/websocket"
 	"time"
 )
 
-var Version = time.Now().Nanosecond()
+var Version = uuid.NewString()
 
-func LiveReloadHandler(c *fiber.Ctx) error {
-	v := strconv.FormatInt(int64(Version), 10)
-	current := c.Cookies("version", v)
-
-	if current != v {
-		c.Set("HX-Refresh", "true")
-	}
-
-	c.Cookie(&fiber.Cookie{
-		Name:  "version",
-		Value: v,
-	})
-
-	return c.SendString("")
+func handler(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		_ = websocket.Message.Send(ws, Version)
+		// keep ws alive
+		for {
+			err := websocket.Message.Send(ws, Version)
+			if err != nil {
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }
 
-func LiveReload() Renderable {
-	return Div(Get("/livereload"), Trigger("every 200ms"))
-}
-
-func AddLiveReloadHandler(path string, app *fiber.App) {
-	app.Get(path, LiveReloadHandler)
+func AddLiveReloadHandler(path string, app *echo.Echo) {
+	app.GET(path, handler)
 }

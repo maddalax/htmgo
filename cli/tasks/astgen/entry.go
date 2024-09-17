@@ -210,7 +210,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	f := Function{
 		Name: fName,
 		Parameters: []NameType{
-			{Name: "ctx", Type: "*fiber.Ctx"},
+			{Name: "ctx", Type: "echo.Context"},
 		},
 		Return: []ReturnType{
 			{Type: "*h.Partial"},
@@ -221,11 +221,11 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	builder.Append(builder.BuildFunction(f))
 
 	registerFunction := fmt.Sprintf(`
-		func RegisterPartials(f *fiber.App) {
-			f.All("%s/partials*", func(ctx *fiber.Ctx) error {
+		func RegisterPartials(f *echo.Echo) {
+			f.Any("%s/partials*", func(ctx echo.Context) error {
 			partial := GetPartialFromContext(ctx)
 			if partial == nil {
-				return ctx.SendStatus(404)
+				return ctx.NoContent(404)
 			}
 			return h.PartialView(ctx, partial)
 			})
@@ -252,7 +252,7 @@ func writePartialsFile() {
 	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package load")
 	builder.AddImport("github.com/maddalax/htmgo/framework/h")
-	builder.AddImport("github.com/gofiber/fiber/v2")
+	builder.AddImport("github.com/labstack/echo/v4")
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
@@ -293,7 +293,7 @@ func writePagesFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(`// Package pages THIS FILE IS GENERATED. DO NOT EDIT.`)
 	builder.AppendLine("package pages")
-	builder.AddImport("github.com/gofiber/fiber/v2")
+	builder.AddImport("github.com/labstack/echo/v4")
 	builder.AddImport("github.com/maddalax/htmgo/framework/h")
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
@@ -319,7 +319,7 @@ func writePagesFile() {
 		}
 
 		body += fmt.Sprintf(`
-			f.Get("%s", func(ctx *fiber.Ctx) error {
+			f.GET("%s", func(ctx echo.Context) error {
 				return h.HtmlView(ctx, %s(ctx))
 			})
 		`, formatRoute(page.Path), call)
@@ -328,7 +328,7 @@ func writePagesFile() {
 	f := Function{
 		Name: fName,
 		Parameters: []NameType{
-			{Name: "f", Type: "*fiber.App"},
+			{Name: "f", Type: "*echo.Echo"},
 		},
 		Body: body,
 	}

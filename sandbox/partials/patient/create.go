@@ -1,13 +1,13 @@
 package patient
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/features/patient"
 	"starter-template/partials/sheet"
 )
 
-func Create(ctx *fiber.Ctx) *h.Partial {
+func Create(ctx echo.Context) *h.Partial {
 	name := ctx.FormValue("name")
 	reason := ctx.FormValue("reason-for-visit")
 	location := ctx.FormValue("location-name")

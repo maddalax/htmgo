@@ -2,13 +2,13 @@ package pages
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"os"
 	"time"
 )
 
-func IndexPage(c *fiber.Ctx) *h.Page {
+func IndexPage(c echo.Context) *h.Page {
 	return h.NewPage(h.Html(
 		h.Class("bg-background flex flex-col items-center"),
 		h.Head(

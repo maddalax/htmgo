@@ -1,14 +1,16 @@
 package pages
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
+	"starter-template/pages/base"
 	"starter-template/partials"
 )
 
-func IndexPage(c *fiber.Ctx) *h.Page {
+func IndexPage(c echo.Context) *h.Page {
 	return h.NewPage(h.Html(
-		h.Class("bg-blue-400 flex flex-col items-center h-full w-full"),
+		h.HxExtension(base.Extensions()),
+		h.Class("bg-slate-100 flex flex-col items-center h-full w-full"),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),
 			h.Script("/public/htmgo.js"),
@@ -19,7 +21,7 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 				h.Class("flex flex-col items-center justify-center gap-6 p-12 text-center"),
 				h.H1(
 					h.Class("text-4xl sm:text-5xl font-bold max-w-3xl"),
-					h.Text("Welcome to my fast!!"),
+					h.Text("test"),
 				),
 				h.P(
 					h.Class("text-lg sm:text-xl max-w-1xl"),
@@ -33,8 +35,8 @@ func IndexPage(c *fiber.Ctx) *h.Page {
 }
 
 func Button() h.Renderable {
-	return h.Button(h.Class("btn bg-slate-500 p-4 rounded text-white"),
-		h.Text("Ctest"),
+	return h.Button(h.Class("btn bg-red-500 p-4 rounded text-white"),
+		h.Text("this is my nice this works"),
 		h.AfterRequest(
 			h.SetDisabled(true),
 			h.RemoveClass("bg-red-600"),

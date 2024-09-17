@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"log"
 	"starter-template/pages"
@@ -11,16 +11,16 @@ import (
 )
 
 func main() {
-	f := fiber.New()
+	f := echo.New()
 
 	f.Static("/public", "./assets/dist")
 
-	f.Use(func(ctx *fiber.Ctx) error {
+	f.Use(func(ctx echo.Context) error {
 		if ctx.Cookies("htmgo-session") != "" {
 			return ctx.Next()
 		}
 		id := ctx.IP() + uuid.NewString()
-		ctx.Cookie(&fiber.Cookie{
+		ctx.Cookie(&echo.Cookie{
 			Name:        "htmgo-session",
 			Value:       id,
 			SessionOnly: true,
@@ -28,7 +28,7 @@ func main() {
 		return ctx.Next()
 	})
 
-	f.Use(func(ctx *fiber.Ctx) error {
+	f.Use(func(ctx echo.Context) error {
 		if ctx.Path() == "/livereload" {
 			return ctx.Next()
 		}

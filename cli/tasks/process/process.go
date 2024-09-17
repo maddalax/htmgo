@@ -161,13 +161,14 @@ func Run(command string, exitOnError bool) error {
 		return nil
 	}
 
+	if strings.Contains(err.Error(), "signal: killed") {
+		return nil
+	}
+
 	if exitOnError {
 		log.Println(fmt.Sprintf("error: %v", err))
 		os.Exit(1)
 	}
 
-	if strings.Contains(err.Error(), "signal: killed") {
-		return nil
-	}
 	return err
 }

@@ -1,13 +1,13 @@
 package pages
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/pages/base"
 	"starter-template/partials/patient"
 )
 
-func PatientsIndex(ctx *fiber.Ctx) *h.Page {
+func PatientsIndex(ctx echo.Context) *h.Page {
 	return h.NewPage(base.RootPage(
 		h.Div(
 			h.Class("flex flex-col p-4 w-full"),

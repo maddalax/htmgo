@@ -1,7 +1,7 @@
 package patient
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework-ui/ui"
 	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/features/patient"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func List(ctx *fiber.Ctx) *h.Partial {
+func List(ctx echo.Context) *h.Partial {
 	patients, err := patient.NewService(ctx).List()
 
 	if err != nil {
@@ -33,7 +33,7 @@ func List(ctx *fiber.Ctx) *h.Partial {
 	))
 }
 
-func AddPatientSheetPartial(ctx *fiber.Ctx) *h.Partial {
+func AddPatientSheetPartial(ctx echo.Context) *h.Partial {
 	closePathQs := h.GetQueryParam(ctx, "onClosePath")
 	return h.NewPartialWithHeaders(
 		h.PushQsHeader(ctx, "adding", "true"),
@@ -56,7 +56,7 @@ func AddPatientSheet(onClosePath string) h.Renderable {
 		})
 }
 
-func ValidateForm(ctx *fiber.Ctx) *h.Partial {
+func ValidateForm(ctx echo.Context) *h.Partial {
 	trigger := h.GetTriggerName(ctx)
 	value := ctx.FormValue(trigger)
 

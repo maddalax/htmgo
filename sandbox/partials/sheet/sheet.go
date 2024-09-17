@@ -2,7 +2,7 @@ package sheet
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 )
 
@@ -28,7 +28,7 @@ func Closed() h.Renderable {
 	return h.Div(h.Id(Id))
 }
 
-func Close(ctx *fiber.Ctx) *h.Partial {
+func Close(ctx echo.Context) *h.Partial {
 	return h.NewPartialWithHeaders(
 		h.Ternary(ctx.Query("path") != "", h.ReplaceUrlHeader(ctx.Query("path")), h.NewHeaders()),
 		h.Swap(ctx, Closed()),

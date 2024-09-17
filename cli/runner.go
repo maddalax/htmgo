@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/tasks/astgen"
+	"github.com/maddalax/htmgo/cli/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/tasks/css"
 	"github.com/maddalax/htmgo/cli/tasks/downloadtemplate"
 	"github.com/maddalax/htmgo/cli/tasks/process"
@@ -56,6 +57,7 @@ func main() {
 	if taskName == "watch" {
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
+		copyassets.CopyAssets()
 		astgen.GenAst(true)
 		css.GenerateCss(true)
 		run.EntGenerate()

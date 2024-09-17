@@ -1,19 +1,19 @@
 package pages
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"starter-template/pages/base"
 	"starter-template/partials"
 )
 
-func ListPage(ctx *fiber.Ctx) *h.Page {
+func ListPage(ctx echo.Context) *h.Page {
 	return h.NewPage(base.RootPage(
 		list(ctx),
 	))
 }
 
-func list(ctx *fiber.Ctx) h.Renderable {
+func list(ctx echo.Context) h.Renderable {
 	return h.Fragment(
 		h.ViewOnLoad(partials.NewsSheet),
 		h.Div(

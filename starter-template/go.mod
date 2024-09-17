@@ -4,7 +4,6 @@ go 1.23.0
 
 require (
 	entgo.io/ent v0.14.1
-	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/maddalax/htmgo/framework v0.0.0-20240916224719-9e5d8edada65
 )
 

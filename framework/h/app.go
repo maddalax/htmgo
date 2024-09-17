@@ -2,7 +2,7 @@ package h
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/util/process"
 	"log/slog"
 	"time"
@@ -10,7 +10,7 @@ import (
 
 type App struct {
 	LiveReload bool
-	Fiber      *fiber.App
+	Echo       *echo.Echo
 }
 
 var instance *App
@@ -22,21 +22,21 @@ func GetApp() *App {
 	return instance
 }
 
-func Start(app *fiber.App, opts App) {
+func Start(app *echo.Echo, opts App) {
 	instance = &opts
 	instance.start(app)
 }
 
-func (a App) start(app *fiber.App) {
+func (a App) start(app *echo.Echo) {
 
-	a.Fiber = app
+	a.Echo = app
 
 	if a.LiveReload {
-		AddLiveReloadHandler("/livereload", a.Fiber)
+		AddLiveReloadHandler("/dev/livereload", a.Echo)
 	}
 
 	port := ":3000"
-	err := a.Fiber.Listen(port)
+	err := a.Echo.Start(port)
 
 	if err != nil {
 		// If we are in watch mode, just try to kill any processes holding that port
@@ -45,7 +45,7 @@ func (a App) start(app *fiber.App) {
 			slog.Info("Port already in use, trying to kill the process and start again")
 			process.RunOrExit(fmt.Sprintf("kill -9 $(lsof -t -i%s)", port))
 			time.Sleep(time.Millisecond * 50)
-			err = a.Fiber.Listen(port)
+			err = a.Echo.Start(port)
 			if err != nil {
 				panic(err)
 			}
@@ -55,25 +55,16 @@ func (a App) start(app *fiber.App) {
 	}
 }
 
-func HtmlView(c *fiber.Ctx, page *Page) error {
+func HtmlView(c echo.Context, page *Page) error {
 	root := page.Root.Render()
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-
-	if GetApp().LiveReload && root.tag == "html" {
-		root.AppendChild(
-			LiveReload(),
-		)
-	}
-
-	return c.SendString(
+	return c.HTML(200,
 		Render(
 			root,
 		),
 	)
 }
 
-func PartialViewWithHeaders(c *fiber.Ctx, headers *Headers, partial *Partial) error {
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
+func PartialViewWithHeaders(c echo.Context, headers *Headers, partial *Partial) error {
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			c.Set(s, a)
@@ -86,22 +77,22 @@ func PartialViewWithHeaders(c *fiber.Ctx, headers *Headers, partial *Partial) er
 		}
 	}
 
-	return c.SendString(
+	return c.HTML(200,
 		Render(
 			partial.Root,
 		),
 	)
 }
 
-func PartialView(c *fiber.Ctx, partial *Partial) error {
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
+func PartialView(c echo.Context, partial *Partial) error {
+	c.Set(echo.HeaderContentType, echo.MIMETextHTML)
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			c.Set(s, a)
 		}
 	}
 
-	return c.SendString(
+	return c.HTML(200,
 		Render(
 			partial.Root,
 		),

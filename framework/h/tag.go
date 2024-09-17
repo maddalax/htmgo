@@ -3,7 +3,7 @@ package h
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"html"
 	"net/url"
 	"strings"
@@ -101,11 +101,11 @@ func Get(path string) Renderable {
 	return Attribute("hx-get", path)
 }
 
-func GetPartial(partial func(ctx *fiber.Ctx) *Partial) Renderable {
+func GetPartial(partial func(ctx echo.Context) *Partial) Renderable {
 	return Get(GetPartialPath(partial))
 }
 
-func GetPartialWithQs(partial func(ctx *fiber.Ctx) *Partial, qs string) Renderable {
+func GetPartialWithQs(partial func(ctx echo.Context) *Partial, qs string) Renderable {
 	return Get(GetPartialPathWithQs(partial, qs))
 }
 
@@ -119,13 +119,13 @@ type ReloadParams struct {
 	Children Renderable
 }
 
-func ViewOnLoad(partial func(ctx *fiber.Ctx) *Partial) Renderable {
+func ViewOnLoad(partial func(ctx echo.Context) *Partial) Renderable {
 	return View(partial, ReloadParams{
 		Triggers: CreateTriggers("load"),
 	})
 }
 
-func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) Renderable {
+func View(partial func(ctx echo.Context) *Partial, params ReloadParams) Renderable {
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(params.Triggers, ", "),
@@ -133,7 +133,7 @@ func View(partial func(ctx *fiber.Ctx) *Partial, params ReloadParams) Renderable
 	}), params.Children)
 }
 
-func PartialWithTriggers(partial func(ctx *fiber.Ctx) *Partial, triggers ...string) Renderable {
+func PartialWithTriggers(partial func(ctx echo.Context) *Partial, triggers ...string) Renderable {
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(triggers, ", "),
@@ -283,8 +283,8 @@ func CombineHeaders(headers ...*Headers) *Headers {
 	return &m
 }
 
-func CurrentPath(ctx *fiber.Ctx) string {
-	current := ctx.Get("Hx-Current-Url")
+func CurrentPath(ctx echo.Context) string {
+	current := ctx.Request().Header.Get("Hx-Current-Url")
 	parsed, err := url.Parse(current)
 	if err != nil {
 		return ""
@@ -292,8 +292,8 @@ func CurrentPath(ctx *fiber.Ctx) string {
 	return parsed.Path
 }
 
-func PushQsHeader(ctx *fiber.Ctx, key string, value string) *Headers {
-	current := ctx.Get("Hx-Current-Url")
+func PushQsHeader(ctx echo.Context, key string, value string) *Headers {
+	current := ctx.Request().Header.Get("Hx-Current-Url")
 	parsed, err := url.Parse(current)
 	if err != nil {
 		return NewHeaders()
@@ -512,11 +512,11 @@ func IfElseLazy(condition bool, cb1 func() Renderable, cb2 func() Renderable) Re
 	}
 }
 
-func GetTriggerName(ctx *fiber.Ctx) string {
-	return ctx.Get("HX-Trigger-Name")
+func GetTriggerName(ctx echo.Context) string {
+	return ctx.Request().Header.Get("HX-Trigger-Name")
 }
 
-func IfHtmxRequest(ctx *fiber.Ctx, node Renderable) Renderable {
+func IfHtmxRequest(ctx echo.Context, node Renderable) Renderable {
 	if ctx.Get("HX-Request") != "" {
 		return node
 	}
@@ -535,11 +535,11 @@ func NewSwap(selector string, content *Node) SwapArg {
 	}
 }
 
-func Swap(ctx *fiber.Ctx, content Renderable) Renderable {
+func Swap(ctx echo.Context, content Renderable) Renderable {
 	return SwapWithSelector(ctx, "", content)
 }
 
-func SwapWithSelector(ctx *fiber.Ctx, selector string, content Renderable) Renderable {
+func SwapWithSelector(ctx echo.Context, selector string, content Renderable) Renderable {
 	if ctx == nil || ctx.Get("HX-Request") == "" {
 		return Empty()
 	}
@@ -547,7 +547,7 @@ func SwapWithSelector(ctx *fiber.Ctx, selector string, content Renderable) Rende
 	return c.AppendChild(OutOfBandSwap(selector))
 }
 
-func SwapMany(ctx *fiber.Ctx, args ...SwapArg) Renderable {
+func SwapMany(ctx echo.Context, args ...SwapArg) Renderable {
 	if ctx.Get("HX-Request") == "" {
 		return Empty()
 	}

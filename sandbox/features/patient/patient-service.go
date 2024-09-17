@@ -2,8 +2,8 @@ package patient
 
 import (
 	"errors"
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"starter-template/database"
 	"time"
 )
@@ -16,10 +16,10 @@ type Patient struct {
 }
 
 type Service struct {
-	ctx *fiber.Ctx
+	ctx echo.Context
 }
 
-func NewService(ctx *fiber.Ctx) *Service {
+func NewService(ctx echo.Context) *Service {
 	return &Service{}
 }
 

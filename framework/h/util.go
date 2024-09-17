@@ -2,7 +2,7 @@ package h
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"net/url"
 )
 
@@ -33,10 +33,10 @@ func JsonSerialize(data any) string {
 	return string(serialized)
 }
 
-func GetQueryParam(ctx *fiber.Ctx, key string) string {
-	value := ctx.Query(key)
+func GetQueryParam(ctx echo.Context, key string) string {
+	value := ctx.QueryParam(key)
 	if value == "" {
-		current := ctx.Get("Hx-Current-Url")
+		current := ctx.Request().Header.Get("Hx-Current-Url")
 		if current != "" {
 			u, err := url.Parse(current)
 			if err == nil {

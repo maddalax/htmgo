@@ -4,6 +4,7 @@ import "./htmxextensions/trigger-children";
 import "./htmxextensions/debug";
 import "./htmxextensions/response-targets";
 import "./htmxextensions/mutation-error";
+import "./htmxextensions/livereload"
 
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;
