@@ -118,7 +118,9 @@ func OnFileChange(events []*fsnotify.Event) {
 
 	wg.Wait()
 
-	process.KillAll()
+	if tasks.Run {
+		process.KillAll()
+	}
 
 	if tasks.Css {
 		go css.GenerateCss(false)

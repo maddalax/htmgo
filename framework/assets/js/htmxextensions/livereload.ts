@@ -10,14 +10,14 @@ htmx.defineExtension("livereload", {
         createWebSocketClient({
             url: `ws://${host}/dev/livereload`,
             onOpen: () => {
-                console.log('LiveReload connected.');
             },
             onMessage: (message) => {
                if(lastVersion === "") {
                    lastVersion = message;
                }
                if(lastVersion !== message) {
-                 window.location.reload();
+                   lastVersion = message;
+                   reload()
                }
             },
             onError: (error) => {
@@ -31,3 +31,16 @@ htmx.defineExtension("livereload", {
 
     },
 });
+
+function reload() {
+    fetch(window.location.href).then(response => {
+        return response.text();
+    }).then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+    }).catch(err => {
+        console.log('failed to fetch live reload', err)
+        setTimeout(reload, 100)
+    })
+}

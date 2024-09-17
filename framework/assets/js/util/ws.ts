@@ -20,11 +20,17 @@ export function createWebSocketClient(opts: WsOpts) {
         };
         // Handle connection errors
         socket.onerror = (error) => {
+           try {
+               socket?.close()
+           } catch(ex) {
+               // noop
+           }
+            let interval = tries * (opts.reconnectInterval || 100);
+            setTimeout(() => connect(tries + 1), interval);
         };
         // Handle connection close and attempt reconnection
         socket.onclose = () => {
-            console.log('WebSocket connection closed. Attempting to reconnect...');
-            let interval = tries * (opts.reconnectInterval || 50);
+            let interval = tries * (opts.reconnectInterval || 100);
             setTimeout(() => connect(tries + 1), interval);
         };
     };

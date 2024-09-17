@@ -17,18 +17,8 @@ func IndexPage(c echo.Context) *h.Page {
 		),
 		h.Body(
 			h.Class("flex flex-col gap-4"),
-			h.Div(
-				h.Class("flex flex-col items-center justify-center gap-6 p-12 text-center"),
-				h.H1(
-					h.Class("text-4xl sm:text-5xl font-bold max-w-3xl"),
-					h.Text("changed this"),
-				),
-				h.P(
-					h.Class("text-lg sm:text-xl max-w-1xl"),
-				),
-				h.Div(
-					Button(),
-				),
+			h.Div(h.Class("flex flex-col gap-2 mt-6"),
+				Button(),
 			),
 		),
 	))
