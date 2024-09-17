@@ -3,6 +3,8 @@ package downloadtemplate
 import (
 	"flag"
 	"fmt"
+	"github.com/maddalax/htmgo/cli/tasks/process"
+	"github.com/maddalax/htmgo/cli/tasks/run"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -83,6 +85,11 @@ func DownloadTemplate(outPath string) {
 			return
 		}
 	}
+
+	fmt.Printf("Setting up the project in %s\n", newDir)
+	process.SetWorkingDir(newDir)
+	run.Setup()
+	process.SetWorkingDir("")
 
 	fmt.Println("Template downloaded successfully.")
 	fmt.Println("To start the development server, run the following commands:")

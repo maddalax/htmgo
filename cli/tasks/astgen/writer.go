@@ -1,6 +1,7 @@
 package astgen
 
 import (
+	"github.com/maddalax/htmgo/cli/tasks/process"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -12,7 +13,7 @@ import (
 )
 
 func WriteFile(path string, cb func(content *ast.File) string) {
-	currentDir, err := os.Getwd()
+	currentDir := process.GetWorkingDir()
 
 	path = filepath.Join(currentDir, path)
 

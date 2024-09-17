@@ -2,6 +2,7 @@ package astgen
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/tasks/process"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -56,7 +57,7 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 
 func findPublicFuncsReturningHPartial(dir string) ([]Partial, error) {
 	var partials []Partial
-	cwd, _ := os.Getwd()
+	cwd := process.GetWorkingDir()
 
 	// Walk through the directory to find all Go files.
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -235,7 +236,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 }
 
 func writePartialsFile() {
-	cwd, _ := os.Getwd()
+	cwd := process.GetWorkingDir()
 	partialPath := filepath.Join(cwd, "partials")
 	partials, err := findPublicFuncsReturningHPartial(partialPath)
 	if err != nil {
@@ -340,7 +341,7 @@ func writePagesFile() {
 }
 
 func GetModuleName() string {
-	wd, _ := os.Getwd()
+	wd := process.GetWorkingDir()
 	modPath := filepath.Join(wd, "go.mod")
 	goModBytes, err := os.ReadFile(modPath)
 	if err != nil {

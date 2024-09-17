@@ -5,10 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/tasks/astgen"
-	"github.com/maddalax/htmgo/cli/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/tasks/css"
 	"github.com/maddalax/htmgo/cli/tasks/downloadtemplate"
-	"github.com/maddalax/htmgo/cli/tasks/process"
 	"github.com/maddalax/htmgo/cli/tasks/reloader"
 	"github.com/maddalax/htmgo/cli/tasks/run"
 	"os"
@@ -57,11 +55,7 @@ func main() {
 		startWatcher(reloader.OnFileChange)
 	} else {
 		if taskName == "setup" {
-			process.RunOrExit("go mod download")
-			process.RunOrExit("go mod tidy")
-			copyassets.CopyAssets()
-			_ = astgen.GenAst(true)
-			_ = css.GenerateCss(true)
+			run.Setup()
 		} else if taskName == "css" {
 			_ = css.GenerateCss(true)
 		} else if taskName == "ast" {
@@ -83,7 +77,7 @@ func main() {
 		} else {
 			fmt.Println(fmt.Sprintf("Usage: htmgo [%s]", strings.Join(commands, " | ")))
 		}
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	<-done

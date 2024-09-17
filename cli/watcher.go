@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 )
 
+var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
+
 func startWatcher(cb func(file []*fsnotify.Event)) {
 	//debouncer := NewDebouncer(time.Millisecond * 100)
 	events := make([]*fsnotify.Event, 0)
@@ -51,6 +53,12 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 	err = filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+		// Ignore directories in the ignoredDirs list
+		for _, ignoredDir := range ignoredDirs {
+			if ignoredDir == info.Name() {
+				return filepath.SkipDir
+			}
 		}
 		// Only watch directories
 		if info.IsDir() {

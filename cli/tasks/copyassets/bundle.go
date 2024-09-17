@@ -2,6 +2,7 @@ package copyassets
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/tasks/process"
 	"golang.org/x/mod/modfile"
 	"io"
 	"log"
@@ -11,13 +12,13 @@ import (
 
 func getModuleVersion(modulePath string) (string, error) {
 	// Read the go.mod file
-	data, err := os.ReadFile("go.mod")
+	data, err := os.ReadFile(process.GetPathRelativeToCwd("go.mod"))
 	if err != nil {
 		return "", fmt.Errorf("error reading go.mod: %v", err)
 	}
 
 	// Parse the go.mod file
-	modFile, err := modfile.Parse("go.mod", data, nil)
+	modFile, err := modfile.Parse(process.GetPathRelativeToCwd("go.mod"), data, nil)
 	if err != nil {
 		return "", fmt.Errorf("error parsing go.mod: %v", err)
 	}
@@ -98,11 +99,7 @@ func CopyAssets() {
 	assetDistDir := fmt.Sprintf("%s/dist", assetDir)
 	assetCssDir := fmt.Sprintf("%s/css", assetDir)
 
-	cwd, err := os.Getwd()
-
-	if err != nil {
-		log.Fatal("failed to get cwd")
-	}
+	cwd := process.GetWorkingDir()
 
 	destDir := fmt.Sprintf("%s/assets", cwd)
 	destDirDist := fmt.Sprintf("%s/dist", destDir)

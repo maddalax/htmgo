@@ -6,15 +6,33 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
 )
 
+var workingDir string
 var commands = make([]*exec.Cmd, 0)
 
 func AppendRunning(cmd *exec.Cmd) {
 	commands = append(commands, cmd)
+}
+
+func GetWorkingDir() string {
+	if workingDir == "" {
+		wd, _ := os.Getwd()
+		return wd
+	}
+	return workingDir
+}
+
+func SetWorkingDir(dir string) {
+	workingDir = dir
+}
+
+func GetPathRelativeToCwd(path string) string {
+	return filepath.Join(GetWorkingDir(), path)
 }
 
 func KillAll() {
@@ -129,6 +147,11 @@ func Run(command string, exitOnError bool) error {
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	if workingDir != "" {
+		cmd.Dir = workingDir
+	}
+
 	AppendRunning(cmd)
 	err := cmd.Run()
 	if err != nil {
