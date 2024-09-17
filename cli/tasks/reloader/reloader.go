@@ -80,6 +80,7 @@ func OnFileChange(events []*fsnotify.Event) {
 
 		if c.HasAnySuffix("tailwind.config.js", ".css") {
 			tasks.Css = true
+			tasks.Run = true
 		}
 
 		if c.HasAnyPrefix("ent/schema") {
@@ -92,12 +93,6 @@ func OnFileChange(events []*fsnotify.Event) {
 	if tasks.AstGen {
 		deps = append(deps, func() any {
 			return astgen.GenAst(false)
-		})
-	}
-
-	if tasks.Css {
-		deps = append(deps, func() any {
-			return css.GenerateCss(false)
 		})
 	}
 
@@ -123,8 +118,13 @@ func OnFileChange(events []*fsnotify.Event) {
 
 	wg.Wait()
 
+	process.KillAll()
+
+	if tasks.Css {
+		go css.GenerateCss(false)
+	}
+
 	if tasks.Run {
-		process.KillAll()
 		_ = run.Server(false)
 	}
 }

@@ -96,6 +96,7 @@ func KillAll() {
 	}
 
 	commands = make([]*exec.Cmd, 0)
+	fmt.Printf("all processes killed\n")
 }
 
 func PidExists(pid int32) (bool, error) {
