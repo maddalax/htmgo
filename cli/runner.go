@@ -7,8 +7,10 @@ import (
 	"github.com/maddalax/htmgo/cli/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/tasks/css"
 	"github.com/maddalax/htmgo/cli/tasks/downloadtemplate"
+	"github.com/maddalax/htmgo/cli/tasks/process"
 	"github.com/maddalax/htmgo/cli/tasks/reloader"
 	"github.com/maddalax/htmgo/cli/tasks/run"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -17,7 +19,7 @@ func main() {
 	done := RegisterSignals()
 
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "watch", "build", "setup", "css"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -44,16 +46,35 @@ func main() {
 		return
 	}
 
+	slog.SetLogLoggerLevel(getLogLevel())
+
 	taskName := os.Args[1]
 
+	slog.Debug("Running task: %s", taskName)
+	slog.Debug("working dir %s", process.GetWorkingDir())
+
 	if taskName == "watch" {
+		os.Setenv("ENV", "development")
+		os.Setenv("WATCH_MODE", "true")
 		astgen.GenAst(true)
 		css.GenerateCss(true)
+		run.EntGenerate()
 		go func() {
 			_ = run.Server(true)
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
+		if taskName == "schema" {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print("Enter entity name:")
+			text, _ := reader.ReadString('\n')
+			text = strings.TrimSuffix(text, "\n")
+			run.EntNewSchema(text)
+		}
+		if taskName == "generate" {
+			run.EntGenerate()
+			astgen.GenAst(true)
+		}
 		if taskName == "setup" {
 			run.Setup()
 		} else if taskName == "css" {

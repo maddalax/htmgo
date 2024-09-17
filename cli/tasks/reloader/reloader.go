@@ -7,6 +7,7 @@ import (
 	"github.com/maddalax/htmgo/cli/tasks/css"
 	"github.com/maddalax/htmgo/cli/tasks/process"
 	"github.com/maddalax/htmgo/cli/tasks/run"
+	"log/slog"
 	"strings"
 	"sync"
 )
@@ -53,6 +54,7 @@ type Tasks struct {
 	AstGen bool
 	Css    bool
 	Run    bool
+	Ent    bool
 }
 
 func OnFileChange(events []*fsnotify.Event) {
@@ -60,6 +62,8 @@ func OnFileChange(events []*fsnotify.Event) {
 
 	for _, event := range events {
 		c := NewChange(event.Name)
+
+		slog.Debug("file changed", slog.String("file", c.Name()))
 
 		if c.IsGenerated() {
 			continue
@@ -77,6 +81,10 @@ func OnFileChange(events []*fsnotify.Event) {
 		if c.HasAnySuffix("tailwind.config.js", ".css") {
 			tasks.Css = true
 		}
+
+		if c.HasAnyPrefix("ent/schema") {
+			tasks.Ent = true
+		}
 	}
 
 	deps := make([]func() any, 0)
@@ -90,6 +98,13 @@ func OnFileChange(events []*fsnotify.Event) {
 	if tasks.Css {
 		deps = append(deps, func() any {
 			return css.GenerateCss(false)
+		})
+	}
+
+	if tasks.Ent {
+		deps = append(deps, func() any {
+			run.EntGenerate()
+			return nil
 		})
 	}
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -11,7 +12,6 @@ import (
 var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
 
 func startWatcher(cb func(file []*fsnotify.Event)) {
-	//debouncer := NewDebouncer(time.Millisecond * 100)
 	events := make([]*fsnotify.Event, 0)
 
 	defer func() {
@@ -43,7 +43,7 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 				if !ok {
 					return
 				}
-				log.Println("error:", err)
+				slog.Error("error:", err.Error())
 			}
 		}
 	}()

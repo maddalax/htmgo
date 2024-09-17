@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/maddalax/htmgo/framework/h"
+import (
+	"github.com/maddalax/htmgo/framework/h"
+)
 
 type InputProps struct {
 	Id             string
@@ -13,7 +15,6 @@ type InputProps struct {
 }
 
 func Input(props InputProps) h.Renderable {
-
 	validation := h.If(props.ValidationPath != "", h.Children(
 		h.Post(props.ValidationPath),
 		h.Trigger("change"),

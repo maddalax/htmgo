@@ -1,7 +1,11 @@
 package h
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/maddalax/htmgo/framework/util/process"
+	"log/slog"
+	"time"
 )
 
 type App struct {
@@ -31,10 +35,23 @@ func (a App) start(app *fiber.App) {
 		AddLiveReloadHandler("/livereload", a.Fiber)
 	}
 
-	err := a.Fiber.Listen(":3000")
+	port := ":3000"
+	err := a.Fiber.Listen(port)
 
 	if err != nil {
-		panic(err)
+		// If we are in watch mode, just try to kill any processes holding that port
+		// and try again
+		if IsDevelopment() && IsWatchMode() {
+			slog.Info("Port already in use, trying to kill the process and start again")
+			process.RunOrExit(fmt.Sprintf("kill -9 $(lsof -t -i%s)", port))
+			time.Sleep(time.Millisecond * 50)
+			err = a.Fiber.Listen(port)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
 	}
 }
 

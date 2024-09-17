@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,6 +17,7 @@ var workingDir string
 var commands = make([]*exec.Cmd, 0)
 
 func AppendRunning(cmd *exec.Cmd) {
+	slog.Info("running", slog.String("command", strings.Join(cmd.Args, " ")))
 	commands = append(commands, cmd)
 }
 
@@ -154,15 +156,18 @@ func Run(command string, exitOnError bool) error {
 
 	AppendRunning(cmd)
 	err := cmd.Run()
-	if err != nil {
-		if strings.Contains(err.Error(), "signal: killed") {
-			return nil
-		}
-		if exitOnError {
-			log.Println(fmt.Sprintf("error: %v", err))
-			os.Exit(1)
-		}
-		return err
+
+	if err == nil {
+		return nil
 	}
-	return nil
+
+	if exitOnError {
+		log.Println(fmt.Sprintf("error: %v", err))
+		os.Exit(1)
+	}
+
+	if strings.Contains(err.Error(), "signal: killed") {
+		return nil
+	}
+	return err
 }
