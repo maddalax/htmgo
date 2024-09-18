@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/cli/tasks/process"
 	"github.com/maddalax/htmgo/cli/tasks/run"
+	"github.com/maddalax/htmgo/cli/tasks/util"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -50,7 +52,11 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
-	excludeDir := "starter-template"
+	templateName := "starter-template"
+
+	re := regexp.MustCompile(`[^a-zA-Z]+`)
+	// Replace all non-alphabetic characters with an empty string
+	newModuleName := re.ReplaceAllString(outPath, "")
 
 	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", outPath)
 	install.Stdout = os.Stdout
@@ -62,13 +68,13 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
-	deleteAllExceptTemplate(outPath, excludeDir)
+	deleteAllExceptTemplate(outPath, templateName)
 
 	newDir := filepath.Join(cwd, outPath)
 
 	commands := [][]string{
-		{"cp", "-vaR", fmt.Sprintf("%s/.", excludeDir), "."},
-		{"rm", "-rf", excludeDir},
+		{"cp", "-vaR", fmt.Sprintf("%s/.", templateName), "."},
+		{"rm", "-rf", templateName},
 		{"go", "get", "github.com/maddalax/htmgo/framework"},
 		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
 		{"git", "init"},
@@ -77,14 +83,18 @@ func DownloadTemplate(outPath string) {
 	for _, command := range commands {
 		cmd := exec.Command(command[0], command[1:]...)
 		cmd.Dir = newDir
-		cmd.Stdout = nil
-		cmd.Stderr = nil
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		err = cmd.Run()
 		if err != nil {
 			println("Error executing command %s\n", err.Error())
 			return
 		}
 	}
+
+	_ = util.ReplaceTextInFile(filepath.Join(newDir, "go.mod"),
+		fmt.Sprintf("module %s", templateName),
+		fmt.Sprintf("module %s", newModuleName))
 
 	fmt.Printf("Setting up the project in %s\n", newDir)
 	process.SetWorkingDir(newDir)

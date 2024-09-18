@@ -17,7 +17,10 @@ func IndexPage(c echo.Context) *h.Page {
 		),
 		h.Body(
 			h.Class("flex flex-col gap-4"),
-			h.Div(h.Class("flex flex-col gap-2 mt-6"),
+			h.Div(h.Class("flex gap-2 mt-6"),
+				Button(),
+				Button(),
+				Button(),
 				Button(),
 			),
 		),
