@@ -34,7 +34,7 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 				if !ok {
 					return
 				}
-				if event.Has(fsnotify.Write) {
+				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
 					go cb(events)
 					events = make([]*fsnotify.Event, 0)

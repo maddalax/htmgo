@@ -1,0 +1,4 @@
+/assets/dist
+tmp
+node_modules
+.idea

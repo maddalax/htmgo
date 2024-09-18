@@ -13,4 +13,5 @@ func Setup() {
 	copyassets.CopyAssets()
 	_ = astgen.GenAst(true)
 	_ = css.GenerateCss(true)
+	EntGenerate()
 }

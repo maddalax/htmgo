@@ -187,7 +187,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	fName := "GetPartialFromContext"
 
 	body := `
-		path := ctx.Path()
+		path := ctx.Request().URL.Path
 	`
 
 	moduleName := GetModuleName()
@@ -200,7 +200,8 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 
 		body += fmt.Sprintf(`
 			if path == "%s" || path == "%s" {
-				return %s(ctx)
+				cc := ctx.(*h.RequestContext)
+				return %s(cc)
 			}
 		`, f.FuncName, path, caller)
 	}
@@ -320,7 +321,8 @@ func writePagesFile() {
 
 		body += fmt.Sprintf(`
 			f.GET("%s", func(ctx echo.Context) error {
-				return h.HtmlView(ctx, %s(ctx))
+				cc := ctx.(*h.RequestContext)
+				return h.HtmlView(ctx, %s(cc))
 			})
 		`, formatRoute(page.Path), call)
 	}

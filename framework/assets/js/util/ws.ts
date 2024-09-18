@@ -10,6 +10,12 @@ type WsOpts = {
 export function createWebSocketClient(opts: WsOpts) {
     let socket: WebSocket | null = null;
     const connect = (tries: number) => {
+
+        if(tries > 50) {
+            console.error('failed to connect to websocket after 50 tries, please reload the page');
+            return;
+        }
+
         socket = new WebSocket(opts.url);
         // Handle connection open
         socket.onopen = () => {

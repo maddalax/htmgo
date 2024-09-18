@@ -96,6 +96,10 @@ func DownloadTemplate(outPath string) {
 		fmt.Sprintf("module %s", templateName),
 		fmt.Sprintf("module %s", newModuleName))
 
+	_ = util.ReplaceTextInDirRecursive(newDir, templateName, newModuleName, func(file string) bool {
+		return strings.HasSuffix(file, ".go")
+	})
+
 	fmt.Printf("Setting up the project in %s\n", newDir)
 	process.SetWorkingDir(newDir)
 	run.Setup()

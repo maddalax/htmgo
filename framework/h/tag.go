@@ -3,7 +3,6 @@ package h
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"html"
 	"net/url"
 	"strings"
@@ -77,6 +76,10 @@ func Attributes(attrs map[string]string) Renderable {
 	}
 }
 
+func Checked() Renderable {
+	return Attribute("checked", "true")
+}
+
 func Boost() Renderable {
 	return Attribute("hx-boost", "true")
 }
@@ -101,11 +104,11 @@ func Get(path string) Renderable {
 	return Attribute("hx-get", path)
 }
 
-func GetPartial(partial func(ctx echo.Context) *Partial) Renderable {
+func GetPartial(partial func(ctx *RequestContext) *Partial) Renderable {
 	return Get(GetPartialPath(partial))
 }
 
-func GetPartialWithQs(partial func(ctx echo.Context) *Partial, qs string) Renderable {
+func GetPartialWithQs(partial func(ctx *RequestContext) *Partial, qs string) Renderable {
 	return Get(GetPartialPathWithQs(partial, qs))
 }
 
@@ -119,13 +122,13 @@ type ReloadParams struct {
 	Children Renderable
 }
 
-func ViewOnLoad(partial func(ctx echo.Context) *Partial) Renderable {
+func ViewOnLoad(partial func(ctx *RequestContext) *Partial) Renderable {
 	return View(partial, ReloadParams{
 		Triggers: CreateTriggers("load"),
 	})
 }
 
-func View(partial func(ctx echo.Context) *Partial, params ReloadParams) Renderable {
+func View(partial func(ctx *RequestContext) *Partial, params ReloadParams) Renderable {
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(params.Triggers, ", "),
@@ -133,7 +136,7 @@ func View(partial func(ctx echo.Context) *Partial, params ReloadParams) Renderab
 	}), params.Children)
 }
 
-func PartialWithTriggers(partial func(ctx echo.Context) *Partial, triggers ...string) Renderable {
+func PartialWithTriggers(partial func(ctx *RequestContext) *Partial, triggers ...string) Renderable {
 	return Div(Attributes(map[string]string{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(triggers, ", "),
@@ -283,7 +286,7 @@ func CombineHeaders(headers ...*Headers) *Headers {
 	return &m
 }
 
-func CurrentPath(ctx echo.Context) string {
+func CurrentPath(ctx *RequestContext) string {
 	current := ctx.Request().Header.Get("Hx-Current-Url")
 	parsed, err := url.Parse(current)
 	if err != nil {
@@ -292,7 +295,7 @@ func CurrentPath(ctx echo.Context) string {
 	return parsed.Path
 }
 
-func PushQsHeader(ctx echo.Context, key string, value string) *Headers {
+func PushQsHeader(ctx *RequestContext, key string, value string) *Headers {
 	current := ctx.Request().Header.Get("Hx-Current-Url")
 	parsed, err := url.Parse(current)
 	if err != nil {
@@ -512,11 +515,11 @@ func IfElseLazy(condition bool, cb1 func() Renderable, cb2 func() Renderable) Re
 	}
 }
 
-func GetTriggerName(ctx echo.Context) string {
+func GetTriggerName(ctx *RequestContext) string {
 	return ctx.Request().Header.Get("HX-Trigger-Name")
 }
 
-func IfHtmxRequest(ctx echo.Context, node Renderable) Renderable {
+func IfHtmxRequest(ctx *RequestContext, node Renderable) Renderable {
 	if ctx.Get("HX-Request") != "" {
 		return node
 	}
@@ -535,11 +538,11 @@ func NewSwap(selector string, content *Node) SwapArg {
 	}
 }
 
-func Swap(ctx echo.Context, content Renderable) Renderable {
+func Swap(ctx *RequestContext, content Renderable) Renderable {
 	return SwapWithSelector(ctx, "", content)
 }
 
-func SwapWithSelector(ctx echo.Context, selector string, content Renderable) Renderable {
+func SwapWithSelector(ctx *RequestContext, selector string, content Renderable) Renderable {
 	if ctx == nil || ctx.Get("HX-Request") == "" {
 		return Empty()
 	}
@@ -547,7 +550,7 @@ func SwapWithSelector(ctx echo.Context, selector string, content Renderable) Ren
 	return c.AppendChild(OutOfBandSwap(selector))
 }
 
-func SwapMany(ctx echo.Context, args ...SwapArg) Renderable {
+func SwapMany(ctx *RequestContext, args ...SwapArg) Renderable {
 	if ctx.Get("HX-Request") == "" {
 		return Empty()
 	}

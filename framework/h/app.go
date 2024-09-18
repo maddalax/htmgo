@@ -3,14 +3,30 @@ package h
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/maddalax/htmgo/framework/htmgo/service"
 	"github.com/maddalax/htmgo/framework/util/process"
 	"log/slog"
 	"time"
 )
 
+type RequestContext struct {
+	echo.Context
+	locator *service.Locator
+}
+
+func (c *RequestContext) ServiceLocator() *service.Locator {
+	return c.locator
+}
+
+type AppOpts struct {
+	LiveReload     bool
+	ServiceLocator *service.Locator
+	Register       func(echo *echo.Echo)
+}
+
 type App struct {
-	LiveReload bool
-	Echo       *echo.Echo
+	Opts AppOpts
+	Echo *echo.Echo
 }
 
 var instance *App
@@ -22,16 +38,32 @@ func GetApp() *App {
 	return instance
 }
 
-func Start(app *echo.Echo, opts App) {
-	instance = &opts
-	instance.start(app)
+func Start(opts AppOpts) {
+	e := echo.New()
+	instance := App{
+		Opts: opts,
+		Echo: e,
+	}
+	instance.start()
 }
 
-func (a App) start(app *echo.Echo) {
+func (a App) start() {
 
-	a.Echo = app
+	a.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cc := &RequestContext{
+				c,
+				a.Opts.ServiceLocator,
+			}
+			return next(cc)
+		}
+	})
 
-	if a.LiveReload {
+	if a.Opts.Register != nil {
+		a.Opts.Register(a.Echo)
+	}
+
+	if a.Opts.LiveReload {
 		AddLiveReloadHandler("/dev/livereload", a.Echo)
 	}
 
