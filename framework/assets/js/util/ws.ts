@@ -10,16 +10,8 @@ type WsOpts = {
 export function createWebSocketClient(opts: WsOpts) {
     let socket: WebSocket | null = null;
     const connect = (tries: number) => {
-
-        if(tries > 50) {
-            console.error('failed to connect to websocket after 50 tries, please reload the page');
-            return;
-        }
-
+        console.log('connecting to ws', opts.url, 'attempt', tries)
         socket = new WebSocket(opts.url);
-        // Handle connection open
-        socket.onopen = () => {
-        };
         // Handle incoming messages
         socket.onmessage = (event) => {
             opts.onMessage(event.data)
@@ -31,12 +23,14 @@ export function createWebSocketClient(opts: WsOpts) {
            } catch(ex) {
                // noop
            }
-            let interval = tries * (opts.reconnectInterval || 100);
+           socket = null
+            let interval = tries * (opts.reconnectInterval || 1000);
             setTimeout(() => connect(tries + 1), interval);
         };
         // Handle connection close and attempt reconnection
         socket.onclose = () => {
-            let interval = tries * (opts.reconnectInterval || 100);
+            socket = null;
+            let interval = tries * (opts.reconnectInterval || 1000);
             setTimeout(() => connect(tries + 1), interval);
         };
     };

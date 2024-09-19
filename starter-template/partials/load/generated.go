@@ -6,15 +6,18 @@ import "github.com/labstack/echo/v4"
 import "starter-template/partials"
 
 func GetPartialFromContext(ctx echo.Context) *h.Partial {
-	path := ctx.Path()
+	path := ctx.Request().URL.Path
 	if path == "SamplePartial" || path == "/starter-template/partials.SamplePartial" {
-		return partials.SamplePartial(ctx)
+		cc := ctx.(*h.RequestContext)
+		return partials.SamplePartial(cc)
 	}
 	if path == "NewPartial" || path == "/starter-template/partials.NewPartial" {
-		return partials.NewPartial(ctx)
+		cc := ctx.(*h.RequestContext)
+		return partials.NewPartial(cc)
 	}
 	if path == "NewPartial2" || path == "/starter-template/partials.NewPartial2" {
-		return partials.NewPartial2(ctx)
+		cc := ctx.(*h.RequestContext)
+		return partials.NewPartial2(cc)
 	}
 	return nil
 }

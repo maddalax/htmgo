@@ -7,8 +7,8 @@ import (
 )
 
 func Build() {
-	astgen.GenAst(true)
-	css.GenerateCss(true)
+	astgen.GenAst(process.ExitOnError)
+	css.GenerateCss(process.ExitOnError)
 	process.RunOrExit("rm -rf ./dist")
 	process.RunOrExit("mkdir -p ./dist/assets/dist")
 	process.RunOrExit("cp -r ./assets/dist/* ./dist/assets/dist/")

@@ -2,6 +2,6 @@ package run
 
 import "github.com/maddalax/htmgo/cli/tasks/process"
 
-func Server(exitOnError bool) error {
-	return process.Run("go run .", exitOnError)
+func Server(flags ...process.RunFlag) error {
+	return process.Run("go run .", flags...)
 }

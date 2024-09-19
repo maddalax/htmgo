@@ -11,7 +11,7 @@ type InputProps struct {
 	Type           string
 	DefaultValue   string
 	ValidationPath string
-	Childen        []h.Renderable
+	Children       []h.Renderable
 }
 
 func Input(props InputProps) h.Renderable {
@@ -27,7 +27,7 @@ func Input(props InputProps) h.Renderable {
 		h.Class("border p-2 rounded"),
 		h.If(props.Id != "", h.Id(props.Id)),
 		h.If(props.Name != "", h.Name(props.Name)),
-		h.If(props.Childen != nil, h.Children(props.Childen...)),
+		h.If(props.Children != nil, h.Children(props.Children...)),
 		h.If(props.DefaultValue != "", h.Attribute("value", props.DefaultValue)),
 		validation,
 	)

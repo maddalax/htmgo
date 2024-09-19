@@ -11,7 +11,7 @@ func Setup() {
 	process.RunOrExit("go mod download")
 	process.RunOrExit("go mod tidy")
 	copyassets.CopyAssets()
-	_ = astgen.GenAst(true)
-	_ = css.GenerateCss(true)
+	_ = astgen.GenAst(process.ExitOnError)
+	_ = css.GenerateCss(process.ExitOnError)
 	EntGenerate()
 }

@@ -51,18 +51,21 @@ func main() {
 
 	taskName := os.Args[1]
 
-	slog.Debug("Running task: %s", taskName)
-	slog.Debug("working dir %s", process.GetWorkingDir())
+	slog.Debug("Running task:", slog.String("task", taskName))
+	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
 
 	if taskName == "watch" {
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
 		copyassets.CopyAssets()
-		astgen.GenAst(true)
-		css.GenerateCss(true)
+		astgen.GenAst(process.ExitOnError)
+		css.GenerateCss(process.ExitOnError, process.Silent)
 		run.EntGenerate()
 		go func() {
-			_ = run.Server(true)
+			css.GenerateCssWatch(process.ExitOnError)
+		}()
+		go func() {
+			_ = run.Server(process.ExitOnError)
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
@@ -75,18 +78,18 @@ func main() {
 		}
 		if taskName == "generate" {
 			run.EntGenerate()
-			astgen.GenAst(true)
+			astgen.GenAst(process.ExitOnError)
 		}
 		if taskName == "setup" {
 			run.Setup()
 		} else if taskName == "css" {
-			_ = css.GenerateCss(true)
+			_ = css.GenerateCss(process.ExitOnError)
 		} else if taskName == "ast" {
-			_ = astgen.GenAst(true)
+			_ = astgen.GenAst(process.ExitOnError)
 		} else if taskName == "run" {
-			_ = astgen.GenAst(true)
-			_ = css.GenerateCss(true)
-			_ = run.Server(true)
+			_ = astgen.GenAst(process.ExitOnError)
+			_ = css.GenerateCss(process.ExitOnError)
+			_ = run.Server(process.ExitOnError)
 		} else if taskName == "template" {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("What would you like to call your new app?: ")

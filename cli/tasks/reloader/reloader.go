@@ -4,20 +4,22 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/maddalax/htmgo/cli/tasks/astgen"
-	"github.com/maddalax/htmgo/cli/tasks/css"
 	"github.com/maddalax/htmgo/cli/tasks/process"
 	"github.com/maddalax/htmgo/cli/tasks/run"
+	"github.com/maddalax/htmgo/cli/tasks/util"
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Change struct {
 	name string
+	op   fsnotify.Op
 }
 
-func NewChange(name string) *Change {
-	return &Change{name: name}
+func NewChange(event *fsnotify.Event) *Change {
+	return &Change{name: event.Name, op: event.Op}
 }
 
 func (c *Change) Name() string {
@@ -46,60 +48,70 @@ func (c *Change) IsGenerated() bool {
 	return c.HasAnySuffix("generated.go")
 }
 
+func (c *Change) IsWrite() bool {
+	return c.op == fsnotify.Write
+}
+
 func (c *Change) IsGo() bool {
 	return c.HasAnySuffix(".go")
 }
 
 type Tasks struct {
 	AstGen bool
-	Css    bool
 	Run    bool
 	Ent    bool
 }
 
 func OnFileChange(events []*fsnotify.Event) {
+	now := time.Now()
+
 	tasks := Tasks{}
 
 	for _, event := range events {
-		c := NewChange(event.Name)
-
-		slog.Debug("file changed", slog.String("file", c.Name()))
+		c := NewChange(event)
 
 		if c.IsGenerated() {
 			continue
 		}
+
+		slog.Debug("file changed", slog.String("file", c.Name()))
 
 		if c.IsGo() && c.HasAnyPrefix("pages/", "partials/") {
 			tasks.AstGen = true
 		}
 
 		if c.IsGo() {
-			tasks.Css = true
 			tasks.Run = true
 		}
 
 		if c.HasAnySuffix("tailwind.config.js", ".css") {
-			tasks.Css = true
 			tasks.Run = true
 		}
 
 		if c.HasAnyPrefix("ent/schema") {
 			tasks.Ent = true
 		}
+
+		slog.Info("file changed", slog.String("file", c.Name()))
 	}
 
 	deps := make([]func() any, 0)
 
 	if tasks.AstGen {
 		deps = append(deps, func() any {
-			return astgen.GenAst(false)
+			return util.Trace("generate ast", func() any {
+				astgen.GenAst()
+				return nil
+			})
 		})
 	}
 
 	if tasks.Ent {
 		deps = append(deps, func() any {
-			run.EntGenerate()
-			return nil
+			return util.Trace("generate ent", func() any {
+				run.EntGenerate()
+				return nil
+			})
 		})
 	}
 
@@ -119,14 +131,16 @@ func OnFileChange(events []*fsnotify.Event) {
 	wg.Wait()
 
 	if tasks.Run {
-		process.KillAll()
-	}
-
-	if tasks.Css {
-		go css.GenerateCss(false)
+		util.Trace("kill all processes", func() any {
+			process.KillAll()
+			return nil
+		})
 	}
 
 	if tasks.Run {
-		_ = run.Server(false)
+		go run.Server()
 	}
+
+	slog.Info("reloaded in", slog.Duration("duration", time.Since(now)))
+
 }

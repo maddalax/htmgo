@@ -3,12 +3,13 @@ package main
 import (
 	"log/slog"
 	"os"
+	"strings"
 )
 
 func getLogLevel() slog.Level {
 	// Get the log level from the environment variable
 	logLevel := os.Getenv("LOG_LEVEL")
-	switch logLevel {
+	switch strings.ToUpper(logLevel) {
 	case "DEBUG":
 		return slog.LevelDebug
 	case "INFO":

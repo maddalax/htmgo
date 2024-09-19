@@ -3,11 +3,11 @@ package process
 import (
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -17,7 +17,7 @@ var workingDir string
 var commands = make([]*exec.Cmd, 0)
 
 func AppendRunning(cmd *exec.Cmd) {
-	slog.Info("running", slog.String("command", strings.Join(cmd.Args, " ")))
+	slog.Debug("running", slog.String("command", strings.Join(cmd.Args, " ")))
 	commands = append(commands, cmd)
 }
 
@@ -49,7 +49,7 @@ func KillAll() {
 
 				if tries > 50 {
 					args := strings.Join(cmd.Args, " ")
-					log.Printf("process %v is not running after 50 tries, breaking.\n", args)
+					slog.Debug("process %v is not running after 50 tries, breaking.\n", args)
 					allFinished = true
 					break
 				} else {
@@ -90,13 +90,13 @@ func KillAll() {
 		if finished {
 			break
 		} else {
-			fmt.Printf("waiting for all processes to exit\n")
+			slog.Debug("waiting for all processes to exit\n")
 			time.Sleep(time.Millisecond * 5)
 		}
 	}
 
 	commands = make([]*exec.Cmd, 0)
-	fmt.Printf("all processes killed\n")
+	slog.Debug("all processes killed\n")
 }
 
 func PidExists(pid int32) (bool, error) {
@@ -129,14 +129,22 @@ func PidExists(pid int32) (bool, error) {
 }
 
 func RunOrExit(command string) {
-	_ = Run(command, true)
+	_ = Run(command, ExitOnError)
 }
 
-func RunMany(commands []string, exitOnError bool) error {
+type RunFlag int
+
+const (
+	ExitOnError RunFlag = iota
+	Silent
+	DontTrack
+)
+
+func RunMany(commands []string, flags ...RunFlag) error {
 	for _, command := range commands {
-		err := Run(command, false)
+		err := Run(command, flags...)
 		if err != nil {
-			if exitOnError {
+			if slices.Contains(flags, ExitOnError) {
 				os.Exit(1)
 			}
 			return err
@@ -145,17 +153,26 @@ func RunMany(commands []string, exitOnError bool) error {
 	return nil
 }
 
-func Run(command string, exitOnError bool) error {
-	cmd := exec.Command("bash", "-c", command)
+func Run(command string, flags ...RunFlag) error {
+	parts := strings.Fields(command)
+	cmd := exec.Command(parts[0], parts[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	if slices.Contains(flags, Silent) {
+		cmd.Stdout = nil
+		cmd.Stderr = nil
+	} else {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 
 	if workingDir != "" {
 		cmd.Dir = workingDir
 	}
 
-	AppendRunning(cmd)
+	if !slices.Contains(flags, DontTrack) {
+		AppendRunning(cmd)
+	}
 	err := cmd.Run()
 
 	if err == nil {
@@ -166,8 +183,10 @@ func Run(command string, exitOnError bool) error {
 		return nil
 	}
 
-	if exitOnError {
-		log.Println(fmt.Sprintf("error: %v", err))
+	if slices.Contains(flags, ExitOnError) {
+		slog.Error("Error running command: ",
+			slog.String("error", err.Error()),
+			slog.String("command", command))
 		os.Exit(1)
 	}
 

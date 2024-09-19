@@ -33,14 +33,15 @@ htmx.defineExtension("livereload", {
 });
 
 function reload() {
-    fetch(window.location.href).then(response => {
-        return response.text();
-    }).then(html => {
-        document.open();
-        document.write(html);
-        document.close();
-    }).catch(err => {
-        console.log('failed to fetch live reload', err)
-        setTimeout(reload, 100)
-    })
+    window.location.reload()
+    // fetch(window.location.href).then(response => {
+    //     return response.text();
+    // }).then(html => {
+    //    document.open();
+    //     document.write(html);
+    //     document.close();
+    // }).catch(err => {
+    //     console.log('failed to fetch live reload', err)
+    //     setTimeout(reload, 100)
+    // })
 }

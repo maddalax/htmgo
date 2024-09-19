@@ -1,23 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
 
 func startWatcher(cb func(file []*fsnotify.Event)) {
 	events := make([]*fsnotify.Event, 0)
+	debouncer := NewDebouncer(100 * time.Millisecond)
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Recovered from fatal error:", r)
-			// You can log the error here or take other corrective actions
+			slog.Debug("Recovered from fatal error:", slog.String("error", r.(error).Error()))
 		}
 	}()
 	// Create new watcher.
@@ -36,8 +36,10 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 				}
 				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
-					go cb(events)
-					events = make([]*fsnotify.Event, 0)
+					debouncer.Do(func() {
+						cb(events)
+						events = make([]*fsnotify.Event, 0)
+					})
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -64,9 +66,9 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 		if info.IsDir() {
 			err = watcher.Add(path)
 			if err != nil {
-				log.Println("Error adding directory to watcher:", err)
+				slog.Error("Error adding directory to watcher:", err)
 			} else {
-				log.Println("Watching directory:", path)
+				slog.Debug("Watching directory:", slog.String("path", path))
 			}
 		}
 		return nil

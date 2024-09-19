@@ -6,6 +6,7 @@ import "github.com/maddalax/htmgo/framework/h"
 
 func RegisterPages(f *echo.Echo) {
 	f.GET("/", func(ctx echo.Context) error {
-		return h.HtmlView(ctx, IndexPage(ctx))
+		cc := ctx.(*h.RequestContext)
+		return h.HtmlView(ctx, IndexPage(cc))
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/mod/modfile"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -122,5 +123,5 @@ func CopyAssets() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	fmt.Printf("successfully copied assets to %s\n", destDir)
+	slog.Debug("successfully copied assets to %s\n", destDir)
 }

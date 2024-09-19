@@ -9,6 +9,7 @@ import (
 	"golang.org/x/mod/modfile"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -354,9 +355,9 @@ func GetModuleName() string {
 	return modName
 }
 
-func GenAst(exitOnError bool) error {
+func GenAst(flags ...process.RunFlag) error {
 	if GetModuleName() == "" {
-		if exitOnError {
+		if slices.Contains(flags, process.ExitOnError) {
 			os.Exit(1)
 		}
 		return fmt.Errorf("error getting module name")

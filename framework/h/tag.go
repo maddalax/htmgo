@@ -318,6 +318,10 @@ func NewHeaders(headers ...string) *Headers {
 	return &m
 }
 
+func Checkbox(children ...Renderable) Renderable {
+	return Input("checkbox", children...)
+}
+
 func Input(inputType string, children ...Renderable) Renderable {
 	return &Node{
 		tag: "input",
