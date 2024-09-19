@@ -22,6 +22,7 @@ func RegisterSignals() chan bool {
 		fmt.Println()
 		fmt.Println("Received signal:", sig)
 		// Perform cleanup
+		fmt.Println("Cleaning up...")
 		process.KillAll()
 		// Signal that cleanup is done
 		done <- true

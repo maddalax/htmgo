@@ -132,7 +132,7 @@ func OnFileChange(events []*fsnotify.Event) {
 
 	if tasks.Run {
 		util.Trace("kill all processes", func() any {
-			process.KillAll()
+			process.KillAll(process.KillOnlyOnExit)
 			return nil
 		})
 	}

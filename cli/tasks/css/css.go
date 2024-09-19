@@ -12,5 +12,5 @@ func GenerateCss(flags ...process.RunFlag) error {
 func GenerateCssWatch(flags ...process.RunFlag) error {
 	return process.RunMany([]string{
 		"./assets/css/tailwindcss -i ./assets/css/input.css -o ./assets/dist/main.css -c ./assets/css/tailwind.config.js --watch=always",
-	}, append(flags, process.DontTrack, process.Silent)...)
+	}, append(flags, process.KillOnlyOnExit, process.Silent)...)
 }

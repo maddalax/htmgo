@@ -13,12 +13,17 @@ import (
 	"time"
 )
 
-var workingDir string
-var commands = make([]*exec.Cmd, 0)
+type CmdWithFlags struct {
+	flags []RunFlag
+	cmd   *exec.Cmd
+}
 
-func AppendRunning(cmd *exec.Cmd) {
+var workingDir string
+var commands = make([]CmdWithFlags, 0)
+
+func AppendRunning(cmd *exec.Cmd, flags ...RunFlag) {
 	slog.Debug("running", slog.String("command", strings.Join(cmd.Args, " ")))
-	commands = append(commands, cmd)
+	commands = append(commands, CmdWithFlags{flags: flags, cmd: cmd})
 }
 
 func GetWorkingDir() string {
@@ -37,18 +42,27 @@ func GetPathRelativeToCwd(path string) string {
 	return filepath.Join(GetWorkingDir(), path)
 }
 
-func KillAll() {
+func shouldSkipKilling(flags []RunFlag, skipFlag []RunFlag) bool {
+	for _, flag := range flags {
+		if slices.Contains(skipFlag, flag) {
+			return true
+		}
+	}
+	return false
+}
+
+func KillAll(skipFlag ...RunFlag) {
 
 	tries := 0
 	for {
 		tries++
 		allFinished := true
 		for _, cmd := range commands {
-			if cmd.Process == nil {
+			if cmd.cmd.Process == nil {
 				allFinished = false
 
 				if tries > 50 {
-					args := strings.Join(cmd.Args, " ")
+					args := strings.Join(cmd.cmd.Args, " ")
 					slog.Debug("process %v is not running after 50 tries, breaking.\n", args)
 					allFinished = true
 					break
@@ -64,7 +78,10 @@ func KillAll() {
 	}
 
 	for _, command := range commands {
-		pid := command.Process.Pid
+		if shouldSkipKilling(command.flags, skipFlag) {
+			continue
+		}
+		pid := command.cmd.Process.Pid
 		err := syscall.Kill(-pid, syscall.SIGKILL)
 		if err != nil {
 			continue
@@ -74,15 +91,18 @@ func KillAll() {
 	for {
 		finished := true
 		for _, c := range commands {
-			if c.Process == nil {
+			if c.cmd.Process == nil {
 				continue
 			}
-			exists, err := PidExists(int32(c.Process.Pid))
+			if shouldSkipKilling(c.flags, skipFlag) {
+				continue
+			}
+			exists, err := PidExists(int32(c.cmd.Process.Pid))
 			if err != nil {
 				finished = false
 			}
 			if exists {
-				syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
+				syscall.Kill(-c.cmd.Process.Pid, syscall.SIGKILL)
 				finished = false
 			}
 		}
@@ -95,7 +115,7 @@ func KillAll() {
 		}
 	}
 
-	commands = make([]*exec.Cmd, 0)
+	commands = make([]CmdWithFlags, 0)
 	slog.Debug("all processes killed\n")
 }
 
@@ -137,7 +157,7 @@ type RunFlag int
 const (
 	ExitOnError RunFlag = iota
 	Silent
-	DontTrack
+	KillOnlyOnExit
 )
 
 func RunMany(commands []string, flags ...RunFlag) error {
@@ -170,9 +190,8 @@ func Run(command string, flags ...RunFlag) error {
 		cmd.Dir = workingDir
 	}
 
-	if !slices.Contains(flags, DontTrack) {
-		AppendRunning(cmd)
-	}
+	AppendRunning(cmd, flags...)
+
 	err := cmd.Run()
 
 	if err == nil {
