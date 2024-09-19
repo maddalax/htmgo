@@ -54,6 +54,17 @@ func Class(value ...string) Renderable {
 	}
 }
 
+func ClassX(value string, m map[string]bool) Renderable {
+	builder := strings.Builder{}
+	builder.WriteString(value + " ")
+	for k, v := range m {
+		if v {
+			builder.WriteString(k + " ")
+		}
+	}
+	return Class(builder.String())
+}
+
 func MergeClasses(classes ...string) string {
 	builder := ""
 	for _, s := range classes {
@@ -151,8 +162,24 @@ func Post(url string) Renderable {
 	return Attribute("hx-post", url)
 }
 
+func PostOnClick(url string) Renderable {
+	return AttributeList(Attribute("hx-post", url), Trigger("click"))
+}
+
+func PostPartialOnClick(partial func(ctx *RequestContext) *Partial) Renderable {
+	return PostOnClick(GetPartialPath(partial))
+}
+
+func PostPartialOnClickQs(partial func(ctx *RequestContext) *Partial, qs string) Renderable {
+	return PostOnClick(GetPartialPathWithQs(partial, qs))
+}
+
 func Trigger(trigger string) Renderable {
 	return Attribute("hx-trigger", trigger)
+}
+
+func TextF(format string, args ...interface{}) Renderable {
+	return Text(fmt.Sprintf(format, args...))
 }
 
 func Text(text string) Renderable {
@@ -542,11 +569,11 @@ func NewSwap(selector string, content *Node) SwapArg {
 	}
 }
 
-func Swap(ctx *RequestContext, content Renderable) Renderable {
-	return SwapWithSelector(ctx, "", content)
+func OobSwap(ctx *RequestContext, content Renderable) Renderable {
+	return OobSwapWithSelector(ctx, "", content)
 }
 
-func SwapWithSelector(ctx *RequestContext, selector string, content Renderable) Renderable {
+func OobSwapWithSelector(ctx *RequestContext, selector string, content Renderable) Renderable {
 	if ctx == nil || ctx.Get("HX-Request") == "" {
 		return Empty()
 	}

@@ -77,22 +77,27 @@ type JsCommand struct {
 }
 
 func SetText(text string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.innerText = '%s'", text)}
 }
 
 func Increment(amount int) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.innerText = parseInt(this.innerText) + %d", amount)}
 }
 
 func SetInnerHtml(r Renderable) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", Render(r.Render()))}
 }
 
 func SetOuterHtml(r Renderable) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", Render(r.Render()))}
 }
 
 func AddAttribute(name, value string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.setAttribute('%s', '%s')", name, value)}
 }
 
@@ -105,18 +110,22 @@ func SetDisabled(disabled bool) JsCommand {
 }
 
 func RemoveAttribute(name string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.removeAttribute('%s')", name)}
 }
 
 func AddClass(class string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.classList.add('%s')", class)}
 }
 
 func RemoveClass(class string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("this.classList.remove('%s')", class)}
 }
 
 func Alert(text string) JsCommand {
+	// language=JavaScript
 	return JsCommand{Command: fmt.Sprintf("alert('%s')", text)}
 }
 

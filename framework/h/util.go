@@ -17,14 +17,6 @@ func Ternary[T any](value bool, a T, b T) T {
 	return b
 }
 
-func Map[T any, U any](items []T, fn func(T) U) []U {
-	var result []U
-	for _, item := range items {
-		result = append(result, fn(item))
-	}
-	return result
-}
-
 func JsonSerialize(data any) string {
 	serialized, err := json.Marshal(data)
 	if err != nil {

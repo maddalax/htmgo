@@ -1,0 +1,46 @@
+{
+  "includeLanguages": {
+    "ftl": "html",
+    "jinja": "html",
+    "jinja2": "html",
+    "smarty": "html",
+    "tmpl": "gohtml",
+    "cshtml": "html",
+    "vbhtml": "html",
+    "razor": "html",
+    "go": "html"
+  },
+  "files": {
+    "exclude": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/.hg/**",
+      "**/.svn/**"
+    ]
+  },
+  "emmetCompletions": false,
+  "classAttributes": ["class", "className", "ngClass"],
+  "colorDecorators": false,
+  "showPixelEquivalents": true,
+  "rootFontSize": 16,
+  "hovers": true,
+  "suggestions": true,
+  "codeActions": true,
+  "validate": true,
+  "lint": {
+    "invalidScreen": "error",
+    "invalidVariant": "error",
+    "invalidTailwindDirective": "error",
+    "invalidApply": "error",
+    "invalidConfigPath": "error",
+    "cssConflict": "warning",
+    "recommendedVariantOrder": "warning"
+  },
+  "experimental": {
+    "configFile": null,
+    "classRegex": [[
+      "tailwind|Class|h.Class\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ]]
+  }
+}

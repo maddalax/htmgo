@@ -17,8 +17,8 @@ func NewsSheet(ctx echo.Context) *h.Partial {
 		},
 		SheetWrapper(
 			h.IfElseLazy(open, SheetOpen, SheetClosed),
-			h.Swap(ctx, OpenSheetButton(open)),
-			h.Swap(ctx, NewsSheetOpenCount(ctx).Root),
+			h.OobSwap(ctx, OpenSheetButton(open)),
+			h.OobSwap(ctx, NewsSheetOpenCount(ctx).Root),
 		),
 	)
 }

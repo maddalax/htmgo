@@ -31,7 +31,7 @@ func Closed() h.Renderable {
 func Close(ctx echo.Context) *h.Partial {
 	return h.NewPartialWithHeaders(
 		h.Ternary(ctx.Query("path") != "", h.ReplaceUrlHeader(ctx.Query("path")), h.NewHeaders()),
-		h.Swap(ctx, Closed()),
+		h.OobSwap(ctx, Closed()),
 	)
 }
 

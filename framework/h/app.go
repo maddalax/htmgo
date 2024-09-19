@@ -105,7 +105,7 @@ func PartialViewWithHeaders(c echo.Context, headers *Headers, partial *Partial) 
 
 	if headers != nil {
 		for s, a := range *headers {
-			c.Set(s, a)
+			c.Response().Header().Set(s, a)
 		}
 	}
 
@@ -120,7 +120,7 @@ func PartialView(c echo.Context, partial *Partial) error {
 	c.Set(echo.HeaderContentType, echo.MIMETextHTML)
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
-			c.Set(s, a)
+			c.Response().Header().Set(s, a)
 		}
 	}
 
