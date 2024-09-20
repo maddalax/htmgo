@@ -39,7 +39,7 @@
   "experimental": {
     "configFile": null,
     "classRegex": [[
-      "tailwind|Class|h.Class\\(([^)]*)\\)",
+      "Class|h.Class\\(([^)]*)\\)",
       "[\"'`]([^\"'`]*).*?[\"'`]"
     ]]
   }

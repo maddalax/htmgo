@@ -244,6 +244,17 @@ func Body(children ...Ren) *Element {
 	return Tag("body", children...)
 }
 
+func Meta(name string, content string) Ren {
+	return &Element{
+		tag: "meta",
+		attributes: map[string]string{
+			"name":    name,
+			"content": content,
+		},
+		children: make([]Ren, 0),
+	}
+}
+
 func Link(href string, rel string) Ren {
 	attributeMap := AttributeMap{
 		"href": href,
@@ -289,6 +300,10 @@ func Pre(children ...Ren) *Element {
 
 func Div(children ...Ren) *Element {
 	return Tag("div", children...)
+}
+
+func Article(children ...Ren) *Element {
+	return Tag("article", children...)
 }
 
 func ReplaceUrlHeader(url string) *Headers {
@@ -363,11 +378,8 @@ func List[T any](items []T, mapper func(item T, index int) *Element) *Element {
 	return node
 }
 
-func Fragment(children ...Ren) *Element {
-	return &Element{
-		tag:      "",
-		children: children,
-	}
+func Fragment(children ...Ren) *ChildList {
+	return Children(children...)
 }
 
 func AttributeList(children ...*AttributeMap) *AttributeMap {
