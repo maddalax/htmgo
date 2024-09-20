@@ -42,7 +42,7 @@ func NavBar() *h.Element {
 						h.A(
 							h.Class("text-2xl"),
 							h.Href("/"),
-							h.Text("htmgo (prerelease)"),
+							h.Text("htmgo"),
 						)),
 					h.Div(
 						h.Class("flex gap-4 items-center"),
