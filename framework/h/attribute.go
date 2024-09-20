@@ -1,43 +1,23 @@
 package h
 
-type AttributeR struct {
-	Name  string
-	Value string
-}
+import "fmt"
 
-func NewAttribute(name string, value string) *AttributeR {
-	return &AttributeR{
-		Name:  name,
-		Value: value,
+type AttributeMap map[string]any
+
+func (m *AttributeMap) ToMap() map[string]string {
+	result := make(map[string]string)
+	for k, v := range *m {
+		switch v.(type) {
+		case AttributeMap:
+			m2 := v.(*AttributeMap).ToMap()
+			for _, a := range m2 {
+				result[k] = a
+			}
+		case string:
+			result[k] = v.(string)
+		default:
+			result[k] = fmt.Sprintf("%v", v)
+		}
 	}
-}
-
-type TextContent struct {
-	Content string
-}
-
-func NewTextContent(content string) *TextContent {
-	return &TextContent{
-		Content: content,
-	}
-}
-
-type RawContent struct {
-	Content string
-}
-
-func NewRawContent(content string) *RawContent {
-	return &RawContent{
-		Content: content,
-	}
-}
-
-type ChildList struct {
-	Children []Ren
-}
-
-func NewChildList(children ...Ren) *ChildList {
-	return &ChildList{
-		Children: children,
-	}
+	return result
 }

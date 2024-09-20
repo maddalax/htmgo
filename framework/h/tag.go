@@ -70,7 +70,6 @@ func Id(value string) Ren {
 	return Attribute("id", value)
 }
 
-type AttributeMap map[string]any
 type ClassMap map[string]bool
 
 func Attributes(attrs *AttributeMap) *AttributeMap {
