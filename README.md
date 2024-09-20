@@ -1,5 +1,5 @@
-[!WARNING]
-This is a prerelease version and generally should not be used at this time. Watch on github for the stable release!
+> [!WARNING]
+> This is a prerelease version and generally should not be used at this time. Watch on github for the stable release!
 
 ## **htmgo**
 
