@@ -5,15 +5,13 @@ import (
 	"strings"
 )
 
-func (node *Element) Render() string {
-	builder := &strings.Builder{}
-
+func (node *Element) Render(builder *strings.Builder) {
 	// some elements may not have a tag, such as a Fragment
 	if node.tag != "" {
 		builder.WriteString("<" + node.tag)
 		builder.WriteString(" ")
 		for name, value := range node.attributes {
-			builder.WriteString(NewAttribute(name, value).Render())
+			NewAttribute(name, value).Render(builder)
 		}
 	}
 
@@ -34,9 +32,9 @@ func (node *Element) Render() string {
 	for _, child := range node.children {
 		switch child.(type) {
 		case *AttributeMap:
-			builder.WriteString(child.(*AttributeMap).Render())
+			child.Render(builder)
 		case *LifeCycle:
-			builder.WriteString(child.(*LifeCycle).Render())
+			child.Render(builder)
 		}
 	}
 
@@ -53,52 +51,42 @@ func (node *Element) Render() string {
 		case *LifeCycle:
 			continue
 		default:
-			builder.WriteString(child.Render())
+			child.Render(builder)
 		}
 	}
 
 	if node.tag != "" {
 		builder.WriteString("</" + node.tag + ">")
 	}
-
-	str := builder.String()
-	return str
 }
 
-func (a *AttributeR) Render() string {
-	return fmt.Sprintf(`%s="%s"`, a.Name, a.Value)
+func (a *AttributeR) Render(builder *strings.Builder) {
+	builder.WriteString(fmt.Sprintf(`%s="%s"`, a.Name, a.Value))
 }
 
-func (t *TextContent) Render() string {
-	return t.Content
+func (t *TextContent) Render(builder *strings.Builder) {
+	builder.WriteString(t.Content)
 }
 
-func (r *RawContent) Render() string {
-	return r.Content
+func (r *RawContent) Render(builder *strings.Builder) {
+	builder.WriteString(r.Content)
 }
 
-func (c *ChildList) Render() string {
-	builder := &strings.Builder{}
+func (c *ChildList) Render(builder *strings.Builder) {
 	for _, child := range c.Children {
-		builder.WriteString(child.Render())
+		child.Render(builder)
 	}
-	str := builder.String()
-	return str
 }
 
-func (m *AttributeMap) Render() string {
-	builder := &strings.Builder{}
+func (m *AttributeMap) Render(builder *strings.Builder) {
 	m2 := m.ToMap()
 
 	for k, v := range m2 {
-		builder.WriteString(NewAttribute(k, v).Render())
+		NewAttribute(k, v).Render(builder)
 	}
-
-	str := builder.String()
-	return str
 }
 
-func (l *LifeCycle) Render() string {
+func (l *LifeCycle) Render(builder *strings.Builder) {
 	m := make(map[string]string)
 
 	for event, commands := range l.handlers {
@@ -114,8 +102,7 @@ func (l *LifeCycle) Render() string {
 		children = append(children, Attribute(event, js))
 	}
 
-	result := Children(children...).Render()
-	return result
+	Children(children...).Render(builder)
 }
 
 func (m *AttributeMap) ToMap() map[string]string {

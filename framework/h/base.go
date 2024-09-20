@@ -5,17 +5,18 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strings"
 )
 
 type Headers = map[string]string
 
 type Partial struct {
 	Headers *Headers
-	Root    string
+	Root    *Element
 }
 
-func (p *Partial) Render() string {
-	return p.Root
+func (p *Partial) Render(builder *strings.Builder) {
+	p.Root.Render(builder)
 }
 
 type Page struct {
@@ -30,23 +31,23 @@ func NewPage(root Ren) *Page {
 	}
 }
 
-func NewPageWithHttpMethod(httpMethod string, root Ren) *Page {
+func NewPageWithHttpMethod(httpMethod string, root *Element) *Page {
 	return &Page{
 		HttpMethod: httpMethod,
 		Root:       root,
 	}
 }
 
-func NewPartialWithHeaders(headers *Headers, root Ren) *Partial {
+func NewPartialWithHeaders(headers *Headers, root *Element) *Partial {
 	return &Partial{
 		Headers: headers,
-		Root:    root.Render(),
+		Root:    root,
 	}
 }
 
-func NewPartial(root Ren) *Partial {
+func NewPartial(root *Element) *Partial {
 	return &Partial{
-		Root: root.Render(),
+		Root: root,
 	}
 }
 

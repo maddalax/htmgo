@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/url"
+	"strings"
 )
 
 type Ren interface {
-	Render() string
+	Render(builder *strings.Builder)
 }
 
 func Ternary[T any](value bool, a T, b T) T {

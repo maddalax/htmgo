@@ -69,12 +69,12 @@ func Increment(amount int) JsCommand {
 
 func SetInnerHtml(r Ren) JsCommand {
 	// language=JavaScript
-	return JsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", r.Render())}
+	return JsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", Render(r))}
 }
 
 func SetOuterHtml(r Ren) JsCommand {
 	// language=JavaScript
-	return JsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", r.Render())}
+	return JsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", Render(r))}
 }
 
 func AddAttribute(name, value string) JsCommand {

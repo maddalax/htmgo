@@ -14,7 +14,7 @@ type Element struct {
 	children   []Ren
 }
 
-func (node *Element) AppendChild(child Ren) Ren {
+func (node *Element) AppendChild(child Ren) *Element {
 	node.children = append(node.children, child)
 	return node
 }
@@ -363,7 +363,7 @@ func List[T any](items []T, mapper func(item T, index int) *Element) *Element {
 	return node
 }
 
-func Fragment(children ...Ren) Ren {
+func Fragment(children ...Ren) *Element {
 	return &Element{
 		tag:      "",
 		children: children,
@@ -541,11 +541,11 @@ func NewSwap(selector string, content *Element) SwapArg {
 	}
 }
 
-func OobSwap(ctx *RequestContext, content *Element) Ren {
+func OobSwap(ctx *RequestContext, content *Element) *Element {
 	return OobSwapWithSelector(ctx, "", content)
 }
 
-func OobSwapWithSelector(ctx *RequestContext, selector string, content *Element) Ren {
+func OobSwapWithSelector(ctx *RequestContext, selector string, content *Element) *Element {
 	if ctx == nil || ctx.Get("HX-Request") == "" {
 		return Empty()
 	}

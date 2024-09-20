@@ -215,7 +215,8 @@ func UpdateName(ctx *h.RequestContext) *h.Partial {
 		return h.NewPartial(h.Div(h.Text("failed to update")))
 	}
 
-	return h.NewPartial(h.OobSwap(ctx, Task(task, false)))
+	return h.NewPartial(
+		h.OobSwap(ctx, Task(task, false)))
 }
 
 func EditNameForm(ctx *h.RequestContext) *h.Partial {
