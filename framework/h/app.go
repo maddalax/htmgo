@@ -49,6 +49,10 @@ func Start(opts AppOpts) {
 
 func (a App) start() {
 
+	if a.Opts.Register != nil {
+		a.Opts.Register(a.Echo)
+	}
+
 	a.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cc := &RequestContext{
@@ -58,10 +62,6 @@ func (a App) start() {
 			return next(cc)
 		}
 	})
-
-	if a.Opts.Register != nil {
-		a.Opts.Register(a.Echo)
-	}
 
 	if a.Opts.LiveReload {
 		AddLiveReloadHandler("/dev/livereload", a.Echo)

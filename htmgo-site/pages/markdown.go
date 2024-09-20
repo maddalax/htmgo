@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"embed"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/htmgo/service"
 	"htmgo-site/internal/markdown"
@@ -24,11 +25,12 @@ func MarkdownPage(ctx *h.RequestContext, path string) *h.Element {
 }
 
 func MarkdownContent(ctx *h.RequestContext, path string) *h.Element {
+	embeddedMd := ctx.Get("embeddedMarkdown").(*embed.FS)
 	renderer := service.Get[markdown.Renderer](ctx.ServiceLocator())
 	return h.Div(
 		h.Article(
 			h.Class("prose max-w-sm pt-3 p-4 md:p-4 md:max-w-2xl prose-code:text-black"),
-			h.Raw(renderer.RenderFile(path)),
+			h.Raw(renderer.RenderFile(path, embeddedMd)),
 		),
 	)
 }

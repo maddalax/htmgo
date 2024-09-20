@@ -22,7 +22,9 @@ var workingDir string
 var commands = make([]CmdWithFlags, 0)
 
 func AppendRunning(cmd *exec.Cmd, flags ...RunFlag) {
-	slog.Debug("running", slog.String("command", strings.Join(cmd.Args, " ")))
+	slog.Debug("running", slog.String("command", strings.Join(cmd.Args, " ")),
+		slog.String("dir", cmd.Dir),
+		slog.String("cwd", GetWorkingDir()))
 	commands = append(commands, CmdWithFlags{flags: flags, cmd: cmd})
 }
 

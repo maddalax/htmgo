@@ -10,8 +10,18 @@ func Build() {
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
 	process.RunOrExit("rm -rf ./dist")
-	process.RunOrExit("mkdir -p ./dist/assets/dist")
-	process.RunOrExit("cp -r ./assets/dist/* ./dist/assets/dist/")
-	process.RunOrExit("go build -o \"./dist\" .")
+	process.RunOrExit("mkdir -p ./dist")
+
+	//process.RunOrExit("mkdir -p ./dist/assets/dist")
+
+	//dirutil.CopyDir(
+	//	"./assets/dist",
+	//	"./dist/assets/dist",
+	//	func(path string, exists bool) bool {
+	//		return true
+	//	},
+	//)
+
+	process.RunOrExit("go build -o ./dist .")
 	process.RunOrExit("echo \"Build successful\"")
 }

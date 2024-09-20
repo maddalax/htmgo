@@ -2,8 +2,8 @@ package dirwalk
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -13,14 +13,14 @@ type Page struct {
 	Parts     []string
 }
 
-func WalkPages(dir string) []Page {
+func WalkPages(dir string, system fs.FS) []Page {
 	pages := make([]Page, 0)
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	fs.WalkDir(system, dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		name := info.Name()
-		if !info.IsDir() && (strings.HasSuffix(name, ".md") || strings.HasSuffix(name, ".go")) {
+		name := d.Name()
+		if !d.IsDir() && (strings.HasSuffix(name, ".md") || strings.HasSuffix(name, ".go")) {
 			fullPath := strings.Replace(path, dir, "", 1)
 			fullPath = strings.TrimSuffix(fullPath, ".md")
 			pages = append(pages, Page{

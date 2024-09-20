@@ -2,14 +2,13 @@ package copyassets
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"golang.org/x/mod/modfile"
-	"io"
 	"log"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -34,60 +33,6 @@ func getModuleVersion(modulePath string) (string, error) {
 	}
 
 	return "", fmt.Errorf("module %s not found in go.mod", modulePath)
-}
-
-func copyFile(src, dst string) error {
-	// Open the source file for reading.
-	srcFile, err := os.Open(src)
-	if err != nil {
-		return fmt.Errorf("failed to open source file: %v", err)
-	}
-	defer srcFile.Close()
-	// Create the destination file.
-	dstFile, err := os.Create(dst)
-	if err != nil {
-		return fmt.Errorf("failed to create destination file: %v", err)
-	}
-	defer dstFile.Close()
-	// Copy the content from srcFile to dstFile.
-	_, err = io.Copy(dstFile, srcFile)
-	if err != nil {
-		return fmt.Errorf("failed to copy file contents: %v", err)
-	}
-	return nil
-}
-
-// copyDir copies a directory recursively from src to dst.
-func copyDir(srcDir, dstDir string, skip func(path string) bool) error {
-	// Walk the source directory tree.
-	return filepath.Walk(srcDir, func(srcPath string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		// Construct the corresponding destination path.
-		relPath, err := filepath.Rel(srcDir, srcPath)
-		if err != nil {
-			return err
-		}
-		dstPath := filepath.Join(dstDir, relPath)
-		if info.IsDir() {
-			// If it's a directory, create the corresponding directory in the destination.
-			err := os.MkdirAll(dstPath, 0700)
-			if err != nil {
-				return fmt.Errorf("failed to create directory: %v", err)
-			}
-		} else {
-			if skip != nil && skip(srcPath) {
-				return nil
-			}
-			// If it's a file, copy the file.
-			err := copyFile(srcPath, dstPath)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
 }
 
 func CopyAssets() {
@@ -119,14 +64,14 @@ func CopyAssets() {
 	destDirDist := fmt.Sprintf("%s/dist", destDir)
 	destDirCss := fmt.Sprintf("%s/css", destDir)
 
-	err := copyDir(assetDistDir, destDirDist, func(path string) bool {
-		return false
+	err := dirutil.CopyDir(assetDistDir, destDirDist, func(path string, exists bool) bool {
+		return true
 	})
-	err = copyDir(assetCssDir, destDirCss, func(path string) bool {
-		if strings.HasSuffix(path, "tailwind.config.js") {
-			return true
+	err = dirutil.CopyDir(assetCssDir, destDirCss, func(path string, exists bool) bool {
+		if exists {
+			return false
 		}
-		return false
+		return true
 	})
 
 	if err != nil {

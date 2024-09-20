@@ -8,7 +8,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"io"
-	"os"
+	"io/fs"
 )
 
 type Renderer struct {
@@ -19,15 +19,13 @@ func NewRenderer() *Renderer {
 	return &Renderer{cache: make(map[string]string)}
 }
 
-func (r *Renderer) RenderFile(source string) string {
+func (r *Renderer) RenderFile(source string, system fs.FS) string {
 	if val, ok := r.cache[source]; ok {
 		return val
 	}
 
-	o, err := os.Open(source)
-	defer func(o *os.File) {
-		_ = o.Close()
-	}(o)
+	o, err := system.Open(source)
+	defer o.Close()
 
 	if err != nil {
 		return ""
