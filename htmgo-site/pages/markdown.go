@@ -27,7 +27,7 @@ func MarkdownContent(ctx *h.RequestContext, path string) *h.Element {
 	renderer := service.Get[markdown.Renderer](ctx.ServiceLocator())
 	return h.Div(
 		h.Article(
-			h.Class("prose max-w-[95%] pt-3 md:p-4 md:max-w-2xl prose-code:text-black"),
+			h.Class("prose max-w-sm pt-3 p-4 md:p-4 md:max-w-2xl prose-code:text-black"),
 			h.Raw(renderer.RenderFile(path)),
 		),
 	)

@@ -11,7 +11,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 
 	return h.NewPage(base.RootPage(
 		h.Div(
-			h.Class("flex flex-col p-4 justify-center items-center"),
+			h.Class("flex flex-col justify-center items-center"),
 			h.List(pages, func(page dirwalk.Page, index int) *h.Element {
 				return MarkdownContent(ctx, page.FilePath)
 			}),
