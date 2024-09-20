@@ -53,25 +53,6 @@ func (l *LifeCycle) OnMutationError(cmd ...JsCommand) *LifeCycle {
 	return l
 }
 
-func (l *LifeCycle) Render() *Node {
-	m := make(map[string]string)
-
-	for event, commands := range l.handlers {
-		m[event] = ""
-		for _, command := range commands {
-			m[event] += fmt.Sprintf("%s;", command.Command)
-		}
-	}
-
-	children := make([]Renderable, 0)
-
-	for event, js := range m {
-		children = append(children, Attribute(event, js))
-	}
-
-	return Children(children...).Render()
-}
-
 type JsCommand struct {
 	Command string
 }
@@ -86,14 +67,14 @@ func Increment(amount int) JsCommand {
 	return JsCommand{Command: fmt.Sprintf("this.innerText = parseInt(this.innerText) + %d", amount)}
 }
 
-func SetInnerHtml(r Renderable) JsCommand {
+func SetInnerHtml(r Ren) JsCommand {
 	// language=JavaScript
-	return JsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", Render(r.Render()))}
+	return JsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", r.Render())}
 }
 
-func SetOuterHtml(r Renderable) JsCommand {
+func SetOuterHtml(r Ren) JsCommand {
 	// language=JavaScript
-	return JsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", Render(r.Render()))}
+	return JsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", r.Render())}
 }
 
 func AddAttribute(name, value string) JsCommand {

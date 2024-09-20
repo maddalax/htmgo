@@ -6,7 +6,7 @@ import (
 	"starter-template/partials/sheet"
 )
 
-func RootPage(children ...h.Renderable) h.Renderable {
+func RootPage(children ...h.Ren) h.Ren {
 	return h.Html(
 		h.HxExtension("path-deps, response-targets, mutation-error"),
 		h.Head(

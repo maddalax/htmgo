@@ -8,31 +8,18 @@ import (
 	"strings"
 )
 
-type Node struct {
-	id         string
+type Element struct {
 	tag        string
 	attributes map[string]string
-	children   []Renderable
-	text       string
-	value      string
-	changed    bool
+	children   []Ren
 }
 
-func (node *Node) Render() *Node {
-	return node
-}
-
-func (node *Node) AppendChild(child Renderable) Renderable {
+func (node *Element) AppendChild(child Ren) Ren {
 	node.children = append(node.children, child)
 	return node
 }
 
-func (node *Node) SetChanged(changed bool) Renderable {
-	node.changed = changed
-	return node
-}
-
-func Data(data map[string]any) Renderable {
+func Data(data map[string]any) Ren {
 	serialized, err := json.Marshal(data)
 	if err != nil {
 		return Empty()
@@ -40,86 +27,89 @@ func Data(data map[string]any) Renderable {
 	return Attribute("x-data", string(serialized))
 }
 
-func ClassIf(condition bool, value string) Renderable {
+func ClassIf(condition bool, value string) Ren {
 	if condition {
 		return Class(value)
 	}
 	return Empty()
 }
 
-func Class(value ...string) Renderable {
-	return &Node{
-		tag:   "class",
-		value: MergeClasses(value...),
-	}
+func Class(value ...string) Ren {
+	return Attribute("class", MergeClasses(value...))
 }
 
-func ClassX(value string, m map[string]bool) Renderable {
+func ClassX(value string, m ClassMap) Ren {
 	builder := strings.Builder{}
-	builder.WriteString(value + " ")
+	builder.WriteString(value)
+	builder.WriteString(" ")
 	for k, v := range m {
 		if v {
-			builder.WriteString(k + " ")
+			builder.WriteString(k)
+			builder.WriteString(" ")
 		}
 	}
 	return Class(builder.String())
 }
 
 func MergeClasses(classes ...string) string {
-	builder := ""
-	for _, s := range classes {
-		builder += s + " "
+	if len(classes) == 1 {
+		return classes[0]
 	}
-	return builder
+	builder := strings.Builder{}
+	for _, s := range classes {
+		builder.WriteString(s)
+		builder.WriteString(" ")
+	}
+	return builder.String()
 }
 
-func Id(value string) Renderable {
+func Id(value string) Ren {
 	if strings.HasPrefix(value, "#") {
 		value = value[1:]
 	}
 	return Attribute("id", value)
 }
 
-func Attributes(attrs map[string]string) Renderable {
-	return &Node{
-		tag:        "attribute",
-		attributes: attrs,
-	}
+type AttributeMap map[string]any
+type ClassMap map[string]bool
+
+func Attributes(attrs *AttributeMap) *AttributeMap {
+	return attrs
 }
 
-func Checked() Renderable {
+func Checked() Ren {
 	return Attribute("checked", "true")
 }
 
-func Boost() Renderable {
+func Boost() Ren {
 	return Attribute("hx-boost", "true")
 }
 
-func Attribute(key string, value string) Renderable {
-	return Attributes(map[string]string{key: value})
+func Attribute(key string, value string) *AttributeMap {
+	return Attributes(&AttributeMap{key: value})
 }
 
-func TriggerChildren() Renderable {
+func TriggerChildren() Ren {
 	return HxExtension("trigger-children")
 }
 
-func HxExtension(value string) Renderable {
+func HxExtension(value string) Ren {
 	return Attribute("hx-ext", value)
 }
 
-func Disabled() Renderable {
+func Disabled() Ren {
 	return Attribute("disabled", "")
 }
 
-func Get(path string) Renderable {
+func Get(path string) Ren {
 	return Attribute("hx-get", path)
 }
 
-func GetPartial(partial func(ctx *RequestContext) *Partial) Renderable {
+func GetPartial(partial func(ctx *RequestContext) *Partial) Ren {
 	return Get(GetPartialPath(partial))
 }
 
-func GetPartialWithQs(partial func(ctx *RequestContext) *Partial, qs string) Renderable {
+func GetPartialWithQs(partial func(ctx *RequestContext) *Partial, qs string) Ren {
 	return Get(GetPartialPathWithQs(partial, qs))
 }
 
@@ -130,172 +120,174 @@ func CreateTriggers(triggers ...string) []string {
 type ReloadParams struct {
 	Triggers []string
 	Target   string
-	Children Renderable
+	Children Ren
 }
 
-func ViewOnLoad(partial func(ctx *RequestContext) *Partial) Renderable {
+func ViewOnLoad(partial func(ctx *RequestContext) *Partial) Ren {
 	return View(partial, ReloadParams{
 		Triggers: CreateTriggers("load"),
 	})
 }
 
-func View(partial func(ctx *RequestContext) *Partial, params ReloadParams) Renderable {
-	return Div(Attributes(map[string]string{
+func View(partial func(ctx *RequestContext) *Partial, params ReloadParams) Ren {
+	return Div(Attributes(&AttributeMap{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(params.Triggers, ", "),
 		"hx-target":  params.Target,
 	}), params.Children)
 }
 
-func PartialWithTriggers(partial func(ctx *RequestContext) *Partial, triggers ...string) Renderable {
-	return Div(Attributes(map[string]string{
+func PartialWithTriggers(partial func(ctx *RequestContext) *Partial, triggers ...string) Ren {
+	return Div(Attributes(&AttributeMap{
 		"hx-get":     GetPartialPath(partial),
 		"hx-trigger": strings.Join(triggers, ", "),
 	}))
 }
 
-func GetWithQs(path string, qs map[string]string) Renderable {
+func GetWithQs(path string, qs map[string]string) Ren {
 	return Get(SetQueryParams(path, qs))
 }
 
-func Post(url string) Renderable {
+func PostPartialOnTrigger(partial func(ctx *RequestContext) *Partial, triggers ...string) Ren {
+	return PostOnTrigger(GetPartialPath(partial), strings.Join(triggers, ", "))
+}
+
+func PostPartialWithQsOnTrigger(partial func(ctx *RequestContext) *Partial, qs string, trigger string) Ren {
+	return PostOnTrigger(GetPartialPathWithQs(partial, qs), trigger)
+}
+
+func Post(url string) Ren {
 	return Attribute("hx-post", url)
 }
 
-func PostOnClick(url string) Renderable {
-	return AttributeList(Attribute("hx-post", url), Trigger("click"))
+func PostOnTrigger(url string, trigger string) Ren {
+	return AttributeList(Attribute("hx-post", url), Trigger(trigger))
 }
 
-func PostPartialOnClick(partial func(ctx *RequestContext) *Partial) Renderable {
+func PostOnClick(url string) Ren {
+	return PostOnTrigger(url, "click")
+}
+
+func PostPartialOnClick(partial func(ctx *RequestContext) *Partial) Ren {
 	return PostOnClick(GetPartialPath(partial))
 }
 
-func PostPartialOnClickQs(partial func(ctx *RequestContext) *Partial, qs string) Renderable {
+func PostPartialOnClickQs(partial func(ctx *RequestContext) *Partial, qs string) Ren {
 	return PostOnClick(GetPartialPathWithQs(partial, qs))
 }
 
-func Trigger(trigger string) Renderable {
+func Trigger(trigger string) *AttributeMap {
 	return Attribute("hx-trigger", trigger)
 }
 
-func TextF(format string, args ...interface{}) Renderable {
+func TextF(format string, args ...interface{}) Ren {
 	return Text(fmt.Sprintf(format, args...))
 }
 
-func Text(text string) Renderable {
-	return &Node{
-		tag:  "text",
-		text: text,
-	}
+func Text(text string) *TextContent {
+	return NewTextContent(text)
 }
 
-func Pf(format string, args ...interface{}) Renderable {
+func Pf(format string, args ...interface{}) Ren {
 	return P(Text(fmt.Sprintf(format, args...)))
 }
 
-func Target(target string) Renderable {
+func Target(target string) Ren {
 	return Attribute("hx-target", target)
 }
 
-func Name(name string) Renderable {
+func Name(name string) Ren {
 	return Attribute("name", name)
 }
 
-func Confirm(message string) Renderable {
+func Confirm(message string) Ren {
 	return Attribute("hx-confirm", message)
 }
 
-func Href(path string) Renderable {
+func Href(path string) Ren {
 	return Attribute("href", path)
 }
 
-func Type(name string) Renderable {
+func Type(name string) Ren {
 	return Attribute("type", name)
 }
 
-func Placeholder(placeholder string) Renderable {
+func Placeholder(placeholder string) Ren {
 	return Attribute("placeholder", placeholder)
 }
 
-func OutOfBandSwap(selector string) Renderable {
+func OutOfBandSwap(selector string) Ren {
 	return Attribute("hx-swap-oob",
 		Ternary(selector == "", "true", selector))
 }
 
-func Click(value string) Renderable {
+func Click(value string) Ren {
 	return Attribute("onclick", value)
 }
 
-func Tag(tag string, children ...Renderable) Renderable {
-	return &Node{
+func Tag(tag string, children ...Ren) *Element {
+	return &Element{
 		tag:      tag,
 		children: children,
 	}
 }
 
-func Html(children ...Renderable) Renderable {
+func Html(children ...Ren) *Element {
 	return Tag("html", children...)
 }
 
-func Head(children ...Renderable) Renderable {
+func Head(children ...Ren) *Element {
 	return Tag("head", children...)
 }
 
-func Body(children ...Renderable) Renderable {
+func Body(children ...Ren) *Element {
 	return Tag("body", children...)
 }
 
-func Link(href string, rel string) Renderable {
-	return &Node{
-		tag: "link",
-		attributes: map[string]string{
-			"href": href,
-			"rel":  rel,
-		},
-		children: make([]Renderable, 0),
+func Link(href string, rel string) Ren {
+	attributeMap := AttributeMap{
+		"href": href,
+		"rel":  rel,
+	}
+	return &Element{
+		tag:        "link",
+		attributes: attributeMap.ToMap(),
+		children:   make([]Ren, 0),
 	}
 }
 
-func Script(url string) Renderable {
-	return &Node{
-		tag: "script",
-		attributes: map[string]string{
-			"src":  url,
-			"type": "module",
-		},
-		children: make([]Renderable, 0),
+func Script(url string) Ren {
+	attributeMap := AttributeMap{
+		"src": url,
+	}
+	return &Element{
+		tag:        "script",
+		attributes: attributeMap.ToMap(),
+		children:   make([]Ren, 0),
 	}
 }
 
-func Raw(text string) Renderable {
-	return &Node{
-		tag:      "raw",
-		children: make([]Renderable, 0),
-		value:    text,
-	}
+func Raw(text string) *RawContent {
+	return NewRawContent(text)
 }
 
 func MultiLineQuotes(text string) string {
 	return "`" + text + "`"
 }
 
-func RawF(text string, args any) Renderable {
-	return &Node{
-		tag:      "raw",
-		children: make([]Renderable, 0),
-		value:    fmt.Sprintf(text, args),
-	}
+func RawF(text string, args any) *RawContent {
+	return Raw(fmt.Sprintf(text, args))
 }
 
-func RawScript(text string) Renderable {
+func RawScript(text string) *RawContent {
 	return Raw("<script>" + text + "</script>")
 }
 
-func Pre(children ...Renderable) Renderable {
+func Pre(children ...Ren) *Element {
 	return Tag("pre", children...)
 }
 
-func Div(children ...Renderable) Renderable {
+func Div(children ...Ren) *Element {
 	return Tag("div", children...)
 }
 
@@ -345,24 +337,25 @@ func NewHeaders(headers ...string) *Headers {
 	return &m
 }
 
-func Checkbox(children ...Renderable) Renderable {
+func Checkbox(children ...Ren) Ren {
 	return Input("checkbox", children...)
 }
 
-func Input(inputType string, children ...Renderable) Renderable {
-	return &Node{
-		tag: "input",
-		attributes: map[string]string{
-			"type": inputType,
-		},
-		children: children,
+func Input(inputType string, children ...Ren) Ren {
+	attributeMap := AttributeMap{
+		"type": inputType,
+	}
+	return &Element{
+		tag:        "input",
+		attributes: attributeMap.ToMap(),
+		children:   children,
 	}
 }
 
-func List[T any](items []T, mapper func(item T, index int) Renderable) Renderable {
-	node := &Node{
+func List[T any](items []T, mapper func(item T, index int) *Element) *Element {
+	node := &Element{
 		tag:      "",
-		children: make([]Renderable, len(items)),
+		children: make([]Ren, len(items)),
 	}
 	for index, value := range items {
 		node.children[index] = mapper(value, index)
@@ -370,159 +363,138 @@ func List[T any](items []T, mapper func(item T, index int) Renderable) Renderabl
 	return node
 }
 
-func Fragment(children ...Renderable) Renderable {
-	return &Node{
+func Fragment(children ...Ren) Ren {
+	return &Element{
 		tag:      "",
 		children: children,
 	}
 }
 
-func AttributeList(children ...Renderable) Renderable {
-	return &Node{
-		tag:      FlagAttributeList,
-		children: children,
+func AttributeList(children ...*AttributeMap) *AttributeMap {
+	m := make(AttributeMap)
+	for _, child := range children {
+		for k, v := range *child {
+			m[k] = v
+		}
 	}
+	return &m
 }
 
-func AppendChildren(node *Node, children ...Renderable) Renderable {
+func AppendChildren(node *Element, children ...Ren) Ren {
 	node.children = append(node.children, children...)
 	return node
 
 }
 
-func Button(children ...Renderable) Renderable {
+func Button(children ...Ren) *Element {
 	return Tag("button", children...)
 }
 
-func Indicator(tag string) Renderable {
+func Indicator(tag string) Ren {
 	return Attribute("hx-indicator", tag)
 }
 
-func P(children ...Renderable) Renderable {
+func P(children ...Ren) *Element {
 	return Tag("p", children...)
 }
 
-func H1(children ...Renderable) Renderable {
+func H1(children ...Ren) *Element {
 	return Tag("h1", children...)
 }
 
-func H2(children ...Renderable) Renderable {
+func H2(children ...Ren) *Element {
 	return Tag("h2", children...)
 }
 
-func H3(children ...Renderable) Renderable {
+func H3(children ...Ren) *Element {
 	return Tag("h3", children...)
 }
 
-func H4(children ...Renderable) Renderable {
+func H4(children ...Ren) *Element {
 	return Tag("h4", children...)
 }
 
-func H5(children ...Renderable) Renderable {
+func H5(children ...Ren) *Element {
 	return Tag("h5", children...)
 }
 
-func H6(children ...Renderable) Renderable {
+func H6(children ...Ren) *Element {
 	return Tag("h6", children...)
 }
 
-func Img(children ...Renderable) Renderable {
+func Img(children ...Ren) *Element {
 	return Tag("img", children...)
 }
 
-func Src(src string) Renderable {
+func Src(src string) Ren {
 	return Attribute("src", src)
 }
 
-func Form(children ...Renderable) Renderable {
+func Form(children ...Ren) *Element {
 	return Tag("form", children...)
 }
 
-func A(children ...Renderable) Renderable {
+func A(children ...Ren) *Element {
 	return Tag("a", children...)
 }
 
-func Nav(children ...Renderable) Renderable {
+func Nav(children ...Ren) *Element {
 	return Tag("nav", children...)
 }
 
-func Empty() Renderable {
-	return &Node{
+func Empty() *Element {
+	return &Element{
 		tag: "",
 	}
 }
 
-func BeforeRequestSetHtml(children ...Renderable) Renderable {
+func BeforeRequestSetHtml(children ...Ren) Ren {
 	serialized := Render(Fragment(children...))
 	return Attribute("hx-on::before-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
 }
 
-func BeforeRequestSetAttribute(key string, value string) Renderable {
+func BeforeRequestSetAttribute(key string, value string) Ren {
 	return Attribute("hx-on::before-request", `this.setAttribute('`+key+`', '`+value+`')`)
 }
 
-func OnMutationErrorSetText(text string) Renderable {
+func OnMutationErrorSetText(text string) Ren {
 	return Attribute("hx-on::mutation-error", `this.innerText = '`+text+`'`)
 }
 
-func BeforeRequestSetText(text string) Renderable {
+func BeforeRequestSetText(text string) Ren {
 	return Attribute("hx-on::before-request", `this.innerText = '`+text+`'`)
 }
 
-func AfterRequestSetText(text string) Renderable {
+func AfterRequestSetText(text string) Ren {
 	return Attribute("hx-on::after-request", `this.innerText = '`+text+`'`)
 }
 
-func AfterRequestRemoveAttribute(key string, value string) Renderable {
+func AfterRequestRemoveAttribute(key string, value string) Ren {
 	return Attribute("hx-on::after-request", `this.removeAttribute('`+key+`')`)
 }
 
-func IfQueryParam(key string, node *Node) Renderable {
+func IfQueryParam(key string, node *Element) Ren {
 	return Fragment(Attribute("hx-if-qp:"+key, "true"), node)
 }
 
-func Hidden() Renderable {
+func Hidden() Ren {
 	return Attribute("style", "display:none")
 }
 
-func MatchQueryParam(defaultValue string, active string, m map[string]*Node) Renderable {
-
-	rendered := make(map[string]string)
-	for s, node := range m {
-		rendered[s] = Render(node)
-	}
-
-	root := Tag("span",
-		m[active],
-		Trigger("url"),
-		Attribute("hx-match-qp", "true"),
-		Attribute("hx-match-qp-default", defaultValue),
-	)
-
-	for s, node := range rendered {
-		root = AppendChildren(root.Render(), Attribute("hx-match-qp-mapping:"+s, ``+html.EscapeString(node)+``))
-	}
-
-	return root
-}
-
-func AfterRequestSetHtml(children ...Renderable) Renderable {
+func AfterRequestSetHtml(children ...Ren) Ren {
 	serialized := Render(Fragment(children...))
 	return Attribute("hx-on::after-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
 }
 
-func Children(children ...Renderable) Renderable {
-	return &Node{
-		tag:      FlagChildrenList,
-		children: children,
-	}
+func Children(children ...Ren) *ChildList {
+	return NewChildList(children...)
 }
 
-func Label(text string) Renderable {
+func Label(text string) *Element {
 	return Tag("label", Text(text))
 }
 
-func If(condition bool, node Renderable) Renderable {
+func If(condition bool, node Ren) Ren {
 	if condition {
 		return node
 	} else {
@@ -530,7 +502,7 @@ func If(condition bool, node Renderable) Renderable {
 	}
 }
 
-func IfElse(condition bool, node Renderable, node2 Renderable) Renderable {
+func IfElse(condition bool, node Ren, node2 Ren) Ren {
 	if condition {
 		return node
 	} else {
@@ -538,7 +510,7 @@ func IfElse(condition bool, node Renderable, node2 Renderable) Renderable {
 	}
 }
 
-func IfElseLazy(condition bool, cb1 func() Renderable, cb2 func() Renderable) Renderable {
+func IfElseLazy(condition bool, cb1 func() Ren, cb2 func() Ren) Ren {
 	if condition {
 		return cb1()
 	} else {
@@ -550,7 +522,7 @@ func GetTriggerName(ctx *RequestContext) string {
 	return ctx.Request().Header.Get("HX-Trigger-Name")
 }
 
-func IfHtmxRequest(ctx *RequestContext, node Renderable) Renderable {
+func IfHtmxRequest(ctx *RequestContext, node Ren) Ren {
 	if ctx.Get("HX-Request") != "" {
 		return node
 	}
@@ -559,36 +531,35 @@ func IfHtmxRequest(ctx *RequestContext, node Renderable) Renderable {
 
 type SwapArg struct {
 	Selector string
-	Content  *Node
+	Content  *Element
 }
 
-func NewSwap(selector string, content *Node) SwapArg {
+func NewSwap(selector string, content *Element) SwapArg {
 	return SwapArg{
 		Selector: selector,
 		Content:  content,
 	}
 }
 
-func OobSwap(ctx *RequestContext, content Renderable) Renderable {
+func OobSwap(ctx *RequestContext, content *Element) Ren {
 	return OobSwapWithSelector(ctx, "", content)
 }
 
-func OobSwapWithSelector(ctx *RequestContext, selector string, content Renderable) Renderable {
+func OobSwapWithSelector(ctx *RequestContext, selector string, content *Element) Ren {
 	if ctx == nil || ctx.Get("HX-Request") == "" {
 		return Empty()
 	}
-	c := content.Render()
-	return c.AppendChild(OutOfBandSwap(selector))
+	return content.AppendChild(OutOfBandSwap(selector))
 }
 
-func SwapMany(ctx *RequestContext, args ...SwapArg) Renderable {
+func SwapMany(ctx *RequestContext, args ...SwapArg) Ren {
 	if ctx.Get("HX-Request") == "" {
 		return Empty()
 	}
 	for _, arg := range args {
 		arg.Content.AppendChild(OutOfBandSwap(arg.Selector))
 	}
-	return Fragment(Map(args, func(arg SwapArg) Renderable {
+	return Fragment(Map(args, func(arg SwapArg) Ren {
 		return arg.Content
 	})...)
 }
@@ -596,12 +567,12 @@ func SwapMany(ctx *RequestContext, args ...SwapArg) Renderable {
 type OnRequestSwapArgs struct {
 	Target        string
 	Get           string
-	Default       *Node
-	BeforeRequest *Node
-	AfterRequest  *Node
+	Default       *Element
+	BeforeRequest *Element
+	AfterRequest  *Element
 }
 
-func OnRequestSwap(args OnRequestSwapArgs) Renderable {
+func OnRequestSwap(args OnRequestSwapArgs) Ren {
 	return Div(args.Default,
 		BeforeRequestSetHtml(args.BeforeRequest),
 		AfterRequestSetHtml(args.AfterRequest),

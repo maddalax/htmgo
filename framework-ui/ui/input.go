@@ -11,10 +11,10 @@ type InputProps struct {
 	Type           string
 	DefaultValue   string
 	ValidationPath string
-	Children       []h.Renderable
+	Children       []h.Ren
 }
 
-func Input(props InputProps) h.Renderable {
+func Input(props InputProps) h.Ren {
 	validation := h.If(props.ValidationPath != "", h.Children(
 		h.Post(props.ValidationPath),
 		h.Trigger("change"),

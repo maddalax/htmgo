@@ -65,7 +65,7 @@ func IndexPage(c echo.Context) *h.Page {
 	))
 }
 
-func CodeExample() h.Renderable {
+func CodeExample() h.Ren {
 	code, err := os.ReadFile("pages/assets/_example.go")
 	scriptSrc, err := os.ReadFile("pages/assets/shiki.js")
 

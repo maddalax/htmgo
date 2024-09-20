@@ -5,7 +5,7 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 )
 
-func OpenSheetButton(open bool, children ...h.Renderable) h.Renderable {
+func OpenSheetButton(open bool, children ...h.Ren) h.Ren {
 	if open {
 		return ui.PrimaryButton(ui.ButtonProps{
 			Id:       "open-sheet",

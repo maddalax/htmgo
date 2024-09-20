@@ -8,13 +8,13 @@ import (
 
 type Props struct {
 	ClassName   string
-	Root        h.Renderable
+	Root        h.Ren
 	OnClosePath string
 }
 
 var Id = "#active-modal"
 
-func Opened(props Props) h.Renderable {
+func Opened(props Props) h.Ren {
 	return h.Fragment(h.Div(
 		h.Class(`fixed top-0 right-0 h-full shadow-lg z-50`,
 			h.Ternary(props.ClassName != "", props.ClassName, "w-96 bg-gray-100")),
@@ -24,7 +24,7 @@ func Opened(props Props) h.Renderable {
 		)))
 }
 
-func Closed() h.Renderable {
+func Closed() h.Ren {
 	return h.Div(h.Id(Id))
 }
 
@@ -35,7 +35,7 @@ func Close(ctx echo.Context) *h.Partial {
 	)
 }
 
-func closeButton(props Props) h.Renderable {
+func closeButton(props Props) h.Ren {
 	return h.Div(
 		h.Class("absolute top-0 right-0 p-3"),
 		h.Button(

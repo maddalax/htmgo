@@ -1,6 +1,7 @@
 package h
 
 type HxEvent = string
+type HxTriggerName = string
 
 var (
 	HxBeforeRequest   HxEvent = "hx-on::before-request"
@@ -12,4 +13,12 @@ var (
 	HxTrigger         HxEvent = "hx-on::trigger"
 	HxRequestStart    HxEvent = "hx-on::xhr:loadstart"
 	HxRequestProgress HxEvent = "hx-on::xhr:progress"
+)
+
+const (
+	TriggerLoad       HxTriggerName = "load"
+	TriggerClick      HxTriggerName = "click"
+	TriggerDblClick   HxTriggerName = "dblclick"
+	TriggerKeyUpEnter HxTriggerName = "keyup[keyCode==13]"
+	TriggerBlur       HxTriggerName = "blur"
 )

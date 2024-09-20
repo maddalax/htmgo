@@ -23,7 +23,7 @@ func getActiveTab(ctx *h.RequestContext) Tab {
 	return TabAll
 }
 
-func Card(ctx *h.RequestContext) h.Renderable {
+func Card(ctx *h.RequestContext) *h.Element {
 	service := tasks.NewService(ctx.ServiceLocator())
 	list, _ := service.List()
 
@@ -34,7 +34,7 @@ func Card(ctx *h.RequestContext) h.Renderable {
 	)
 }
 
-func CardBody(list []*ent.Task, tab Tab) h.Renderable {
+func CardBody(list []*ent.Task, tab Tab) *h.Element {
 	return h.Div(
 		h.Id("tasks-card-body"),
 		Input(list),
@@ -43,7 +43,7 @@ func CardBody(list []*ent.Task, tab Tab) h.Renderable {
 	)
 }
 
-func Input(list []*ent.Task) h.Renderable {
+func Input(list []*ent.Task) *h.Element {
 	return h.Div(
 		h.Id("task-card-input"),
 		h.Class("border border-b-slate-100 relative"),
@@ -61,7 +61,7 @@ func Input(list []*ent.Task) h.Renderable {
 	)
 }
 
-func CompleteAllIcon(list []*ent.Task) h.Renderable {
+func CompleteAllIcon(list []*ent.Task) *h.Element {
 	notCompletedCount := len(h.Filter(list, func(item *ent.Task) bool {
 		return item.CompletedAt == nil
 	}))
@@ -74,7 +74,7 @@ func CompleteAllIcon(list []*ent.Task) h.Renderable {
 	)
 }
 
-func Footer(list []*ent.Task, activeTab Tab) h.Renderable {
+func Footer(list []*ent.Task, activeTab Tab) *h.Element {
 
 	notCompletedCount := len(h.Filter(list, func(item *ent.Task) bool {
 		return item.CompletedAt == nil
@@ -90,7 +90,7 @@ func Footer(list []*ent.Task, activeTab Tab) h.Renderable {
 		),
 		h.Div(
 			h.Class("flex items-center gap-4"),
-			h.List(tabs, func(tab Tab, index int) h.Renderable {
+			h.List(tabs, func(tab Tab, index int) *h.Element {
 				return h.P(
 					h.PostOnClick(h.GetPartialPathWithQs(ChangeTab, "tab="+tab)),
 					h.ClassX("cursor-pointer px-2 py-1 rounded", map[string]bool{
@@ -110,12 +110,12 @@ func Footer(list []*ent.Task, activeTab Tab) h.Renderable {
 	)
 }
 
-func List(list []*ent.Task, tab Tab) h.Renderable {
+func List(list []*ent.Task, tab Tab) *h.Element {
 	return h.Div(
 		h.Id("task-card-list"),
 		h.Class("bg-white w-full"),
 		h.Div(
-			h.List(list, func(item *ent.Task, index int) h.Renderable {
+			h.List(list, func(item *ent.Task, index int) *h.Element {
 				if tab == TabActive && item.CompletedAt != nil {
 					return h.Empty()
 				}
@@ -128,10 +128,10 @@ func List(list []*ent.Task, tab Tab) h.Renderable {
 	)
 }
 
-func Task(task *ent.Task, editing bool) h.Renderable {
+func Task(task *ent.Task, editing bool) *h.Element {
 	return h.Div(
 		h.Id(fmt.Sprintf("task-%s", task.ID.String())),
-		h.ClassX("h-[80px] max-h-[80px] max-w-2xl flex items-center p-4 gap-4 cursor-pointer", map[string]bool{
+		h.ClassX("h-[80px] max-h-[80px] max-w-2xl flex items-center p-4 gap-4 cursor-pointer", h.ClassMap{
 			"border border-b-slate-100": !editing,
 		}),
 		CompleteIcon(task),
@@ -147,13 +147,17 @@ func Task(task *ent.Task, editing bool) h.Renderable {
 					),
 					h.Input(
 						"text",
-						h.Post(h.GetPartialPath(UpdateName)),
-						h.Trigger("blur, keyup[keyCode==13]"),
-						h.Attribute("autocomplete", "off"),
-						h.Attribute("autofocus", "true"),
-						h.Attribute("name", "name"),
-						h.Class("pl-1 h-full w-full text-xl outline-none outline-2 outline-rose-300"),
-						h.Attribute("value", task.Name),
+						h.PostPartialOnTrigger(UpdateName, h.TriggerBlur, h.TriggerKeyUpEnter),
+						h.Attributes(&h.AttributeMap{
+							"placeholder":  "What needs to be done?",
+							"autofocus":    "true",
+							"autocomplete": "off",
+							"name":         "name",
+							"class": h.ClassX("", h.ClassMap{
+								"pl-1 h-full w-full text-xl outline-none outline-2 outline-rose-300": true,
+							}),
+							"value": task.Name,
+						}),
 					),
 				),
 			),
@@ -168,7 +172,7 @@ func Task(task *ent.Task, editing bool) h.Renderable {
 	)
 }
 
-func CompleteIcon(task *ent.Task) h.Renderable {
+func CompleteIcon(task *ent.Task) *h.Element {
 	return h.Div(
 		h.Trigger("click"),
 		h.Post(h.GetPartialPathWithQs(ToggleCompleted, "id="+task.ID.String())),

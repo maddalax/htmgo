@@ -13,7 +13,7 @@ func Extensions() string {
 	return strings.Join(extensions, ", ")
 }
 
-func RootPage(children ...h.Renderable) h.Renderable {
+func RootPage(children ...h.Ren) h.Ren {
 	return h.Html(
 		h.HxExtension(Extensions()),
 		h.Head(

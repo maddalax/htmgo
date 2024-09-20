@@ -10,20 +10,20 @@ type ButtonProps struct {
 	Trigger  string
 	Get      string
 	Class    string
-	Children []h.Renderable
+	Children []h.Ren
 }
 
-func PrimaryButton(props ButtonProps) h.Renderable {
+func PrimaryButton(props ButtonProps) h.Ren {
 	props.Class = h.MergeClasses(props.Class, "border-blue-700 bg-blue-700 text-white")
 	return Button(props)
 }
 
-func SecondaryButton(props ButtonProps) h.Renderable {
+func SecondaryButton(props ButtonProps) h.Ren {
 	props.Class = h.MergeClasses(props.Class, "border-gray-700 bg-gray-700 text-white")
 	return Button(props)
 }
 
-func Button(props ButtonProps) h.Renderable {
+func Button(props ButtonProps) h.Ren {
 
 	text := h.Text(props.Text)
 

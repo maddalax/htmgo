@@ -88,7 +88,7 @@ func (a App) start() {
 }
 
 func HtmlView(c echo.Context, page *Page) error {
-	root := page.Root.Render()
+	root := page.Root
 	return c.HTML(200,
 		Render(
 			root,
@@ -111,7 +111,7 @@ func PartialViewWithHeaders(c echo.Context, headers *Headers, partial *Partial) 
 
 	return c.HTML(200,
 		Render(
-			partial.Root,
+			partial,
 		),
 	)
 }
@@ -126,7 +126,7 @@ func PartialView(c echo.Context, partial *Partial) error {
 
 	return c.HTML(200,
 		Render(
-			partial.Root,
+			partial,
 		),
 	)
 }

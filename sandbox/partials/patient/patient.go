@@ -43,7 +43,7 @@ func AddPatientSheetPartial(ctx echo.Context) *h.Partial {
 	)
 }
 
-func AddPatientSheet(onClosePath string) h.Renderable {
+func AddPatientSheet(onClosePath string) h.Ren {
 	return sheet.Opened(
 		sheet.Props{
 			OnClosePath: onClosePath,
@@ -81,7 +81,7 @@ func ValidateForm(ctx echo.Context) *h.Partial {
 	return h.NewPartial(h.Fragment())
 }
 
-func addPatientForm() h.Renderable {
+func addPatientForm() h.Ren {
 	return h.Form(
 		h.HxExtension("debug, trigger-children"),
 		h.Attribute("hx-target-5*", "#submit-error"),
@@ -123,7 +123,7 @@ func addPatientForm() h.Renderable {
 	)
 }
 
-func Row(patient *patient.Patient, index int) h.Renderable {
+func Row(patient *patient.Patient, index int) h.Ren {
 	return h.Div(
 		h.Class("flex flex-col gap-2 rounded p-4", h.Ternary(index%2 == 0, "bg-red-100", "")),
 		h.Pf("Name: %s", patient.Name),
@@ -131,7 +131,7 @@ func Row(patient *patient.Patient, index int) h.Renderable {
 	)
 }
 
-func AddPatientButton() h.Renderable {
+func AddPatientButton() h.Ren {
 	return ui.Button(ui.ButtonProps{
 		Id:      "add-patient",
 		Text:    "Add Patient",

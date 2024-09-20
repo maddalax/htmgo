@@ -20,6 +20,9 @@ func TaskListPage(ctx *h.RequestContext) *h.Page {
 				h.Class("flex flex-col gap-6 p-4 items-center max-w-xl mx-auto pb-12"),
 				title,
 				task.Card(ctx),
+				h.Children(
+					h.Div(h.Text("Double-click to edit a todo")),
+				),
 			),
 		),
 	))

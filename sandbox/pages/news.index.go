@@ -13,7 +13,7 @@ func ListPage(ctx echo.Context) *h.Page {
 	))
 }
 
-func list(ctx echo.Context) h.Renderable {
+func list(ctx echo.Context) h.Ren {
 	return h.Fragment(
 		h.ViewOnLoad(partials.NewsSheet),
 		h.Div(

@@ -36,15 +36,15 @@ func NewsSheetOpenCount(ctx echo.Context) *h.Partial {
 	)
 }
 
-func SheetWrapper(children ...h.Renderable) h.Renderable {
+func SheetWrapper(children ...h.Ren) h.Ren {
 	return h.Div(h.Id("sheet-partial"), h.Fragment(children...))
 }
 
-func SheetClosed() h.Renderable {
+func SheetClosed() h.Ren {
 	return h.Div()
 }
 
-func SheetOpen() h.Renderable {
+func SheetOpen() h.Ren {
 	return h.Fragment(h.Div(
 		h.Class(`fixed top-0 right-0 h-full w-96 bg-gray-100 shadow-lg z-50`),
 		h.Div(

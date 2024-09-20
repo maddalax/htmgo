@@ -11,40 +11,40 @@ type Headers = map[string]string
 
 type Partial struct {
 	Headers *Headers
-	Root    *Node
+	Root    string
 }
 
-func (p *Partial) Render() *Node {
+func (p *Partial) Render() string {
 	return p.Root
 }
 
 type Page struct {
-	Root       Renderable
+	Root       Ren
 	HttpMethod string
 }
 
-func NewPage(root Renderable) *Page {
+func NewPage(root Ren) *Page {
 	return &Page{
 		HttpMethod: http.MethodGet,
 		Root:       root,
 	}
 }
 
-func NewPageWithHttpMethod(httpMethod string, root Renderable) *Page {
+func NewPageWithHttpMethod(httpMethod string, root Ren) *Page {
 	return &Page{
 		HttpMethod: httpMethod,
 		Root:       root,
 	}
 }
 
-func NewPartialWithHeaders(headers *Headers, root Renderable) *Partial {
+func NewPartialWithHeaders(headers *Headers, root Ren) *Partial {
 	return &Partial{
 		Headers: headers,
 		Root:    root.Render(),
 	}
 }
 
-func NewPartial(root Renderable) *Partial {
+func NewPartial(root Ren) *Partial {
 	return &Partial{
 		Root: root.Render(),
 	}
