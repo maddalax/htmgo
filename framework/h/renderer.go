@@ -7,9 +7,11 @@ import (
 
 func (node *Element) Render(builder *strings.Builder) {
 	// some elements may not have a tag, such as a Fragment
+
 	if node.tag != "" {
 		builder.WriteString("<" + node.tag)
 		builder.WriteString(" ")
+
 		for name, value := range node.attributes {
 			NewAttribute(name, value).Render(builder)
 		}
@@ -82,6 +84,7 @@ func (m *AttributeMap) Render(builder *strings.Builder) {
 	m2 := m.ToMap()
 
 	for k, v := range m2 {
+		builder.WriteString(" ")
 		NewAttribute(k, v).Render(builder)
 	}
 }

@@ -226,8 +226,9 @@ func Click(value string) Ren {
 
 func Tag(tag string, children ...Ren) *Element {
 	return &Element{
-		tag:      tag,
-		children: children,
+		tag:        tag,
+		children:   children,
+		attributes: make(map[string]string),
 	}
 }
 
