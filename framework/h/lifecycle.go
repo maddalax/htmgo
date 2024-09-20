@@ -113,3 +113,13 @@ func Alert(text string) JsCommand {
 func EvalJs(js string) JsCommand {
 	return JsCommand{Command: js}
 }
+
+func InjectScript(src string) JsCommand {
+	// language=JavaScript
+	return JsCommand{Command: fmt.Sprintf(`
+		var script = document.createElement('script');
+		script.src = '%s';
+        src.async = true;
+		document.head.appendChild(script);
+	`, src)}
+}

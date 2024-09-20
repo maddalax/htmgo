@@ -25,8 +25,10 @@ func RootPage(children ...h.Ren) *h.Element {
 				<script async defer src="https://buttons.github.io/buttons.js"></script>
 			`),
 		),
-		h.Class("bg-neutral-50 min-h-screen overflow-x-hidden"),
-		partials.NavBar(),
-		h.Fragment(children...),
+		h.Body(
+			h.Class("bg-neutral-50 min-h-screen overflow-x-hidden"),
+			partials.NavBar(false),
+			h.Fragment(children...),
+		),
 	)
 }
