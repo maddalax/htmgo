@@ -3,9 +3,9 @@ package downloadtemplate
 import (
 	"flag"
 	"fmt"
-	"github.com/maddalax/htmgo/cli/tasks/process"
-	"github.com/maddalax/htmgo/cli/tasks/run"
-	"github.com/maddalax/htmgo/cli/tasks/util"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
 	"os"
 	"os/exec"
 	"path/filepath"

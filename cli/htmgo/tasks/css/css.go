@@ -1,6 +1,6 @@
 package css
 
-import "github.com/maddalax/htmgo/cli/tasks/process"
+import "github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 
 func GenerateCss(flags ...process.RunFlag) error {
 	return process.RunMany([]string{

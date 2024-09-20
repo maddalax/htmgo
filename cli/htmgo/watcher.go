@@ -1,4 +1,4 @@
-package htmgo
+package main
 
 import (
 	"github.com/fsnotify/fsnotify"

@@ -1,9 +1,9 @@
 package run
 
 import (
-	"github.com/maddalax/htmgo/cli/tasks/astgen"
-	"github.com/maddalax/htmgo/cli/tasks/css"
-	"github.com/maddalax/htmgo/cli/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 )
 
 func Build() {

@@ -2,8 +2,8 @@ package copyassets
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/cli/tasks/module"
-	"github.com/maddalax/htmgo/cli/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"golang.org/x/mod/modfile"
 	"io"
 	"log"

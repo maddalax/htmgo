@@ -1,7 +1,7 @@
 package astgen
 
 import (
-	"github.com/maddalax/htmgo/cli/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"go/ast"
 	"go/format"
 	"go/parser"

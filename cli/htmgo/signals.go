@@ -1,8 +1,8 @@
-package htmgo
+package main
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/cli/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"os"
 	"os/signal"
 	"syscall"
