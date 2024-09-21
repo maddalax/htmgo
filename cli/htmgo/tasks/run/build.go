@@ -8,6 +8,8 @@ import (
 )
 
 func Build() {
+	css.DownloadTailwindCli()
+
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
 

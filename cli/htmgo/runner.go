@@ -20,7 +20,7 @@ func main() {
 	done := RegisterSignals()
 
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate", "tailwind-cli"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -54,7 +54,9 @@ func main() {
 	slog.Debug("Running task:", slog.String("task", taskName))
 	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
 
-	if taskName == "watch" {
+	if taskName == "tailwind-cli" {
+		_ = css.DownloadTailwindCli()
+	} else if taskName == "watch" {
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
 		copyassets.CopyAssets()
