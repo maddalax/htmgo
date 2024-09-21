@@ -1,6 +1,7 @@
 name: Build and Deploy htmgo.dev
 
 on:
+  workflow_dispatch:  # Trigger on manual workflow_dispatch
   push:
     branches:
       - master         # Trigger on pushes to master
@@ -32,6 +33,9 @@ jobs:
       - name: Build Docker image
         run: |
           cd ./htmgo-site && docker build -t ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }} .
+
+      - name: Tag as latest Docker image
+        run: |
           docker tag ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }} ghcr.io/${{ github.repository_owner }}/htmgo-site:latest
 
       - name: Log in to GitHub Container Registry
@@ -39,4 +43,4 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/htmgo-site:latest
