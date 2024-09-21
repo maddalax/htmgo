@@ -38,7 +38,7 @@ func DownloadTailwindCli() error {
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
 	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
 	return process.RunMany([]string{
-		fmt.Sprintf(`curl -sLO %s`, url),
+		fmt.Sprintf(`curl -LO %s`, url),
 		fmt.Sprintf(`chmod +x %s`, fileName),
 		fmt.Sprintf(`mv %s ./assets/css/tailwindcss`, fileName),
 	})
