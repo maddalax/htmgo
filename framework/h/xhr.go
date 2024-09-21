@@ -14,7 +14,7 @@ func GetPartialWithQs(partial PartialFunc, qs *Qs, trigger string) *AttributeMap
 	return Get(GetPartialPathWithQs(partial, qs), trigger)
 }
 
-func GetWithQs(path string, qs map[string]string, trigger string) *AttributeMap {
+func GetWithQs(path string, qs *Qs, trigger string) *AttributeMap {
 	return Get(SetQueryParams(path, qs), trigger)
 }
 

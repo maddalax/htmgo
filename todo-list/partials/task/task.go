@@ -55,7 +55,7 @@ func Input(list []*ent.Task) *h.Element {
 			h.Class("pl-12 text-xl p-4 w-full outline-none focus:outline-2 focus:outline-rose-400"),
 			h.Placeholder("What needs to be done?"),
 			h.Post(h.GetPartialPath(Create)),
-			h.Trigger("keyup[keyCode==13]"),
+			h.HxTrigger("keyup[keyCode==13]"),
 		),
 		CompleteAllIcon(list),
 	)
@@ -162,7 +162,7 @@ func Task(task *ent.Task, editing bool) *h.Element {
 				),
 			),
 			h.P(
-				h.Trigger("dblclick"),
+				h.HxTrigger("dblclick"),
 				h.GetPartialWithQs(EditNameForm, "id="+task.ID.String()),
 				h.ClassX("text-xl break-all text-wrap truncate", map[string]bool{
 					"line-through text-slate-400": task.CompletedAt != nil,
@@ -174,7 +174,7 @@ func Task(task *ent.Task, editing bool) *h.Element {
 
 func CompleteIcon(task *ent.Task) *h.Element {
 	return h.Div(
-		h.Trigger("click"),
+		h.HxTrigger("click"),
 		h.Post(h.GetPartialPathWithQs(ToggleCompleted, "id="+task.ID.String())),
 		h.Class("flex items-center justify-center cursor-pointer"),
 		h.Div(

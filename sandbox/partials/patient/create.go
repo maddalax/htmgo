@@ -29,7 +29,7 @@ func Create(ctx echo.Context) *h.Partial {
 	}
 
 	headers := h.CombineHeaders(h.PushQsHeader(ctx, "adding", ""), &map[string]string{
-		"HX-Trigger": "patient-added",
+		"HX-HxTrigger": "patient-added",
 	})
 
 	return h.NewPartialWithHeaders(

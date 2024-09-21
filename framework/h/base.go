@@ -51,6 +51,18 @@ func NewPartial(root *Element) *Partial {
 	}
 }
 
+func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {
+	return NewPartial(
+		SwapMany(ctx, swaps...),
+	)
+}
+
+func SwapManyXPartial(ctx *RequestContext, swaps ...SwapArg) *Partial {
+	return NewPartial(
+		SwapManyX(ctx, swaps...),
+	)
+}
+
 func GetPartialPath(partial func(ctx *RequestContext) *Partial) string {
 	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }

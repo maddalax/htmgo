@@ -3,6 +3,7 @@ package hx
 type Attribute = string
 type Header = string
 type Event = string
+type SwapType = string
 
 // https://htmx.org/reference/#events
 const (
@@ -42,6 +43,12 @@ const (
 )
 
 const (
+	BoostedHeader            Header = "HX-Boosted"
+	PromptResponseHeader     Header = "HX-Prompt"
+	RequestHeader            Header = "HX-Request"
+	TargetIdHeader           Header = "HX-Target"
+	TriggerNameHeader        Header = "HX-Trigger-Name"
+	TriggerIdHeader          Header = "HX-Trigger"
 	LocationHeader           Header = "HX-Location"
 	PushUrlHeader            Header = "HX-Push-Url"
 	RedirectHeader           Header = "HX-Redirect"
@@ -135,4 +142,17 @@ const (
 	DragOverEvent    Event = "ondragover"
 	DropEvent        Event = "ondrop"
 	DragEndEvent     Event = "ondragend"
+)
+
+const (
+	SwapTypeTrue        SwapType = "true"
+	SwapTypeInnerHtml   SwapType = "innerHTML"
+	SwapTypeOuterHtml   SwapType = "outerHTML"
+	SwapTypeTextContent SwapType = "textContent"
+	SwapTypeBeforeBegin SwapType = "beforebegin"
+	SwapTypeAfterBegin  SwapType = "afterbegin"
+	SwapTypeBeforeEnd   SwapType = "beforeend"
+	SwapTypeAfterEnd    SwapType = "afterend"
+	SwapTypeDelete      SwapType = "delete"
+	SwapTypeNone        SwapType = "none"
 )

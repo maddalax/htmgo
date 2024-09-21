@@ -10,8 +10,9 @@ type NavItem struct {
 }
 
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
-	return h.NewPartial(
-		h.OobSwap(ctx, MobileNav(h.GetQueryParam(ctx, "expanded") == "true")),
+	return h.SwapManyPartial(
+		ctx,
+		MobileNav(h.GetQueryParam(ctx, "expanded") == "true"),
 	)
 }
 

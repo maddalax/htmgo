@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/htmgo/service"
+	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/util/process"
 	"log/slog"
 	"time"
@@ -11,7 +12,14 @@ import (
 
 type RequestContext struct {
 	echo.Context
-	locator *service.Locator
+	locator           *service.Locator
+	isBoosted         bool
+	currentBrowserUrl string
+	hxPromptResponse  string
+	isHxRequest       bool
+	hxTargetId        string
+	hxTriggerName     string
+	hxTriggerId       string
 }
 
 func (c *RequestContext) ServiceLocator() *service.Locator {
@@ -47,6 +55,16 @@ func Start(opts AppOpts) {
 	instance.start()
 }
 
+func populateHxFields(cc *RequestContext) {
+	cc.isBoosted = cc.Request().Header.Get(hx.BoostedHeader) == "true"
+	cc.currentBrowserUrl = cc.Request().Header.Get(hx.CurrentUrlHeader)
+	cc.hxPromptResponse = cc.Request().Header.Get(hx.PromptResponseHeader)
+	cc.isHxRequest = cc.Request().Header.Get(hx.RequestHeader) == "true"
+	cc.hxTargetId = cc.Request().Header.Get(hx.TargetIdHeader)
+	cc.hxTriggerName = cc.Request().Header.Get(hx.TriggerNameHeader)
+	cc.hxTriggerId = cc.Request().Header.Get(hx.TriggerIdHeader)
+}
+
 func (a App) start() {
 
 	if a.Opts.Register != nil {
@@ -56,9 +74,10 @@ func (a App) start() {
 	a.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cc := &RequestContext{
-				c,
-				a.Opts.ServiceLocator,
+				Context: c,
+				locator: a.Opts.ServiceLocator,
 			}
+			populateHxFields(cc)
 			return next(cc)
 		}
 	})

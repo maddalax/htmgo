@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type Ren interface {
+	Render(builder *strings.Builder)
+}
+
 func Render(node Ren) string {
 	start := time.Now()
 	builder := &strings.Builder{}

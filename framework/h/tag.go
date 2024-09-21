@@ -1,50 +1,10 @@
 package h
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/maddalax/htmgo/framework/hx"
-	"net/url"
-	"strings"
 )
 
-type Qs struct {
-	m map[string]string
-}
-
-func NewQs(pairs ...string) *Qs {
-	q := &Qs{
-		m: make(map[string]string),
-	}
-	if len(pairs)%2 != 0 {
-		return q
-	}
-	for i := 0; i < len(pairs); i++ {
-		q.m[pairs[i]] = pairs[i+1]
-		i++
-	}
-	return q
-}
-
-func (q *Qs) Add(key string, value string) *Qs {
-	q.m[key] = value
-	return q
-}
-
-func (q *Qs) ToString() string {
-	builder := strings.Builder{}
-	index := 0
-	for k, v := range q.m {
-		builder.WriteString(k)
-		builder.WriteString("=")
-		builder.WriteString(v)
-		if index < len(q.m)-1 {
-			builder.WriteString("&")
-		}
-		index++
-	}
-	return builder.String()
-}
+type ClassMap map[string]bool
 
 type PartialFunc = func(ctx *RequestContext) *Partial
 
@@ -59,113 +19,7 @@ func (node *Element) AppendChild(child Ren) *Element {
 	return node
 }
 
-func Data(data map[string]any) Ren {
-	serialized, err := json.Marshal(data)
-	if err != nil {
-		return Empty()
-	}
-	return Attribute("x-data", string(serialized))
-}
-
-func ClassIf(condition bool, value string) Ren {
-	if condition {
-		return Class(value)
-	}
-	return Empty()
-}
-
-func Class(value ...string) Ren {
-	return Attribute("class", MergeClasses(value...))
-}
-
-func ClassX(value string, m ClassMap) Ren {
-	builder := strings.Builder{}
-	builder.WriteString(value)
-	builder.WriteString(" ")
-	for k, v := range m {
-		if v {
-			builder.WriteString(k)
-			builder.WriteString(" ")
-		}
-	}
-	return Class(builder.String())
-}
-
-func MergeClasses(classes ...string) string {
-	if len(classes) == 1 {
-		return classes[0]
-	}
-	builder := strings.Builder{}
-	for _, s := range classes {
-		builder.WriteString(s)
-		builder.WriteString(" ")
-	}
-	return builder.String()
-}
-
-func Id(value string) Ren {
-	if strings.HasPrefix(value, "#") {
-		value = value[1:]
-	}
-	return Attribute("id", value)
-}
-
-type ClassMap map[string]bool
-
-func Attributes(attrs *AttributeMap) *AttributeMap {
-	return attrs
-}
-
-func AttributePairs(pairs ...string) *AttributeMap {
-	if len(pairs)%2 != 0 {
-		return &AttributeMap{}
-	}
-	m := make(AttributeMap)
-	for i := 0; i < len(pairs); i++ {
-		m[pairs[i]] = pairs[i+1]
-		i++
-	}
-	return &m
-}
-
-func Checked() Ren {
-	return Attribute("checked", "true")
-}
-
-func Boost() Ren {
-	return Attribute(hx.BoostAttr, "true")
-}
-
-func Attribute(key string, value string) *AttributeMap {
-	return Attributes(&AttributeMap{key: value})
-}
-
-func TriggerChildren() Ren {
-	return HxExtension("trigger-children")
-}
-
-func HxExtension(value string) Ren {
-	return Attribute(hx.ExtAttr, value)
-}
-
-func Disabled() Ren {
-	return Attribute("disabled", "")
-}
-
-func TriggerString(triggers ...string) *AttributeMap {
-	trigger := hx.NewStringTrigger(strings.Join(triggers, ", "))
-	return Attribute(hx.TriggerAttr, trigger.ToString())
-}
-
-func Trigger(opts ...hx.TriggerEvent) *AttributeMap {
-	return Attribute(hx.TriggerAttr, hx.NewTrigger(opts...).ToString())
-}
-
-func TriggerClick(opts ...hx.Modifier) *AttributeMap {
-	return Trigger(hx.OnClick(opts...))
-}
-
-func TextF(format string, args ...interface{}) Ren {
+func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }
 
@@ -175,39 +29,6 @@ func Text(text string) *TextContent {
 
 func Pf(format string, args ...interface{}) Ren {
 	return P(Text(fmt.Sprintf(format, args...)))
-}
-
-func Target(target string) Ren {
-	return Attribute(hx.TargetAttr, target)
-}
-
-func Name(name string) Ren {
-	return Attribute("name", name)
-}
-
-func Confirm(message string) Ren {
-	return Attribute(hx.ConfirmAttr, message)
-}
-
-func Href(path string) Ren {
-	return Attribute("href", path)
-}
-
-func Type(name string) Ren {
-	return Attribute("type", name)
-}
-
-func Placeholder(placeholder string) Ren {
-	return Attribute("placeholder", placeholder)
-}
-
-func OutOfBandSwap(selector string) Ren {
-	return Attribute(hx.SwapOobAttr,
-		Ternary(selector == "", "true", selector))
-}
-
-func Click(value string) Ren {
-	return Attribute("onclick", value)
 }
 
 func Tag(tag string, children ...Ren) *Element {
@@ -292,52 +113,6 @@ func Article(children ...Ren) *Element {
 	return Tag("article", children...)
 }
 
-func ReplaceUrlHeader(url string) *Headers {
-	return NewHeaders(hx.ReplaceUrlHeader, url)
-}
-
-func CombineHeaders(headers ...*Headers) *Headers {
-	m := make(Headers)
-	for _, h := range headers {
-		for k, v := range *h {
-			m[k] = v
-		}
-	}
-	return &m
-}
-
-func CurrentPath(ctx *RequestContext) string {
-	current := ctx.Request().Header.Get(hx.CurrentUrlHeader)
-	parsed, err := url.Parse(current)
-	if err != nil {
-		return ""
-	}
-	return parsed.Path
-}
-
-func PushQsHeader(ctx *RequestContext, key string, value string) *Headers {
-	current := ctx.Request().Header.Get(hx.CurrentUrlHeader)
-	parsed, err := url.Parse(current)
-	if err != nil {
-		return NewHeaders()
-	}
-	return NewHeaders(hx.ReplaceUrlHeader, SetQueryParams(parsed.Path, map[string]string{
-		key: value,
-	}))
-}
-
-func NewHeaders(headers ...string) *Headers {
-	if len(headers)%2 != 0 {
-		return &Headers{}
-	}
-	m := make(Headers)
-	for i := 0; i < len(headers); i++ {
-		m[headers[i]] = headers[i+1]
-		i++
-	}
-	return &m
-}
-
 func Checkbox(children ...Ren) Ren {
 	return Input("checkbox", children...)
 }
@@ -368,14 +143,8 @@ func Fragment(children ...Ren) *ChildList {
 	return Children(children...)
 }
 
-func AttributeList(children ...*AttributeMap) *AttributeMap {
-	m := make(AttributeMap)
-	for _, child := range children {
-		for k, v := range *child {
-			m[k] = v
-		}
-	}
-	return &m
+func Template(children ...Ren) *Element {
+	return Tag("template", children...)
 }
 
 func AppendChildren(node *Element, children ...Ren) Ren {
@@ -386,10 +155,6 @@ func AppendChildren(node *Element, children ...Ren) Ren {
 
 func Button(children ...Ren) *Element {
 	return Tag("button", children...)
-}
-
-func Indicator(tag string) *AttributeMap {
-	return Attribute(hx.IndicatorAttr, tag)
 }
 
 func P(children ...Ren) *Element {
@@ -446,57 +211,10 @@ func Empty() *Element {
 	}
 }
 
-func IfQueryParam(key string, node *Element) Ren {
-	return Fragment(Attribute("hx-if-qp:"+key, "true"), node)
-}
-
-func Hidden() Ren {
-	return Attribute("style", "display:none")
-}
-
 func Children(children ...Ren) *ChildList {
 	return NewChildList(children...)
 }
 
 func Label(text string) *Element {
 	return Tag("label", Text(text))
-}
-
-func GetTriggerName(ctx *RequestContext) string {
-	return ctx.Request().Header.Get("HX-Trigger-Name")
-}
-
-type SwapArg struct {
-	Selector string
-	Content  *Element
-}
-
-func NewSwap(selector string, content *Element) SwapArg {
-	return SwapArg{
-		Selector: selector,
-		Content:  content,
-	}
-}
-
-func OobSwap(ctx *RequestContext, content *Element) *Element {
-	return OobSwapWithSelector(ctx, "", content)
-}
-
-func OobSwapWithSelector(ctx *RequestContext, selector string, content *Element) *Element {
-	if ctx == nil || ctx.Get("HX-Request") == "" {
-		return Empty()
-	}
-	return content.AppendChild(OutOfBandSwap(selector))
-}
-
-func SwapMany(ctx *RequestContext, args ...SwapArg) Ren {
-	if ctx.Get("HX-Request") == "" {
-		return Empty()
-	}
-	for _, arg := range args {
-		arg.Content.AppendChild(OutOfBandSwap(arg.Selector))
-	}
-	return Fragment(Map(args, func(arg SwapArg) Ren {
-		return arg.Content
-	})...)
 }
