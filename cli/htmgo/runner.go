@@ -54,9 +54,7 @@ func main() {
 	slog.Debug("Running task:", slog.String("task", taskName))
 	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
 
-	if taskName == "tailwind-cli" {
-		_ = css.DownloadTailwindCli()
-	} else if taskName == "watch" {
+	if taskName == "watch" {
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
 		copyassets.CopyAssets()
@@ -71,18 +69,18 @@ func main() {
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
-		if taskName == "schema" {
+		if taskName == "tailwind-cli" {
+			css.DownloadTailwindCli()
+		} else if taskName == "schema" {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("Enter entity name:")
 			text, _ := reader.ReadString('\n')
 			text = strings.TrimSuffix(text, "\n")
 			run.EntNewSchema(text)
-		}
-		if taskName == "generate" {
+		} else if taskName == "generate" {
 			run.EntGenerate()
 			astgen.GenAst(process.ExitOnError)
-		}
-		if taskName == "setup" {
+		} else if taskName == "setup" {
 			run.Setup()
 		} else if taskName == "css" {
 			_ = css.GenerateCss(process.ExitOnError)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"log"
+	"log/slog"
 	"runtime"
 )
 
@@ -19,7 +20,7 @@ func GenerateCssWatch(flags ...process.RunFlag) error {
 	}, append(flags, process.KillOnlyOnExit, process.Silent)...)
 }
 
-func DownloadTailwindCli() error {
+func DownloadTailwindCli() {
 	distro := ""
 	os := runtime.GOOS
 	arch := runtime.GOARCH
@@ -37,9 +38,11 @@ func DownloadTailwindCli() error {
 	}
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
 	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
-	return process.RunMany([]string{
+	process.RunMany([]string{
 		fmt.Sprintf(`curl -LO %s`, url),
 		fmt.Sprintf(`chmod +x %s`, fileName),
 		fmt.Sprintf(`mv %s ./assets/css/tailwindcss`, fileName),
 	}, process.ExitOnError)
+
+	slog.Debug("Successfully downloaded Tailwind CLI", slog.String("url", url))
 }
