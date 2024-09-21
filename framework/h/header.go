@@ -5,8 +5,14 @@ import (
 	"net/url"
 )
 
+type Headers = map[string]string
+
 func ReplaceUrlHeader(url string) *Headers {
 	return NewHeaders(hx.ReplaceUrlHeader, url)
+}
+
+func PushUrlHeader(url string) *Headers {
+	return NewHeaders(hx.PushUrlHeader, url)
 }
 
 func CombineHeaders(headers ...*Headers) *Headers {

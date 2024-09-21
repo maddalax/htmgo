@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-type Headers = map[string]string
-
 type Partial struct {
 	Headers *Headers
 	Root    *Element
@@ -49,6 +47,13 @@ func NewPartial(root *Element) *Partial {
 	return &Partial{
 		Root: root,
 	}
+}
+
+func SwapManyPartialWithHeaders(ctx *RequestContext, headers *Headers, swaps ...*Element) *Partial {
+	return NewPartialWithHeaders(
+		headers,
+		SwapMany(ctx, swaps...),
+	)
 }
 
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {

@@ -13,11 +13,32 @@ type TriggerEvent struct {
 	modifiers []Modifier
 }
 
+func ToHtmxTriggerName(event string) string {
+	if strings.HasPrefix(event, "htmx:") {
+		return event[5:]
+	}
+	if strings.HasPrefix(event, "on") {
+		return event[2:]
+	}
+	return event
+}
+
+func FormatEventName(event string, isDomEvent bool) string {
+	raw := ToHtmxTriggerName(event)
+	if isDomEvent {
+		return "on" + raw
+	}
+	return event
+}
+
 func NewTrigger(opts ...TriggerEvent) *Trigger {
 	t := Trigger{
 		events: make([]TriggerEvent, 0),
 	}
 	if len(opts) > 0 {
+		for i, opt := range opts {
+			opts[i].event = ToHtmxTriggerName(opt.event)
+		}
 		t.events = opts
 	}
 	return &t
@@ -31,11 +52,7 @@ func NewStringTrigger(trigger string) Trigger {
 	split := strings.Split(trigger, ", ")
 	for _, s := range split {
 		parts := strings.Split(s, " ")
-		event := parts[0]
-
-		if strings.HasPrefix(event, "htmx:") {
-			event = event[5:]
-		}
+		event := ToHtmxTriggerName(parts[0])
 
 		modifiers := make([]Modifier, 0)
 		if len(parts) > 1 {

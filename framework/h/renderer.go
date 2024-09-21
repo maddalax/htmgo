@@ -90,28 +90,10 @@ func (m *AttributeMap) Render(builder *strings.Builder) {
 	}
 }
 
-func toHtmxTriggerName(event string) string {
-	if strings.HasPrefix(event, "htmx:") {
-		return event[5:]
-	}
-	if strings.HasPrefix(event, "on") {
-		return event[2:]
-	}
-	return event
-}
-
-func formatEventName(event string, isDomEvent bool) string {
-	raw := toHtmxTriggerName(event)
-	if isDomEvent {
-		return "on" + raw
-	}
-	return event
-}
-
 func (l *LifeCycle) fromAttributeMap(event string, key string, value string, builder *strings.Builder) {
 
 	if key == hx.GetAttr || key == hx.PatchAttr || key == hx.PostAttr {
-		TriggerString(toHtmxTriggerName(event)).Render(builder)
+		TriggerString(hx.ToHtmxTriggerName(event)).Render(builder)
 	}
 
 	Attribute(key, value).Render(builder)
@@ -125,7 +107,7 @@ func (l *LifeCycle) Render(builder *strings.Builder) {
 		for _, command := range commands {
 			switch c := command.(type) {
 			case JsCommand:
-				eventName := formatEventName(event, true)
+				eventName := hx.FormatEventName(event, true)
 				m[eventName] += fmt.Sprintf("%s;", c.Command)
 			case *AttributeMap:
 				for k, v := range c.ToMap() {

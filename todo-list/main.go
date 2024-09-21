@@ -11,15 +11,6 @@ import (
 	"todolist/partials/load"
 )
 
-type CustomContext struct {
-	echo.Context
-	locator *service.Locator
-}
-
-func (c *CustomContext) ServiceLocator() *service.Locator {
-	return c.locator
-}
-
 func main() {
 	locator := service.NewLocator()
 

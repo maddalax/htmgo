@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/hx"
 	"todolist/ent"
 	"todolist/internal/tasks"
 )
@@ -55,7 +56,7 @@ func Input(list []*ent.Task) *h.Element {
 			h.Class("pl-12 text-xl p-4 w-full outline-none focus:outline-2 focus:outline-rose-400"),
 			h.Placeholder("What needs to be done?"),
 			h.Post(h.GetPartialPath(Create)),
-			h.HxTrigger("keyup[keyCode==13]"),
+			h.HxTrigger(hx.OnEvent(hx.TriggerKeyUpEnter)),
 		),
 		CompleteAllIcon(list),
 	)
@@ -70,7 +71,7 @@ func CompleteAllIcon(list []*ent.Task) *h.Element {
 		h.ClassX("absolute top-0 left-0 p-4 rotate-90 text-2xl cursor-pointer", map[string]bool{
 			"text-slate-400": notCompletedCount > 0,
 		}), h.Text("❯"),
-		h.PostPartialOnClickQs(CompleteAll, h.Ternary(notCompletedCount > 0, "complete=true", "complete=false")),
+		h.PostPartialWithQs(CompleteAll, h.NewQs("complete", h.Ternary(notCompletedCount > 0, "true", "false"))),
 	)
 }
 
@@ -92,7 +93,7 @@ func Footer(list []*ent.Task, activeTab Tab) *h.Element {
 			h.Class("flex items-center gap-4"),
 			h.List(tabs, func(tab Tab, index int) *h.Element {
 				return h.P(
-					h.PostOnClick(h.GetPartialPathWithQs(ChangeTab, "tab="+tab)),
+					h.PostOnClick(h.GetPartialPathWithQs(ChangeTab, h.NewQs("tab", tab))),
 					h.ClassX("cursor-pointer px-2 py-1 rounded", map[string]bool{
 						"border border-rose-600": activeTab == tab,
 					}),
@@ -147,7 +148,7 @@ func Task(task *ent.Task, editing bool) *h.Element {
 					),
 					h.Input(
 						"text",
-						h.PostPartialOnTrigger(UpdateName, h.TriggerBlur, h.TriggerKeyUpEnter),
+						h.PostPartial(UpdateName, hx.TriggerBlur, hx.TriggerKeyUpEnter),
 						h.Attributes(&h.AttributeMap{
 							"placeholder":  "What needs to be done?",
 							"autofocus":    "true",
@@ -162,8 +163,7 @@ func Task(task *ent.Task, editing bool) *h.Element {
 				),
 			),
 			h.P(
-				h.HxTrigger("dblclick"),
-				h.GetPartialWithQs(EditNameForm, "id="+task.ID.String()),
+				h.GetPartialWithQs(EditNameForm, h.NewQs("id", task.ID.String()), hx.TriggerDblClick),
 				h.ClassX("text-xl break-all text-wrap truncate", map[string]bool{
 					"line-through text-slate-400": task.CompletedAt != nil,
 				}),
@@ -174,8 +174,8 @@ func Task(task *ent.Task, editing bool) *h.Element {
 
 func CompleteIcon(task *ent.Task) *h.Element {
 	return h.Div(
-		h.HxTrigger("click"),
-		h.Post(h.GetPartialPathWithQs(ToggleCompleted, "id="+task.ID.String())),
+		h.HxTrigger(hx.OnClick()),
+		h.Post(h.GetPartialPathWithQs(ToggleCompleted, h.NewQs("id", task.ID.String()))),
 		h.Class("flex items-center justify-center cursor-pointer"),
 		h.Div(
 			h.ClassX("w-10 h-10 border rounded-full flex items-center justify-center", map[string]bool{
@@ -259,11 +259,11 @@ func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 
 	list, _ := service.List()
 
-	return h.NewPartial(h.Fragment(
-		h.OobSwap(ctx, List(list, getActiveTab(ctx))),
-		h.OobSwap(ctx, Footer(list, getActiveTab(ctx))),
-		h.OobSwap(ctx, CompleteAllIcon(list)),
-	))
+	return h.SwapManyPartial(ctx,
+		List(list, getActiveTab(ctx)),
+		Footer(list, getActiveTab(ctx)),
+		CompleteAllIcon(list),
+	)
 }
 
 func CompleteAll(ctx *h.RequestContext) *h.Partial {
@@ -302,7 +302,9 @@ func Create(ctx *h.RequestContext) *h.Partial {
 
 	list, _ := service.List()
 
-	return h.NewPartial(h.Fragment(h.OobSwap(ctx, CardBody(list, getActiveTab(ctx)))))
+	return h.SwapManyPartial(ctx,
+		CardBody(list, getActiveTab(ctx)),
+	)
 }
 
 func ChangeTab(ctx *h.RequestContext) *h.Partial {
@@ -311,10 +313,9 @@ func ChangeTab(ctx *h.RequestContext) *h.Partial {
 
 	tab := ctx.QueryParam("tab")
 
-	return h.NewPartialWithHeaders(&h.Headers{"hx-push-url": fmt.Sprintf("/tasks?tab=%s", tab)},
-		h.Fragment(
-			h.OobSwap(ctx, List(list, tab)),
-			h.OobSwap(ctx, Footer(list, tab)),
-		),
+	return h.SwapManyPartialWithHeaders(ctx,
+		h.PushUrlHeader(fmt.Sprintf("/tasks?tab=%s", tab)),
+		List(list, tab),
+		Footer(list, tab),
 	)
 }
