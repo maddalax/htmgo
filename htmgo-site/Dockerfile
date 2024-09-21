@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary for Linux
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go run github.com/maddalax/htmgo/cli/htmgo@latest build
+RUN LOG_LEVEL=debug CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
 # Stage 2: Create the smallest possible image
 FROM gcr.io/distroless/base-debian11
