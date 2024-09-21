@@ -41,5 +41,5 @@ func DownloadTailwindCli() error {
 		fmt.Sprintf(`curl -LO %s`, url),
 		fmt.Sprintf(`chmod +x %s`, fileName),
 		fmt.Sprintf(`mv %s ./assets/css/tailwindcss`, fileName),
-	})
+	}, process.ExitOnError)
 }

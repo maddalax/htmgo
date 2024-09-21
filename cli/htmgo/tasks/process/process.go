@@ -196,6 +196,12 @@ func Run(command string, flags ...RunFlag) error {
 
 	err := cmd.Run()
 
+	slog.Debug("command finished",
+		slog.String("command", command),
+		slog.String("dir", cmd.Dir),
+		slog.String("cwd", GetWorkingDir()),
+		slog.String("error", fmt.Sprintf("%v", err)))
+
 	if err == nil {
 		return nil
 	}

@@ -1,7 +1,9 @@
 # Stage 1: Build the Go binary
 FROM golang:1.23-alpine AS builder
 
+RUN apk update
 RUN apk add git
+RUN apk add curl
 
 # Set the working directory inside the container
 WORKDIR /app
