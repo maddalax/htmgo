@@ -20,6 +20,7 @@ COPY . .
 # Build the Go binary for Linux
 RUN GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
+
 # Stage 2: Create the smallest possible image
 FROM gcr.io/distroless/base-debian11
 

@@ -32,6 +32,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd ./htmgo-site && docker build -t ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }} .
+          cd ./htmgo-site && docker tag ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }} ghcr.io/${{ github.repository_owner }}/htmgo-site:latest
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -39,10 +40,3 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/htmgo-site:${{ steps.vars.outputs.short_sha }}
-
-      - name: Create Git tag
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git tag ${{ steps.vars.outputs.short_sha }}
-          git push origin ${{ steps.vars.outputs.short_sha }}
