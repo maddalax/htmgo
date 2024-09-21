@@ -3,10 +3,50 @@ package h
 import (
 	"encoding/json"
 	"fmt"
-	"html"
+	"github.com/maddalax/htmgo/framework/hx"
 	"net/url"
 	"strings"
 )
+
+type Qs struct {
+	m map[string]string
+}
+
+func NewQs(pairs ...string) *Qs {
+	q := &Qs{
+		m: make(map[string]string),
+	}
+	if len(pairs)%2 != 0 {
+		return q
+	}
+	for i := 0; i < len(pairs); i++ {
+		q.m[pairs[i]] = pairs[i+1]
+		i++
+	}
+	return q
+}
+
+func (q *Qs) Add(key string, value string) *Qs {
+	q.m[key] = value
+	return q
+}
+
+func (q *Qs) ToString() string {
+	builder := strings.Builder{}
+	index := 0
+	for k, v := range q.m {
+		builder.WriteString(k)
+		builder.WriteString("=")
+		builder.WriteString(v)
+		if index < len(q.m)-1 {
+			builder.WriteString("&")
+		}
+		index++
+	}
+	return builder.String()
+}
+
+type PartialFunc = func(ctx *RequestContext) *Partial
 
 type Element struct {
 	tag        string
@@ -76,12 +116,24 @@ func Attributes(attrs *AttributeMap) *AttributeMap {
 	return attrs
 }
 
+func AttributePairs(pairs ...string) *AttributeMap {
+	if len(pairs)%2 != 0 {
+		return &AttributeMap{}
+	}
+	m := make(AttributeMap)
+	for i := 0; i < len(pairs); i++ {
+		m[pairs[i]] = pairs[i+1]
+		i++
+	}
+	return &m
+}
+
 func Checked() Ren {
 	return Attribute("checked", "true")
 }
 
 func Boost() Ren {
-	return Attribute("hx-boost", "true")
+	return Attribute(hx.BoostAttr, "true")
 }
 
 func Attribute(key string, value string) *AttributeMap {
@@ -93,90 +145,24 @@ func TriggerChildren() Ren {
 }
 
 func HxExtension(value string) Ren {
-	return Attribute("hx-ext", value)
+	return Attribute(hx.ExtAttr, value)
 }
 
 func Disabled() Ren {
 	return Attribute("disabled", "")
 }
 
-func Get(path string) Ren {
-	return Attribute("hx-get", path)
+func TriggerString(triggers ...string) *AttributeMap {
+	trigger := hx.NewStringTrigger(strings.Join(triggers, ", "))
+	return Attribute(hx.TriggerAttr, trigger.ToString())
 }
 
-func GetPartial(partial func(ctx *RequestContext) *Partial) Ren {
-	return Get(GetPartialPath(partial))
+func Trigger(opts ...hx.TriggerEvent) *AttributeMap {
+	return Attribute(hx.TriggerAttr, hx.NewTrigger(opts...).ToString())
 }
 
-func GetPartialWithQs(partial func(ctx *RequestContext) *Partial, qs string) Ren {
-	return Get(GetPartialPathWithQs(partial, qs))
-}
-
-func CreateTriggers(triggers ...string) []string {
-	return triggers
-}
-
-type ReloadParams struct {
-	Triggers []string
-	Target   string
-	Children Ren
-}
-
-func ViewOnLoad(partial func(ctx *RequestContext) *Partial) Ren {
-	return View(partial, ReloadParams{
-		Triggers: CreateTriggers("load"),
-	})
-}
-
-func View(partial func(ctx *RequestContext) *Partial, params ReloadParams) Ren {
-	return Div(Attributes(&AttributeMap{
-		"hx-get":     GetPartialPath(partial),
-		"hx-trigger": strings.Join(params.Triggers, ", "),
-		"hx-target":  params.Target,
-	}), params.Children)
-}
-
-func PartialWithTriggers(partial func(ctx *RequestContext) *Partial, triggers ...string) Ren {
-	return Div(Attributes(&AttributeMap{
-		"hx-get":     GetPartialPath(partial),
-		"hx-trigger": strings.Join(triggers, ", "),
-	}))
-}
-
-func GetWithQs(path string, qs map[string]string) Ren {
-	return Get(SetQueryParams(path, qs))
-}
-
-func PostPartialOnTrigger(partial func(ctx *RequestContext) *Partial, triggers ...string) Ren {
-	return PostOnTrigger(GetPartialPath(partial), strings.Join(triggers, ", "))
-}
-
-func PostPartialWithQsOnTrigger(partial func(ctx *RequestContext) *Partial, qs string, trigger string) Ren {
-	return PostOnTrigger(GetPartialPathWithQs(partial, qs), trigger)
-}
-
-func Post(url string) Ren {
-	return Attribute("hx-post", url)
-}
-
-func PostOnTrigger(url string, trigger string) Ren {
-	return AttributeList(Attribute("hx-post", url), Trigger(trigger))
-}
-
-func PostOnClick(url string) Ren {
-	return PostOnTrigger(url, "click")
-}
-
-func PostPartialOnClick(partial func(ctx *RequestContext) *Partial) Ren {
-	return PostOnClick(GetPartialPath(partial))
-}
-
-func PostPartialOnClickQs(partial func(ctx *RequestContext) *Partial, qs string) Ren {
-	return PostOnClick(GetPartialPathWithQs(partial, qs))
-}
-
-func Trigger(trigger string) *AttributeMap {
-	return Attribute("hx-trigger", trigger)
+func TriggerClick(opts ...hx.Modifier) *AttributeMap {
+	return Trigger(hx.OnClick(opts...))
 }
 
 func TextF(format string, args ...interface{}) Ren {
@@ -192,7 +178,7 @@ func Pf(format string, args ...interface{}) Ren {
 }
 
 func Target(target string) Ren {
-	return Attribute("hx-target", target)
+	return Attribute(hx.TargetAttr, target)
 }
 
 func Name(name string) Ren {
@@ -200,7 +186,7 @@ func Name(name string) Ren {
 }
 
 func Confirm(message string) Ren {
-	return Attribute("hx-confirm", message)
+	return Attribute(hx.ConfirmAttr, message)
 }
 
 func Href(path string) Ren {
@@ -216,7 +202,7 @@ func Placeholder(placeholder string) Ren {
 }
 
 func OutOfBandSwap(selector string) Ren {
-	return Attribute("hx-swap-oob",
+	return Attribute(hx.SwapOobAttr,
 		Ternary(selector == "", "true", selector))
 }
 
@@ -307,7 +293,7 @@ func Article(children ...Ren) *Element {
 }
 
 func ReplaceUrlHeader(url string) *Headers {
-	return NewHeaders("HX-Replace-Url", url)
+	return NewHeaders(hx.ReplaceUrlHeader, url)
 }
 
 func CombineHeaders(headers ...*Headers) *Headers {
@@ -321,7 +307,7 @@ func CombineHeaders(headers ...*Headers) *Headers {
 }
 
 func CurrentPath(ctx *RequestContext) string {
-	current := ctx.Request().Header.Get("Hx-Current-Url")
+	current := ctx.Request().Header.Get(hx.CurrentUrlHeader)
 	parsed, err := url.Parse(current)
 	if err != nil {
 		return ""
@@ -330,12 +316,12 @@ func CurrentPath(ctx *RequestContext) string {
 }
 
 func PushQsHeader(ctx *RequestContext, key string, value string) *Headers {
-	current := ctx.Request().Header.Get("Hx-Current-Url")
+	current := ctx.Request().Header.Get(hx.CurrentUrlHeader)
 	parsed, err := url.Parse(current)
 	if err != nil {
 		return NewHeaders()
 	}
-	return NewHeaders("HX-Replace-Url", SetQueryParams(parsed.Path, map[string]string{
+	return NewHeaders(hx.ReplaceUrlHeader, SetQueryParams(parsed.Path, map[string]string{
 		key: value,
 	}))
 }
@@ -402,8 +388,8 @@ func Button(children ...Ren) *Element {
 	return Tag("button", children...)
 }
 
-func Indicator(tag string) Ren {
-	return Attribute("hx-indicator", tag)
+func Indicator(tag string) *AttributeMap {
+	return Attribute(hx.IndicatorAttr, tag)
 }
 
 func P(children ...Ren) *Element {
@@ -460,42 +446,12 @@ func Empty() *Element {
 	}
 }
 
-func BeforeRequestSetHtml(children ...Ren) Ren {
-	serialized := Render(Fragment(children...))
-	return Attribute("hx-on::before-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
-}
-
-func BeforeRequestSetAttribute(key string, value string) Ren {
-	return Attribute("hx-on::before-request", `this.setAttribute('`+key+`', '`+value+`')`)
-}
-
-func OnMutationErrorSetText(text string) Ren {
-	return Attribute("hx-on::mutation-error", `this.innerText = '`+text+`'`)
-}
-
-func BeforeRequestSetText(text string) Ren {
-	return Attribute("hx-on::before-request", `this.innerText = '`+text+`'`)
-}
-
-func AfterRequestSetText(text string) Ren {
-	return Attribute("hx-on::after-request", `this.innerText = '`+text+`'`)
-}
-
-func AfterRequestRemoveAttribute(key string, value string) Ren {
-	return Attribute("hx-on::after-request", `this.removeAttribute('`+key+`')`)
-}
-
 func IfQueryParam(key string, node *Element) Ren {
 	return Fragment(Attribute("hx-if-qp:"+key, "true"), node)
 }
 
 func Hidden() Ren {
 	return Attribute("style", "display:none")
-}
-
-func AfterRequestSetHtml(children ...Ren) Ren {
-	serialized := Render(Fragment(children...))
-	return Attribute("hx-on::after-request", `this.innerHTML = '`+html.EscapeString(serialized)+`'`)
 }
 
 func Children(children ...Ren) *ChildList {
@@ -506,39 +462,8 @@ func Label(text string) *Element {
 	return Tag("label", Text(text))
 }
 
-func If(condition bool, node Ren) Ren {
-	if condition {
-		return node
-	} else {
-		return Empty()
-	}
-}
-
-func IfElse(condition bool, node Ren, node2 Ren) Ren {
-	if condition {
-		return node
-	} else {
-		return node2
-	}
-}
-
-func IfElseLazy(condition bool, cb1 func() Ren, cb2 func() Ren) Ren {
-	if condition {
-		return cb1()
-	} else {
-		return cb2()
-	}
-}
-
 func GetTriggerName(ctx *RequestContext) string {
 	return ctx.Request().Header.Get("HX-Trigger-Name")
-}
-
-func IfHtmxRequest(ctx *RequestContext, node Ren) Ren {
-	if ctx.Get("HX-Request") != "" {
-		return node
-	}
-	return Empty()
 }
 
 type SwapArg struct {
@@ -574,21 +499,4 @@ func SwapMany(ctx *RequestContext, args ...SwapArg) Ren {
 	return Fragment(Map(args, func(arg SwapArg) Ren {
 		return arg.Content
 	})...)
-}
-
-type OnRequestSwapArgs struct {
-	Target        string
-	Get           string
-	Default       *Element
-	BeforeRequest *Element
-	AfterRequest  *Element
-}
-
-func OnRequestSwap(args OnRequestSwapArgs) Ren {
-	return Div(args.Default,
-		BeforeRequestSetHtml(args.BeforeRequest),
-		AfterRequestSetHtml(args.AfterRequest),
-		Get(args.Get),
-		Target(args.Target),
-	)
 }

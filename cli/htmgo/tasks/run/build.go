@@ -22,6 +22,8 @@ func Build() {
 	//	},
 	//)
 
-	process.RunOrExit("env GOOS=linux GOARCH=amd64 go build -o ./dist .")
+	process.RunOrExit("env GOOS=linux GOARCH=amd64 go build -o ./dist/app-linux-amd64 .")
+	process.RunOrExit("go build -o ./dist/app .")
+
 	process.RunOrExit("echo \"Build successful\"")
 }

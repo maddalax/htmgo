@@ -1,6 +1,8 @@
 package partials
 
-import "github.com/maddalax/htmgo/framework/h"
+import (
+	"github.com/maddalax/htmgo/framework/h"
+)
 
 type NavItem struct {
 	Name string
@@ -10,6 +12,12 @@ type NavItem struct {
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
 	return h.NewPartial(
 		h.OobSwap(ctx, MobileNav(h.GetQueryParam(ctx, "expanded") == "true")),
+	)
+}
+
+func TestPartial(ctx *h.RequestContext) *h.Partial {
+	return h.NewPartial(
+		h.Div(h.Text("This is a test")),
 	)
 }
 
@@ -37,6 +45,7 @@ func NavBar(expanded bool) *h.Element {
 	)
 
 	desktopNav := h.Nav(
+		h.Script("https://buttons.github.io/buttons.js"),
 		h.Class("hidden sm:block bg-neutral-100 border border-b-slate-300 p-4 md:p-3"),
 		h.Div(
 			h.Class("max-w-[95%] md:max-w-prose mx-auto"),
@@ -45,6 +54,7 @@ func NavBar(expanded bool) *h.Element {
 				h.Div(
 					h.Class("flex items-center"),
 					h.A(
+						h.Boost(),
 						h.Class("text-2xl"),
 						h.Href("/"),
 						h.Text("htmgo"),
@@ -55,6 +65,7 @@ func NavBar(expanded bool) *h.Element {
 						return h.Div(
 							h.Class("flex items-center"),
 							h.A(
+								h.Boost(),
 								h.Class(""),
 								h.Href(item.Url),
 								h.Text(item.Name),
@@ -87,6 +98,7 @@ func MobileNav(expanded bool) *h.Element {
 				h.Div(
 					h.Class("flex items-center"),
 					h.A(
+						h.Boost(),
 						h.Class("text-2xl"),
 						h.Href("/"),
 						h.Text("htmgo"),
@@ -94,8 +106,19 @@ func MobileNav(expanded bool) *h.Element {
 				h.Div(
 					h.Class("flex items-center"),
 					h.Button(
-						h.GetPartialWithQs(ToggleNavbar, h.Ternary(expanded, "expanded=false", "expanded=true")),
-						h.Trigger(h.TriggerClick),
+						h.Boost(),
+
+						h.GetPartialWithQs(
+							ToggleNavbar,
+							h.NewQs("expanded", h.Ternary(expanded, "false", "true"), "test", "true"),
+							"click",
+						),
+
+						h.AttributePairs(
+							"class", "text-2xl",
+							"aria-expanded", h.Ternary(expanded, "true", "false"),
+						),
+
 						h.Class("text-2xl"),
 						h.Text("☰"),
 					),
@@ -109,6 +132,7 @@ func MobileNav(expanded bool) *h.Element {
 				return h.Div(
 					h.Class("flex items-center"),
 					h.A(
+						h.Boost(),
 						h.Class(""),
 						h.Href(item.Url),
 						h.Text(item.Name),

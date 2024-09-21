@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/hx"
 )
 
 type InputProps struct {
@@ -16,8 +17,7 @@ type InputProps struct {
 
 func Input(props InputProps) h.Ren {
 	validation := h.If(props.ValidationPath != "", h.Children(
-		h.Post(props.ValidationPath),
-		h.Trigger("change"),
+		h.Post(props.ValidationPath, hx.ChangeEvent),
 		h.Attribute("hx-swap", "innerHTML transition:true"),
 		h.Attribute("hx-target", "next div"),
 	))

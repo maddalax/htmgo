@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/framework/hx"
 	"strings"
 )
 
@@ -89,20 +90,61 @@ func (m *AttributeMap) Render(builder *strings.Builder) {
 	}
 }
 
+func toHtmxTriggerName(event string) string {
+	if strings.HasPrefix(event, "htmx:") {
+		return event[5:]
+	}
+	if strings.HasPrefix(event, "on") {
+		return event[2:]
+	}
+	return event
+}
+
+func formatEventName(event string, isDomEvent bool) string {
+	raw := toHtmxTriggerName(event)
+	if isDomEvent {
+		return "on" + raw
+	}
+	return event
+}
+
+func (l *LifeCycle) fromAttributeMap(event string, key string, value string, builder *strings.Builder) {
+
+	if key == hx.GetAttr || key == hx.PatchAttr || key == hx.PostAttr {
+		TriggerString(toHtmxTriggerName(event)).Render(builder)
+	}
+
+	Attribute(key, value).Render(builder)
+}
+
 func (l *LifeCycle) Render(builder *strings.Builder) {
 	m := make(map[string]string)
 
 	for event, commands := range l.handlers {
 		m[event] = ""
 		for _, command := range commands {
-			m[event] += fmt.Sprintf("%s;", command.Command)
+			switch c := command.(type) {
+			case JsCommand:
+				eventName := formatEventName(event, true)
+				m[eventName] += fmt.Sprintf("%s;", c.Command)
+			case *AttributeMap:
+				for k, v := range c.ToMap() {
+					l.fromAttributeMap(event, k, v, builder)
+				}
+			}
 		}
 	}
 
 	children := make([]Ren, 0)
 
-	for event, js := range m {
-		children = append(children, Attribute(event, js))
+	for event, value := range m {
+		if value != "" {
+			children = append(children, Attribute(event, value))
+		}
+	}
+
+	if len(children) == 0 {
+		return
 	}
 
 	Children(children...).Render(builder)

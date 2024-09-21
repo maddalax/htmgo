@@ -55,6 +55,6 @@ func GetPartialPath(partial func(ctx *RequestContext) *Partial) string {
 	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }
 
-func GetPartialPathWithQs(partial func(ctx *RequestContext) *Partial, qs string) string {
-	return html.EscapeString(GetPartialPath(partial) + "?" + qs)
+func GetPartialPathWithQs(partial func(ctx *RequestContext) *Partial, qs *Qs) string {
+	return html.EscapeString(GetPartialPath(partial) + "?" + qs.ToString())
 }

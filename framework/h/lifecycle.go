@@ -2,59 +2,102 @@ package h
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/framework/hx"
+	"strings"
 )
 
 type LifeCycle struct {
-	handlers map[HxEvent][]JsCommand
+	handlers map[hx.Event][]Command
 }
 
 func NewLifeCycle() *LifeCycle {
 	return &LifeCycle{
-		handlers: make(map[HxEvent][]JsCommand),
+		handlers: make(map[hx.Event][]Command),
 	}
 }
 
-func (l *LifeCycle) OnEvent(event HxEvent, cmd ...JsCommand) *LifeCycle {
-	if l.handlers[event] == nil {
-		l.handlers[event] = []JsCommand{}
+func validateCommands(cmds []Command) {
+	for _, cmd := range cmds {
+		switch t := cmd.(type) {
+		case JsCommand:
+			break
+		case *AttributeMap:
+			break
+		case *Element:
+			panic(fmt.Sprintf("element is not allowed in lifecycle events. Got: %v", t))
+		default:
+			panic(fmt.Sprintf("type is not allowed in lifecycle events. Got: %v", t))
+
+		}
 	}
+}
+
+func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
+	validateCommands(cmd)
+
+	if l.handlers[event] == nil {
+		l.handlers[event] = []Command{}
+	}
+
 	l.handlers[event] = append(l.handlers[event], cmd...)
 	return l
 }
 
-func (l *LifeCycle) BeforeRequest(cmd ...JsCommand) *LifeCycle {
-	l.OnEvent(HxBeforeRequest, cmd...)
+func (l *LifeCycle) BeforeRequest(cmd ...Command) *LifeCycle {
+	l.OnEvent(hx.BeforeRequestEvent, cmd...)
 	return l
 }
 
-func OnEvent(event HxEvent, cmd ...JsCommand) *LifeCycle {
+func OnLoad(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.LoadEvent, cmd...)
+}
+
+func OnAfterSwap(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.AfterSwapEvent, cmd...)
+}
+
+func OnTrigger(trigger string, cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.NewStringTrigger(trigger).ToString(), cmd...)
+}
+
+func OnClick(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.ClickEvent, cmd...)
+}
+
+func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
 }
 
-func BeforeRequest(cmd ...JsCommand) *LifeCycle {
+func BeforeRequest(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().BeforeRequest(cmd...)
 }
 
-func AfterRequest(cmd ...JsCommand) *LifeCycle {
+func AfterRequest(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().AfterRequest(cmd...)
 }
 
-func OnMutationError(cmd ...JsCommand) *LifeCycle {
+func OnMutationError(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnMutationError(cmd...)
 }
 
-func (l *LifeCycle) AfterRequest(cmd ...JsCommand) *LifeCycle {
-	l.OnEvent(HxAfterRequest, cmd...)
+func (l *LifeCycle) AfterRequest(cmd ...Command) *LifeCycle {
+	l.OnEvent(hx.AfterRequestEvent, cmd...)
 	return l
 }
 
-func (l *LifeCycle) OnMutationError(cmd ...JsCommand) *LifeCycle {
-	l.OnEvent(HxOnMutationError, cmd...)
+func (l *LifeCycle) OnMutationError(cmd ...Command) *LifeCycle {
+	l.OnEvent(hx.OnMutationErrorEvent, cmd...)
 	return l
 }
+
+type Command = Ren
 
 type JsCommand struct {
 	Command string
+}
+
+func (j JsCommand) Render(builder *strings.Builder) {
+	builder.WriteString(j.Command)
 }
 
 func SetText(text string) JsCommand {
