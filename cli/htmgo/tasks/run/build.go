@@ -1,6 +1,7 @@
 package run
 
 import (
+	"fmt"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
@@ -18,8 +19,8 @@ func Build() {
 	process.RunOrExit("rm -rf ./dist")
 	process.RunOrExit("mkdir -p ./dist")
 
-	process.RunOrExit("env GOOS=linux GOARCH=amd64 go build -o ./dist/app-linux-amd64 .")
+	process.RunOrExit("env go build -o ./dist .")
 	process.RunOrExit("go build -o ./dist/app .")
 
-	process.RunOrExit("echo \"Build successful\"")
+	fmt.Printf("Executable built at %s\n", process.GetPathRelativeToCwd("dist"))
 }
