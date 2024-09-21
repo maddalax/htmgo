@@ -11,10 +11,6 @@ func GetPartialFromContext(ctx echo.Context) *h.Partial {
 		cc := ctx.(*h.RequestContext)
 		return partials.ToggleNavbar(cc)
 	}
-	if path == "TestPartial" || path == "/htmgo-site/partials.TestPartial" {
-		cc := ctx.(*h.RequestContext)
-		return partials.TestPartial(cc)
-	}
 	return nil
 }
 

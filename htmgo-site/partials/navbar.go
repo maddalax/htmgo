@@ -16,12 +16,6 @@ func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
 	)
 }
 
-func TestPartial(ctx *h.RequestContext) *h.Partial {
-	return h.NewPartial(
-		h.Div(h.Text("This is a test")),
-	)
-}
-
 var navItems = []NavItem{
 	{Name: "Docs", Url: "/docs"},
 	{Name: "Examples", Url: "/examples"},

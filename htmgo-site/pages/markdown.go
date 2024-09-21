@@ -4,10 +4,8 @@ import (
 	"embed"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/htmgo/service"
-	"github.com/maddalax/htmgo/framework/hx"
 	"htmgo-site/internal/markdown"
 	"htmgo-site/pages/base"
-	"htmgo-site/partials"
 )
 
 func MarkdownHandler(ctx *h.RequestContext, path string) error {
@@ -17,9 +15,6 @@ func MarkdownHandler(ctx *h.RequestContext, path string) error {
 func MarkdownPage(ctx *h.RequestContext, path string) *h.Element {
 	return base.RootPage(
 		h.Div(
-			h.Div(
-				h.GetPartial(partials.TestPartial, hx.LoadEvent),
-			),
 			h.Class("w-full p-4 flex flex-col justify-center items-center"),
 			MarkdownContent(ctx, path),
 			h.Div(
