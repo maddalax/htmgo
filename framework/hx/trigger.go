@@ -76,10 +76,7 @@ func (t Trigger) AddEvent(event TriggerEvent) Trigger {
 func (t Trigger) ToString() string {
 	builder := strings.Builder{}
 	for i, e := range t.events {
-		eventName := e.event
-		if strings.HasPrefix(eventName, "htmx:") {
-			eventName = eventName[5:]
-		}
+		eventName := ToHtmxTriggerName(e.event)
 		builder.WriteString(eventName)
 		for _, m := range e.modifiers {
 			builder.WriteString(" ")
