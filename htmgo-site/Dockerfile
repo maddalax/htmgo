@@ -33,5 +33,6 @@ COPY --from=builder /app/dist .
 # Expose the necessary port (replace with your server port)
 EXPOSE 3000
 
+
 # Command to run the binary
 CMD ["./htmgo-site"]
