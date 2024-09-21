@@ -26,11 +26,11 @@ FROM gcr.io/distroless/base-debian11
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Go binary from the builder stage
-COPY --from=builder /app/server .
+# Copy the Go binary from the    builder stage
+COPY --from=builder /app/dist .
 
 # Expose the necessary port (replace with your server port)
 EXPOSE 3000
 
 # Command to run the binary
-CMD ["./server"]
+CMD ["./htmgo-site"]
