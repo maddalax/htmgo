@@ -161,6 +161,7 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 	return EvalJs(fmt.Sprintf(`
 		var el = document.querySelector('%s');
 		if(el) { el.classList.toggle('%s'); }`,
+		selector, class,
 	))
 }
 

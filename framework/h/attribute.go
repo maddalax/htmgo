@@ -129,7 +129,7 @@ func Hidden() Ren {
 	return Attribute("style", "display:none")
 }
 
-func Class(value ...string) Ren {
+func Class(value ...string) *AttributeMap {
 	return Attribute("class", MergeClasses(value...))
 }
 

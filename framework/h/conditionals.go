@@ -9,13 +9,10 @@ func If(condition bool, node Ren) Ren {
 }
 
 func Ternary[T any](value bool, a T, b T) T {
-	if value {
-		return a
-	}
-	return b
+	return IfElse(value, a, b)
 }
 
-func IfElse(condition bool, node Ren, node2 Ren) Ren {
+func IfElse[T any](condition bool, node T, node2 T) T {
 	if condition {
 		return node
 	} else {
@@ -23,7 +20,7 @@ func IfElse(condition bool, node Ren, node2 Ren) Ren {
 	}
 }
 
-func IfElseLazy(condition bool, cb1 func() Ren, cb2 func() Ren) Ren {
+func IfElseLazy[T any](condition bool, cb1 func() T, cb2 func() T) T {
 	if condition {
 		return cb1()
 	} else {

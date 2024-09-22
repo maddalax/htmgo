@@ -43,7 +43,7 @@ func TestRawContent(t *testing.T) {
 func TestConditional(t *testing.T) {
 	result := Render(
 		Div(
-			IfElse(true, Text("true"), Text("false")),
+			Ternary(true, Text("true"), Text("false")),
 		),
 	)
 	assert.Equal(t, "<div >true</div>", result)
