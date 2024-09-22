@@ -5,16 +5,11 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
-	"strings"
 )
 
 type Partial struct {
 	Headers *Headers
 	Root    *Element
-}
-
-func (p *Partial) Render(builder *strings.Builder) {
-	p.Root.Render(builder)
 }
 
 type Page struct {

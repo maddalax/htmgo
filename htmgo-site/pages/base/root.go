@@ -3,20 +3,11 @@ package base
 import (
 	"github.com/maddalax/htmgo/framework/h"
 	"htmgo-site/partials"
-	"strings"
 )
-
-func Extensions() string {
-	extensions := []string{"path-deps", "response-targets", "mutation-error"}
-	if h.IsDevelopment() {
-		extensions = append(extensions, "livereload")
-	}
-	return strings.Join(extensions, ", ")
-}
 
 func RootPage(children ...h.Ren) *h.Element {
 	return h.Html(
-		h.HxExtension(Extensions()),
+		h.HxExtension(h.BaseExtensions()),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
 			h.Link("/public/main.css", "stylesheet"),

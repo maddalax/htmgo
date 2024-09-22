@@ -14,6 +14,9 @@ COPY go.mod go.sum ./
 # Download and cache the Go modules
 RUN go mod download
 
+# Always download the latest version of the framework
+RUN go get github.com/maddalax/htmgo/framework@latest
+
 # Copy the source code into the container
 COPY . .
 

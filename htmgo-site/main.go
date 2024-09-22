@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/htmgo/service"
@@ -29,8 +28,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("test")
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,

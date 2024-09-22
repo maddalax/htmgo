@@ -20,6 +20,8 @@ github.com/maddalax/htmgo/framework v0.0.0-20240921172455-97affb99b5dd h1:zA5itp
 github.com/maddalax/htmgo/framework v0.0.0-20240921172455-97affb99b5dd/go.mod h1:WRIlLlHJG/xB+RR84LgNFq3hwYFKXvLfEEG8RzTUH50=
 github.com/maddalax/htmgo/framework v0.0.0-20240921174901-797c439244a5 h1:TX+YMeHPi2hVbDKuYmTRzPUSc3RD/w0WHML+MymsYPs=
 github.com/maddalax/htmgo/framework v0.0.0-20240921174901-797c439244a5/go.mod h1:WRIlLlHJG/xB+RR84LgNFq3hwYFKXvLfEEG8RzTUH50=
+github.com/maddalax/htmgo/framework v0.0.0-20240921191008-59900b59eaaa h1:YKSx3JUpJfwjl9pF0eDd8OyVIlTp24BPvBNHtv/Vmns=
+github.com/maddalax/htmgo/framework v0.0.0-20240921191008-59900b59eaaa/go.mod h1:WRIlLlHJG/xB+RR84LgNFq3hwYFKXvLfEEG8RzTUH50=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=

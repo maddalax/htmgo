@@ -6,15 +6,30 @@ import (
 	"strings"
 )
 
-func (node *Element) Render(builder *strings.Builder) {
+type RenderContext struct {
+	builder *strings.Builder
+	scripts []string
+}
+
+func (ctx *RenderContext) AddScript(funcName string, body string) {
+	script := fmt.Sprintf(`
+	<script id="%s">
+		function %s() {
+				%s
+		}
+	</script>`, funcName, funcName, body)
+	ctx.scripts = append(ctx.scripts, script)
+}
+
+func (node *Element) Render(context *RenderContext) {
 	// some elements may not have a tag, such as a Fragment
 
 	if node.tag != "" {
-		builder.WriteString("<" + node.tag)
-		builder.WriteString(" ")
+		context.builder.WriteString("<" + node.tag)
+		context.builder.WriteString(" ")
 
 		for name, value := range node.attributes {
-			NewAttribute(name, value).Render(builder)
+			NewAttribute(name, value).Render(context)
 		}
 	}
 
@@ -35,15 +50,15 @@ func (node *Element) Render(builder *strings.Builder) {
 	for _, child := range node.children {
 		switch child.(type) {
 		case *AttributeMap:
-			child.Render(builder)
+			child.Render(context)
 		case *LifeCycle:
-			child.Render(builder)
+			child.Render(context)
 		}
 	}
 
 	// close the tag
 	if node.tag != "" {
-		builder.WriteString(">")
+		context.builder.WriteString(">")
 	}
 
 	// render the children elements that are not attributes
@@ -54,64 +69,88 @@ func (node *Element) Render(builder *strings.Builder) {
 		case *LifeCycle:
 			continue
 		default:
-			child.Render(builder)
+			child.Render(context)
 		}
 	}
 
 	if node.tag != "" {
-		builder.WriteString("</" + node.tag + ">")
+		renderScripts(context)
+		context.builder.WriteString("</" + node.tag + ">")
 	}
 }
 
-func (a *AttributeR) Render(builder *strings.Builder) {
-	builder.WriteString(fmt.Sprintf(`%s="%s"`, a.Name, a.Value))
+func renderScripts(context *RenderContext) {
+	for _, script := range context.scripts {
+		context.builder.WriteString(script)
+	}
+	context.scripts = []string{}
 }
 
-func (t *TextContent) Render(builder *strings.Builder) {
-	builder.WriteString(t.Content)
+func (a *AttributeR) Render(context *RenderContext) {
+	context.builder.WriteString(fmt.Sprintf(`%s="%s"`, a.Name, a.Value))
 }
 
-func (r *RawContent) Render(builder *strings.Builder) {
-	builder.WriteString(r.Content)
+func (t *TextContent) Render(context *RenderContext) {
+	context.builder.WriteString(t.Content)
 }
 
-func (c *ChildList) Render(builder *strings.Builder) {
+func (r *RawContent) Render(context *RenderContext) {
+	context.builder.WriteString(r.Content)
+}
+
+func (c *ChildList) Render(context *RenderContext) {
 	for _, child := range c.Children {
-		child.Render(builder)
+		child.Render(context)
 	}
 }
 
-func (m *AttributeMap) Render(builder *strings.Builder) {
+func (j SimpleJsCommand) Render(context *RenderContext) {
+	context.builder.WriteString(j.Command)
+}
+
+func (j ComplexJsCommand) Render(context *RenderContext) {
+	context.builder.WriteString(j.Command)
+}
+
+func (p *Partial) Render(context *RenderContext) {
+	p.Root.Render(context)
+}
+
+func (m *AttributeMap) Render(context *RenderContext) {
 	m2 := m.ToMap()
 
 	for k, v := range m2 {
-		builder.WriteString(" ")
-		NewAttribute(k, v).Render(builder)
+		context.builder.WriteString(" ")
+		NewAttribute(k, v).Render(context)
 	}
 }
 
-func (l *LifeCycle) fromAttributeMap(event string, key string, value string, builder *strings.Builder) {
+func (l *LifeCycle) fromAttributeMap(event string, key string, value string, context *RenderContext) {
 
 	if key == hx.GetAttr || key == hx.PatchAttr || key == hx.PostAttr {
-		TriggerString(hx.ToHtmxTriggerName(event)).Render(builder)
+		TriggerString(hx.ToHtmxTriggerName(event)).Render(context)
 	}
 
-	Attribute(key, value).Render(builder)
+	Attribute(key, value).Render(context)
 }
 
-func (l *LifeCycle) Render(builder *strings.Builder) {
+func (l *LifeCycle) Render(context *RenderContext) {
 	m := make(map[string]string)
 
 	for event, commands := range l.handlers {
 		m[event] = ""
 		for _, command := range commands {
 			switch c := command.(type) {
-			case JsCommand:
+			case SimpleJsCommand:
 				eventName := hx.FormatEventName(event, true)
 				m[eventName] += fmt.Sprintf("%s;", c.Command)
+			case ComplexJsCommand:
+				eventName := hx.FormatEventName(event, true)
+				context.AddScript(c.TempFuncName, c.Command)
+				m[eventName] += fmt.Sprintf("%s();", c.TempFuncName)
 			case *AttributeMap:
 				for k, v := range c.ToMap() {
-					l.fromAttributeMap(event, k, v, builder)
+					l.fromAttributeMap(event, k, v, context)
 				}
 			}
 		}
@@ -129,5 +168,5 @@ func (l *LifeCycle) Render(builder *strings.Builder) {
 		return
 	}
 
-	Children(children...).Render(builder)
+	Children(children...).Render(context)
 }
