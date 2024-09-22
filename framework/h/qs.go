@@ -1,7 +1,6 @@
 package h
 
 import (
-	"github.com/maddalax/htmgo/framework/hx"
 	"net/url"
 	"strings"
 )
@@ -47,14 +46,6 @@ func (q *Qs) ToString() string {
 		index++
 	}
 	return builder.String()
-}
-
-func PushQsHeader(ctx *RequestContext, qs *Qs) *Headers {
-	parsed, err := url.Parse(ctx.currentBrowserUrl)
-	if err != nil {
-		return NewHeaders()
-	}
-	return NewHeaders(hx.ReplaceUrlHeader, SetQueryParams(parsed.Path, qs))
 }
 
 func GetQueryParam(ctx *RequestContext, key string) string {

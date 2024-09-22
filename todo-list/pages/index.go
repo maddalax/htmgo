@@ -1,40 +1,29 @@
 package pages
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/maddalax/htmgo/framework/h"
 	"todolist/pages/base"
-	"todolist/partials"
+	"todolist/partials/task"
+
+	"github.com/maddalax/htmgo/framework/h"
 )
 
-func IndexPage(c echo.Context) *h.Page {
-	return h.NewPage(h.Html(
-		h.HxExtension(base.Extensions()),
-		h.Class("bg-red-200 flex flex-col items-center h-full w-full"),
-		h.Head(
-			h.Link("/public/main.css", "stylesheet"),
-			h.Script("/public/htmgo.js"),
-		),
-		h.Body(
-			h.Class("flex flex-col gap-4"),
-			h.Div(h.Class("flex gap-2 mt-6"),
-				Button(),
-				Button(),
-				Button(),
-				Button(),
+func TaskListPage(ctx *h.RequestContext) *h.Page {
+
+	title := h.Div(
+		h.H1(h.Class("text-7xl font-extralight text-rose-500 tracking-wide"), h.Text("todos")),
+	)
+
+	return h.NewPage(base.RootPage(
+		h.Div(
+			h.Class("bg-neutral-100 min-h-screen"),
+			h.Div(
+				h.Class("flex flex-col gap-6 p-4 items-center max-w-xl mx-auto pb-12"),
+				title,
+				task.Card(ctx),
+				h.Children(
+					h.Div(h.Text("Double-click to edit a todo")),
+				),
 			),
 		),
 	))
-}
-
-func Button() h.Ren {
-	return h.Button(h.Class("btn bg-green-500 p-4 rounded text-white"),
-		h.Text("my button"),
-		h.AfterRequest(
-			h.SetDisabled(true),
-			h.RemoveClass("bg-red-600"),
-			h.AddClass("bg-gray-500"),
-		),
-		h.GetPartial(partials.SamplePartial),
-	)
 }

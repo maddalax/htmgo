@@ -314,7 +314,7 @@ func ChangeTab(ctx *h.RequestContext) *h.Partial {
 	tab := ctx.QueryParam("tab")
 
 	return h.SwapManyPartialWithHeaders(ctx,
-		h.PushUrlHeader(fmt.Sprintf("/tasks?tab=%s", tab)),
+		h.PushQsHeader(ctx, h.NewQs("tab", tab)),
 		List(list, tab),
 		Footer(list, tab),
 	)

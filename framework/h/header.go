@@ -15,6 +15,14 @@ func PushUrlHeader(url string) *Headers {
 	return NewHeaders(hx.PushUrlHeader, url)
 }
 
+func PushQsHeader(ctx *RequestContext, qs *Qs) *Headers {
+	parsed, err := url.Parse(ctx.currentBrowserUrl)
+	if err != nil {
+		return NewHeaders()
+	}
+	return NewHeaders(hx.ReplaceUrlHeader, SetQueryParams(parsed.Path, qs))
+}
+
 func CombineHeaders(headers ...*Headers) *Headers {
 	m := make(Headers)
 	for _, h := range headers {
