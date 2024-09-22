@@ -8,7 +8,7 @@ tasks:
 
   build:
     cmds:
-      - go run github.com/maddalax/htmgo/cli@latest build
+      - go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
   watch:
     cmds:
