@@ -51,6 +51,10 @@ func Body(children ...Ren) *Element {
 	return Tag("body", children...)
 }
 
+func HtmxConfig(m map[string]string) Ren {
+	return Meta("htmx-config", JsonSerialize(m))
+}
+
 func Meta(name string, content string) Ren {
 	return &Element{
 		tag: "meta",

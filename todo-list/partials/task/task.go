@@ -131,6 +131,7 @@ func List(list []*ent.Task, tab Tab) *h.Element {
 
 func Task(task *ent.Task, editing bool) *h.Element {
 	return h.Div(
+		h.Attribute("key", task.ID.String()),
 		h.Id(fmt.Sprintf("task-%s", task.ID.String())),
 		h.ClassX("h-[80px] max-h-[80px] max-w-2xl flex items-center p-4 gap-4 cursor-pointer", h.ClassMap{
 			"border border-b-slate-100": !editing,
@@ -260,10 +261,7 @@ func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 	list, _ := service.List()
 
 	return h.SwapManyPartial(ctx,
-		List(list, getActiveTab(ctx)),
-		Footer(list, getActiveTab(ctx)),
-		CompleteAllIcon(list),
-	)
+		List(list, getActiveTab(ctx)))
 }
 
 func CompleteAll(ctx *h.RequestContext) *h.Partial {

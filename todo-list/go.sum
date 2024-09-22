@@ -37,11 +37,14 @@ github.com/labstack/gommon v0.4.2 h1:F8qTUNXgG1+6WQmqoUWnz8WiEU60mXVVw0P4ht1WRA0
 github.com/labstack/gommon v0.4.2/go.mod h1:QlUFxVM+SNXhDL/Z7YhocGIBYOiwB0mXm1+1bAPHPyU=
 github.com/maddalax/htmgo/framework v0.0.0-20240918150417-f0f979e3a293 h1:/VisQ3836jcJkZQDiZUXk9CdOUCu3AY9476/924OSTQ=
 github.com/maddalax/htmgo/framework v0.0.0-20240918150417-f0f979e3a293/go.mod h1:hH6EgyyjquAj9BWFRPcTnAB+dOVfLuO125/L8C3iilA=
+github.com/maddalax/htmgo/framework v0.0.0-20240922165341-9e44fb5d5226 h1:V+RmSiPcpCXpv/S/WfSLERqwxOpKfWmjyOrw7H8SUbs=
+github.com/maddalax/htmgo/framework v0.0.0-20240922165341-9e44fb5d5226/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
+github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
 github.com/mattn/go-runewidth v0.0.16 h1:E5ScNMtiwvlvB5paMFdw9p4kSQzbXFikJ5SQO6TULQc=
 github.com/mattn/go-runewidth v0.0.16/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=

@@ -85,6 +85,7 @@ func NavBar(expanded bool) *h.Element {
 func MobileNav(expanded bool) *h.Element {
 	return h.Nav(
 		h.Id("mobile-nav"),
+		h.Attribute("hx-swap", "diffdom"),
 		h.Class("block sm:hidden bg-neutral-100 border border-b-slate-300 p-4 md:p-3"),
 		h.Div(
 			h.Class("max-w-[95%] md:max-w-prose mx-auto"),

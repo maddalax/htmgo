@@ -3,13 +3,12 @@ package pages
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
-	"todolist/pages/base"
 	"todolist/partials"
 )
 
 func IndexPage(c echo.Context) *h.Page {
 	return h.NewPage(h.Html(
-		h.HxExtension(base.Extensions()),
+		h.HxExtension(h.BaseExtensions()),
 		h.Class("bg-red-200 flex flex-col items-center h-full w-full"),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),

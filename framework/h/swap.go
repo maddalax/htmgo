@@ -39,7 +39,7 @@ func OobSwapWithSelector(ctx *RequestContext, selector string, content *Element,
 }
 
 func outOfBandSwap(selector string, option ...SwapOption) Ren {
-	swapType := hx.SwapTypeTrue
+	swapType := "diffdom"
 
 	if len(option) > 0 {
 		o := option[0]

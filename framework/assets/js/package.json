@@ -12,6 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@alpinejs/morph": "^3.14.1",
+    "alpinejs": "^3.14.1",
+    "diff-dom": "^5.1.4",
     "htmx.org": "~2.0.2"
   },
   "devDependencies": {

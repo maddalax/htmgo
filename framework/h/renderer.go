@@ -87,7 +87,7 @@ func renderScripts(context *RenderContext) {
 }
 
 func (a *AttributeR) Render(context *RenderContext) {
-	context.builder.WriteString(fmt.Sprintf(`%s="%s"`, a.Name, a.Value))
+	context.builder.WriteString(fmt.Sprintf(`%s='%s'`, a.Name, a.Value))
 }
 
 func (t *TextContent) Render(context *RenderContext) {

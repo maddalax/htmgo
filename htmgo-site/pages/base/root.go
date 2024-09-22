@@ -17,6 +17,7 @@ func RootPage(children ...h.Ren) *h.Element {
 			`),
 		),
 		h.Body(
+			h.Attribute("hx-swap", "diffdom"),
 			h.Class("bg-neutral-50 min-h-screen overflow-x-hidden"),
 			partials.NavBar(false),
 			h.Fragment(children...),
