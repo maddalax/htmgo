@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/util"
+	"strings"
 )
 
 type LifeCycle struct {
@@ -36,6 +37,11 @@ func validateCommands(cmds []Command) {
 
 func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	validateCommands(cmd)
+
+	if strings.HasPrefix(event, "htmx:") {
+		event = event[5:]
+		event = util.ConvertCamelToDash(fmt.Sprintf("hx-on::%s", event))
+	}
 
 	if l.handlers[event] == nil {
 		l.handlers[event] = []Command{}

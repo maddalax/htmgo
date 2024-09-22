@@ -23,14 +23,6 @@ func ToHtmxTriggerName(event string) string {
 	return event
 }
 
-func FormatEventName(event string, isDomEvent bool) string {
-	raw := ToHtmxTriggerName(event)
-	if isDomEvent {
-		return "on" + raw
-	}
-	return event
-}
-
 func NewTrigger(opts ...TriggerEvent) *Trigger {
 	t := Trigger{
 		events: make([]TriggerEvent, 0),

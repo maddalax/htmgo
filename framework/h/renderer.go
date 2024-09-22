@@ -142,12 +142,10 @@ func (l *LifeCycle) Render(context *RenderContext) {
 		for _, command := range commands {
 			switch c := command.(type) {
 			case SimpleJsCommand:
-				eventName := hx.FormatEventName(event, true)
-				m[eventName] += fmt.Sprintf("%s;", c.Command)
+				m[event] += fmt.Sprintf("%s;", c.Command)
 			case ComplexJsCommand:
-				eventName := hx.FormatEventName(event, true)
 				context.AddScript(c.TempFuncName, c.Command)
-				m[eventName] += fmt.Sprintf("%s();", c.TempFuncName)
+				m[event] += fmt.Sprintf("%s();", c.TempFuncName)
 			case *AttributeMap:
 				for k, v := range c.ToMap() {
 					l.fromAttributeMap(event, k, v, context)
