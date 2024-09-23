@@ -63,7 +63,7 @@ func KillAll(skipFlag ...RunFlag) {
 
 				if tries > 50 {
 					args := strings.Join(cmd.cmd.Args, " ")
-					slog.Debug("process %v is not running after 50 tries, breaking.\n", args)
+					slog.Debug("process is not running after 50 tries, breaking.", slog.String("command", args))
 					allFinished = true
 					break
 				} else {
