@@ -29,12 +29,21 @@ func Setup() bool {
 	return true
 }
 
+func GetTailwindExecutableName() string {
+	if runtime.GOOS == "windows" {
+		return "./__htmgo/tailwind.exe"
+	} else {
+		return "./__htmgo/tailwind"
+	}
+}
+
 func GenerateCss(flags ...process.RunFlag) error {
 	if !Setup() {
 		return nil
 	}
+	exec := GetTailwindExecutableName()
 	return process.RunMany([]string{
-		"./__htmgo/tailwind -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js",
+		fmt.Sprintf("%s -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js", exec),
 	}, append(flags, process.Silent)...)
 }
 
@@ -42,14 +51,15 @@ func GenerateCssWatch(flags ...process.RunFlag) error {
 	if !Setup() {
 		return nil
 	}
+	exec := GetTailwindExecutableName()
 	return process.RunMany([]string{
-		"./__htmgo/tailwind -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js --watch=always",
+		fmt.Sprintf("%s -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js --watch=always", exec),
 	}, append(flags, process.KillOnlyOnExit, process.Silent)...)
 }
 
 func downloadTailwindCli() {
 
-	if dirutil.HasFileFromRoot("__htmgo/tailwind") {
+	if dirutil.HasFileFromRoot(GetTailwindExecutableName()) {
 		slog.Debug("Tailwind CLI already exists. Skipping download.")
 		return
 	}
@@ -91,9 +101,11 @@ func downloadTailwindCli() {
 		}, process.ExitOnError)
 	}
 
+	outputFileName := GetTailwindExecutableName()
+
 	err := dirutil.MoveFile(
 		filepath.Join(process.GetWorkingDir(), fileName),
-		filepath.Join(process.GetWorkingDir(), "__htmgo/tailwind"))
+		filepath.Join(process.GetWorkingDir(), outputFileName))
 
 	if err != nil {
 		log.Fatalf("Error moving file: %s\n", err.Error())
