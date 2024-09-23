@@ -3,6 +3,7 @@ package downloadtemplate
 import (
 	"flag"
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
@@ -12,31 +13,6 @@ import (
 	"regexp"
 	"strings"
 )
-
-func deleteAllExceptTemplate(outPath string, excludeDir string) {
-	// List all files and directories in the root folder
-	files, err := os.ReadDir(outPath)
-	if err != nil {
-		fmt.Printf("Error reading directory: %v\n", err)
-		return
-	}
-
-	// Iterate through each item in the root folder
-	for _, file := range files {
-		// Skip the excluded directory
-		if file.Name() == excludeDir {
-			continue
-		}
-
-		// Get full path
-		fullPath := filepath.Join(outPath, file.Name())
-
-		err := os.RemoveAll(fullPath)
-		if err != nil {
-			fmt.Printf("Error removing %s: %v\n", fullPath, err)
-		}
-	}
-}
 
 func DownloadTemplate(outPath string) {
 	cwd, _ := os.Getwd()
@@ -69,13 +45,16 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
-	deleteAllExceptTemplate(outPath, templatePath)
+	dirutil.DeleteAllExcept(outPath, templatePath)
 
 	newDir := filepath.Join(cwd, outPath)
 
+	dirutil.CopyDir(templatePath, newDir, func(path string, exists bool) bool {
+		return true
+	})
+
 	commands := [][]string{
-		{"cp", "-vaR", fmt.Sprintf("%s/.", templateName), "."},
-		{"rm", "-rf", templateName},
+		{"rm", "-rf", templatePath},
 		{"go", "get", "github.com/maddalax/htmgo/framework"},
 		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
 		{"git", "init"},
