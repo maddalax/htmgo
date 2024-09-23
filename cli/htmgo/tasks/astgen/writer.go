@@ -8,7 +8,6 @@ import (
 	"go/token"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
@@ -56,14 +55,9 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 			return
 		}
 	}
+
 	// Define the file path where you want to save the buffer
-
-	cmd := exec.Command("git", "add", path)
-	err = cmd.Run()
-
-	if err != nil {
-		log.Printf("Failed to run git add: %v\n", err)
-	}
+	process.Run("git add " + path)
 
 	// Save the buffer to a file
 	err = os.WriteFile(path, bytes, 0644)
