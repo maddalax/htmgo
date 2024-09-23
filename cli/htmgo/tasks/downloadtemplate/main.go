@@ -23,6 +23,7 @@ func DownloadTemplate(outPath string) {
 	flag.Parse()
 
 	outPath = strings.ReplaceAll(outPath, "\n", "")
+	outPath = strings.ReplaceAll(outPath, "\r", "")
 	outPath = strings.ReplaceAll(outPath, " ", "-")
 	outPath = strings.ToLower(outPath)
 
