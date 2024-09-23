@@ -9,7 +9,6 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -41,9 +40,8 @@ func DownloadTemplate(outPath string) {
 	tempOut := newModuleName + "_temp_" + strconv.FormatInt(time.Now().Unix(), 10)
 
 	fmt.Printf("Downloading template %s\n", templateName)
-	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", tempOut)
-	err := install.Run()
-	_, err = install.CombinedOutput()
+
+	err := process.Run("git clone https://github.com/maddalax/htmgo --depth=1 "+tempOut, process.ExitOnError)
 
 	if err != nil {
 		log.Fatalf("Error cloning the template, error: %s\n", err.Error())
