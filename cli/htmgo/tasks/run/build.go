@@ -6,6 +6,7 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"os"
 )
 
 func Build() {
@@ -19,8 +20,13 @@ func Build() {
 	process.RunOrExit("rm -rf ./dist")
 	process.RunOrExit("mkdir -p ./dist")
 
-	process.RunOrExit("env go build -o ./dist .")
-	process.RunOrExit("go build -o ./dist/app .")
+	flags := ""
+	if os.Getenv("CGO_ENABLED") == "1" {
+		flags = `-a -ldflags '-linkmode external -extldflags "-static"' `
+	}
+
+	process.RunOrExit(fmt.Sprintf("go build -o ./dist/app %s.", flags))
+	process.RunOrExit(fmt.Sprintf("go build -o ./dist/app %s.", flags))
 
 	fmt.Printf("Executable built at %s\n", process.GetPathRelativeToCwd("dist"))
 }

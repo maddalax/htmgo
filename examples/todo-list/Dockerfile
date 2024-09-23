@@ -1,9 +1,5 @@
 # Stage 1: Build the Go binary
-FROM golang:1.23-alpine AS builder
-
-RUN apk update
-RUN apk add git
-RUN apk add curl
+FROM golang:1.23 AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -20,9 +16,7 @@ RUN go get github.com/maddalax/htmgo/framework@latest
 # Copy the source code into the container
 COPY . .
 
-# Build the Go binary for Linux
-RUN GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
-
+RUN CGO_ENABLED=1 GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
 # Stage 2: Create the smallest possible image
 FROM gcr.io/distroless/base-debian11
