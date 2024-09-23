@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -37,7 +38,7 @@ func DownloadTemplate(outPath string) {
 	// Replace all non-alphabetic characters with an empty string
 	newModuleName := re.ReplaceAllString(outPath, "")
 
-	tempOut := newModuleName + "_temp_" + time.Now().String()
+	tempOut := newModuleName + "_temp_" + strconv.FormatInt(time.Now().Unix(), 64)
 
 	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", tempOut)
 	install.Stdout = os.Stdout
