@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	entgo.io/ent v0.14.1
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240923023322-a975cff0d704
+	github.com/maddalax/htmgo/framework v0.0.0-20240923030856-e34b8fe141b2
 	github.com/mattn/go-sqlite3 v1.14.16
 )
 
