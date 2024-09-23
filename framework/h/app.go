@@ -3,9 +3,9 @@ package h
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/maddalax/htmgo/framework/htmgo/service"
 	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/util/process"
+	"github.com/maddalax/htmgo/framework/internal/process"
+	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"time"
 )
@@ -82,7 +82,7 @@ func (a App) start() {
 		}
 	})
 
-	if a.Opts.LiveReload {
+	if a.Opts.LiveReload && IsDevelopment() {
 		AddLiveReloadHandler("/dev/livereload", a.Echo)
 	}
 

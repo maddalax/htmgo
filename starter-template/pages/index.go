@@ -30,7 +30,7 @@ func IndexPage(c echo.Context) *h.Page {
 func Button() h.Ren {
 	return h.Button(h.Class("btn bg-green-500 p-4 rounded text-white"),
 		h.Text("my button"),
-		h.AfterRequest(
+		h.HxAfterRequest(
 			h.SetDisabled(true),
 			h.RemoveClass("bg-red-600"),
 			h.AddClass("bg-gray-500"),

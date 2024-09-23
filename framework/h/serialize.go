@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-func JsonSerialize(data any) string {
+func JsonSerializeOrEmpty(data any) string {
 	serialized, err := json.Marshal(data)
 	if err != nil {
 		return ""

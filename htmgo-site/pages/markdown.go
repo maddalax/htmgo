@@ -3,7 +3,7 @@ package pages
 import (
 	"embed"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/htmgo/service"
+	"github.com/maddalax/htmgo/framework/service"
 	"htmgo-site/internal/markdown"
 	"htmgo-site/pages/base"
 )

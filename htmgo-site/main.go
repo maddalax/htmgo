@@ -4,7 +4,7 @@ import (
 	"embed"
 	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/htmgo/service"
+	"github.com/maddalax/htmgo/framework/service"
 	_ "github.com/mattn/go-sqlite3"
 	"htmgo-site/internal/markdown"
 	"htmgo-site/pages"

@@ -28,17 +28,17 @@ func Button(props ButtonProps) h.Ren {
 	text := h.Text(props.Text)
 
 	lifecycle := h.NewLifeCycle().
-		BeforeRequest(
+		HxBeforeRequest(
 			h.AddAttribute("disabled", "true"),
 			h.SetText("Loading..."),
 			h.AddClass("bg-gray-400"),
 		).
-		AfterRequest(
+		HxAfterRequest(
 			h.RemoveAttribute("disabled"),
 			h.RemoveClass("bg-gray-400"),
 			h.SetText(props.Text),
 		).
-		OnMutationError(
+		HxOnMutationError(
 			h.SetText("failed"),
 			h.AddClass("bg-red-400"),
 			h.RemoveAttribute("disabled"),

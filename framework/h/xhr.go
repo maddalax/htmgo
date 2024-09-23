@@ -30,6 +30,10 @@ func Post(url string, trigger ...string) *AttributeMap {
 	return AttributeList(Attribute(hx.PostAttr, url), TriggerString(trigger...))
 }
 
+func PostWithQs(url string, qs *Qs, trigger string) *AttributeMap {
+	return Post(SetQueryParams(url, qs), trigger)
+}
+
 func PostOnClick(url string) *AttributeMap {
 	return Post(url, hx.ClickEvent)
 }

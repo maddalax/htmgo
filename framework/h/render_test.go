@@ -13,10 +13,10 @@ func TestRender(t *testing.T) {
 			"data-attr-3": "value",
 			"data-attr-4": "value",
 		}),
-		BeforeRequest(
+		HxBeforeRequest(
 			SetText("before request"),
 		),
-		AfterRequest(
+		HxAfterRequest(
 			SetText("after request"),
 		),
 		Children(

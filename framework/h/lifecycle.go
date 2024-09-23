@@ -51,21 +51,21 @@ func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return l
 }
 
-func (l *LifeCycle) BeforeRequest(cmd ...Command) *LifeCycle {
+func OnLoad(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.LoadDomEvent, cmd...)
+}
+
+func (l *LifeCycle) HxBeforeRequest(cmd ...Command) *LifeCycle {
 	l.OnEvent(hx.BeforeRequestEvent, cmd...)
 	return l
 }
 
-func OnLoad(cmd ...Command) *LifeCycle {
+func HxOnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadEvent, cmd...)
 }
 
-func OnAfterSwap(cmd ...Command) *LifeCycle {
+func HxOnAfterSwap(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.AfterSwapEvent, cmd...)
-}
-
-func OnTrigger(trigger string, cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.NewStringTrigger(trigger).ToString(), cmd...)
 }
 
 func OnClick(cmd ...Command) *LifeCycle {
@@ -76,24 +76,24 @@ func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
 }
 
-func BeforeRequest(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().BeforeRequest(cmd...)
+func HxBeforeRequest(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().HxBeforeRequest(cmd...)
 }
 
-func AfterRequest(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().AfterRequest(cmd...)
+func HxAfterRequest(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().HxAfterRequest(cmd...)
 }
 
-func OnMutationError(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnMutationError(cmd...)
+func HxOnMutationError(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().HxOnMutationError(cmd...)
 }
 
-func (l *LifeCycle) AfterRequest(cmd ...Command) *LifeCycle {
+func (l *LifeCycle) HxAfterRequest(cmd ...Command) *LifeCycle {
 	l.OnEvent(hx.AfterRequestEvent, cmd...)
 	return l
 }
 
-func (l *LifeCycle) OnMutationError(cmd ...Command) *LifeCycle {
+func (l *LifeCycle) HxOnMutationError(cmd ...Command) *LifeCycle {
 	l.OnEvent(hx.OnMutationErrorEvent, cmd...)
 	return l
 }
@@ -107,6 +107,11 @@ type SimpleJsCommand struct {
 type ComplexJsCommand struct {
 	Command      string
 	TempFuncName string
+}
+
+func NewComplexJsCommand(command string) ComplexJsCommand {
+	name := fmt.Sprintf("__eval_%s", util.RandSeq(6))
+	return ComplexJsCommand{Command: command, TempFuncName: name}
 }
 
 func SetText(text string) SimpleJsCommand {
@@ -177,18 +182,17 @@ func Alert(text string) SimpleJsCommand {
 }
 
 func EvalJs(js string) ComplexJsCommand {
-	name := fmt.Sprintf("__eval_%s", util.RandSeq(6))
-	return ComplexJsCommand{Command: js, TempFuncName: name}
+	return NewComplexJsCommand(js)
 }
 
 func InjectScript(src string) ComplexJsCommand {
 	// language=JavaScript
-	return ComplexJsCommand{Command: fmt.Sprintf(`
+	return NewComplexJsCommand(fmt.Sprintf(`
 		var script = document.createElement('script');
 		script.src = '%s';
-        src.async = true;
+        script.async = true;
 		document.head.appendChild(script);
-	`, src)}
+	`, src))
 }
 
 func InjectScriptIfNotExist(src string) ComplexJsCommand {

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/maddalax/htmgo/framework/js"
 	"todolist/pages/base"
 	"todolist/partials/task"
 
@@ -19,6 +20,12 @@ func TaskListPage(ctx *h.RequestContext) *h.Page {
 			h.Div(
 				h.Class("flex flex-col gap-6 p-4 items-center max-w-xl mx-auto pb-12"),
 				title,
+				h.Button(
+					h.Text("Add Task"),
+					h.OnClick(
+						js.InjectScript("https://htmgo.dev"),
+					),
+				),
 				task.Card(ctx),
 				h.Children(
 					h.Div(h.Text("Double-click to edit a todo")),
