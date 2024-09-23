@@ -70,20 +70,27 @@ func downloadTailwindCli() {
 	case os == "linux" && arch == "amd64":
 		distro = "linux-x64"
 	case os == "windows" && arch == "amd64":
-		distro = "windows-x64"
+		distro = "windows-x64.exe"
 	case os == "windows" && arch == "arm64":
-		distro = "windows-arm64"
+		distro = "windows-arm64.exe"
 
 	default:
 		log.Fatal(fmt.Sprintf("Unsupported OS/ARCH: %s/%s", os, arch))
 	}
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
 	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
-	process.RunMany([]string{
-		fmt.Sprintf(`curl -LO %s`, url),
-		fmt.Sprintf(`chmod +x %s`, fileName),
-		fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
-	}, process.ExitOnError)
+	if os == "windows" {
+		process.RunMany([]string{
+			fmt.Sprintf(`curl -LO %s`, url),
+			fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
+		}, process.ExitOnError)
+	} else {
+		process.RunMany([]string{
+			fmt.Sprintf(`curl -LO %s`, url),
+			fmt.Sprintf(`chmod +x %s`, fileName),
+			fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
+		}, process.ExitOnError)
+	}
 
 	slog.Debug("Successfully downloaded Tailwind CLI", slog.String("url", url))
 }
