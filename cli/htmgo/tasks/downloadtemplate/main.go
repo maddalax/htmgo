@@ -49,6 +49,10 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
+	slog.Debug("provided out path", slog.String("outPath", outPath))
+	slog.Debug("new module name", slog.String("newModuleName", newModuleName))
+	slog.Debug("cwd", slog.String("cwd", cwd))
+
 	newDir := filepath.Join(cwd, outPath)
 
 	slog.Debug("Copying template files to", slog.String("dir", newDir))
