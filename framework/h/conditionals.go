@@ -12,6 +12,14 @@ func Ternary[T any](value bool, a T, b T) T {
 	return IfElse(value, a, b)
 }
 
+func ElementIf(condition bool, element *Element) *Element {
+	if condition {
+		return element
+	} else {
+		return Empty()
+	}
+}
+
 func IfElse[T any](condition bool, node T, node2 T) T {
 	if condition {
 		return node

@@ -2,25 +2,61 @@ package css
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"log"
 	"log/slog"
 	"runtime"
 )
 
+func IsTailwindEnabled() bool {
+	return dirutil.HasFileFromRoot("tailwind.config.js")
+}
+
+func Setup() bool {
+	if !IsTailwindEnabled() {
+		slog.Debug("Tailwind is not enabled. Skipping CSS generation.")
+		return false
+	}
+	downloadTailwindCli()
+
+	if dirutil.HasFileFromRoot("assets/css/input.css") {
+		copyassets.CopyAssets()
+	}
+
+	return true
+}
+
 func GenerateCss(flags ...process.RunFlag) error {
+	if !Setup() {
+		return nil
+	}
 	return process.RunMany([]string{
-		"./assets/css/tailwindcss -i ./assets/css/input.css -o ./assets/dist/main.css -c ./assets/css/tailwind.config.js",
+		"./__htmgo/tailwind -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js",
 	}, append(flags, process.Silent)...)
 }
 
 func GenerateCssWatch(flags ...process.RunFlag) error {
+	if !Setup() {
+		return nil
+	}
 	return process.RunMany([]string{
-		"./assets/css/tailwindcss -i ./assets/css/input.css -o ./assets/dist/main.css -c ./assets/css/tailwind.config.js --watch=always",
+		"./__htmgo/tailwind -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js --watch=always",
 	}, append(flags, process.KillOnlyOnExit, process.Silent)...)
 }
 
-func DownloadTailwindCli() {
+func downloadTailwindCli() {
+
+	if dirutil.HasFileFromRoot("__htmgo/tailwind") {
+		slog.Debug("Tailwind CLI already exists. Skipping download.")
+		return
+	}
+
+	if !IsTailwindEnabled() {
+		slog.Debug("Tailwind is not enabled. Skipping tailwind cli download.")
+		return
+	}
 	distro := ""
 	os := runtime.GOOS
 	arch := runtime.GOARCH
@@ -41,7 +77,7 @@ func DownloadTailwindCli() {
 	process.RunMany([]string{
 		fmt.Sprintf(`curl -LO %s`, url),
 		fmt.Sprintf(`chmod +x %s`, fileName),
-		fmt.Sprintf(`mv %s ./assets/css/tailwindcss`, fileName),
+		fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
 	}, process.ExitOnError)
 
 	slog.Debug("Successfully downloaded Tailwind CLI", slog.String("url", url))

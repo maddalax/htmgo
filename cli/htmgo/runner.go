@@ -20,7 +20,7 @@ func main() {
 	done := RegisterSignals()
 
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate", "tailwind-cli"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -69,9 +69,7 @@ func main() {
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
-		if taskName == "tailwind-cli" {
-			css.DownloadTailwindCli()
-		} else if taskName == "schema" {
+		if taskName == "schema" {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("Enter entity name:")
 			text, _ := reader.ReadString('\n')

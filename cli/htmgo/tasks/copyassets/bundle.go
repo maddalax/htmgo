@@ -7,8 +7,8 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"golang.org/x/mod/modfile"
 	"log"
-	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -67,8 +67,13 @@ func CopyAssets() {
 	err := dirutil.CopyDir(assetDistDir, destDirDist, func(path string, exists bool) bool {
 		return true
 	})
+
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+
 	err = dirutil.CopyDir(assetCssDir, destDirCss, func(path string, exists bool) bool {
-		if exists {
+		if strings.HasSuffix(path, "tailwind.config.js") {
 			return false
 		}
 		return true
@@ -78,5 +83,14 @@ func CopyAssets() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	slog.Debug("successfully copied assets to %s\n", destDir)
+	err = dirutil.CopyFile(
+		filepath.Join(assetCssDir, "tailwind.config.js"),
+		filepath.Join(process.GetWorkingDir(), "tailwind.config.js"),
+	)
+
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+
+	process.Run(fmt.Sprintf("cd %s && git add .", destDirCss))
 }

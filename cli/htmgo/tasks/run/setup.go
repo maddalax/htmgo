@@ -1,6 +1,7 @@
 package run
 
 import (
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
@@ -10,8 +11,12 @@ import (
 func Setup() {
 	process.RunOrExit("go mod download")
 	process.RunOrExit("go mod tidy")
+
 	copyassets.CopyAssets()
-	_ = astgen.GenAst(process.ExitOnError)
-	_ = css.GenerateCss(process.ExitOnError)
-	EntGenerate()
+	astgen.GenAst(process.ExitOnError)
+	css.GenerateCss(process.ExitOnError)
+
+	if dirutil.HasFileFromRoot("ent/schema") {
+		EntGenerate()
+	}
 }

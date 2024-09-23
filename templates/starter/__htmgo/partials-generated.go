@@ -1,5 +1,5 @@
-// Package partials THIS FILE IS GENERATED. DO NOT EDIT.
-package load
+// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.
+package __htmgo
 
 import "github.com/maddalax/htmgo/framework/h"
 import "github.com/labstack/echo/v4"
@@ -7,17 +7,9 @@ import "starter-template/partials"
 
 func GetPartialFromContext(ctx echo.Context) *h.Partial {
 	path := ctx.Request().URL.Path
-	if path == "SamplePartial" || path == "/starter-template/partials.SamplePartial" {
+	if path == "CounterPartial" || path == "/starter-template/partials.CounterPartial" {
 		cc := ctx.(*h.RequestContext)
-		return partials.SamplePartial(cc)
-	}
-	if path == "NewPartial" || path == "/starter-template/partials.NewPartial" {
-		cc := ctx.(*h.RequestContext)
-		return partials.NewPartial(cc)
-	}
-	if path == "NewPartial2" || path == "/starter-template/partials.NewPartial2" {
-		cc := ctx.(*h.RequestContext)
-		return partials.NewPartial2(cc)
+		return partials.CounterPartial(cc)
 	}
 	return nil
 }

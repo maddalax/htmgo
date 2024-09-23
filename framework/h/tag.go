@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type ClassMap map[string]bool
@@ -115,6 +116,17 @@ func Article(children ...Ren) *Element {
 
 func Checkbox(children ...Ren) Ren {
 	return Input("checkbox", children...)
+}
+
+func Value(value any) Ren {
+	switch v := value.(type) {
+	case string:
+		return Attribute("value", v)
+	case int:
+		return Attribute("value", strconv.Itoa(v))
+	default:
+		return Attribute("value", fmt.Sprintf("%v", v))
+	}
 }
 
 func Input(inputType string, children ...Ren) Ren {

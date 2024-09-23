@@ -6,26 +6,20 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"os"
 )
 
 func Build() {
-	css.DownloadTailwindCli()
-
+	copyassets.CopyAssets()
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
-
-	copyassets.CopyAssets()
 
 	process.RunOrExit("rm -rf ./dist")
 	process.RunOrExit("mkdir -p ./dist")
 
-	//flags := ""
-	//if os.Getenv("CGO_ENABLED") == "1" {
-	//	flags = `-a -ldflags '-linkmode external -extldflags "-static"' `
-	//}
-	//
-	//process.RunOrExit(fmt.Sprintf("go build -o ./dist %s.", flags))
-	//process.RunOrExit(fmt.Sprintf("go build -o ./dist/app %s .", flags))
+	if os.Getenv("SKIP_GO_BUILD") != "1" {
+		process.RunOrExit(fmt.Sprintf("go build -o ./dist"))
+	}
 
 	fmt.Printf("Executable built at %s\n", process.GetPathRelativeToCwd("dist"))
 }

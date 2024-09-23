@@ -3,11 +3,19 @@ package dirutil
 import (
 	"errors"
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 )
+
+func HasFileFromRoot(file string) bool {
+	cwd := process.GetWorkingDir()
+	path := filepath.Join(cwd, file)
+	_, err := os.Stat(path)
+	return err == nil
+}
 
 func CopyDir(srcDir, dstDir string, predicate func(path string, exists bool) bool) error {
 	// Walk the source directory tree.

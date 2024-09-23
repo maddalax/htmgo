@@ -16,7 +16,7 @@ export default defineConfig({
       js: ".js",
     };
   },
-  minify: false,
+  minify: true,
   bundle: true,
   splitting: true,
   // https://github.com/egoist/tsup/issues/619

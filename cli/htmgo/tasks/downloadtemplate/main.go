@@ -53,6 +53,7 @@ func DownloadTemplate(outPath string) {
 	}
 
 	templateName := "starter-template"
+	templatePath := filepath.Join("templates", "starter")
 
 	re := regexp.MustCompile(`[^a-zA-Z]+`)
 	// Replace all non-alphabetic characters with an empty string
@@ -68,7 +69,7 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
-	deleteAllExceptTemplate(outPath, templateName)
+	deleteAllExceptTemplate(outPath, templatePath)
 
 	newDir := filepath.Join(cwd, outPath)
 
