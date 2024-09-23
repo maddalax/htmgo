@@ -83,10 +83,12 @@ func CopyAssets() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	err = dirutil.CopyFile(
-		filepath.Join(assetCssDir, "tailwind.config.js"),
-		filepath.Join(process.GetWorkingDir(), "tailwind.config.js"),
-	)
+	if !dirutil.HasFileFromRoot("tailwind.config.js") {
+		err = dirutil.CopyFile(
+			filepath.Join(assetCssDir, "tailwind.config.js"),
+			filepath.Join(process.GetWorkingDir(), "tailwind.config.js"),
+		)
+	}
 
 	if err != nil {
 		log.Fatalf("Error: %v", err)

@@ -1,0 +1,17 @@
+{
+  "name": "htmgo-site",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "md"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15"
+  }
+}
