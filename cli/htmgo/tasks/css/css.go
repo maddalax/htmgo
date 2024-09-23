@@ -69,6 +69,11 @@ func downloadTailwindCli() {
 		distro = "linux-arm64"
 	case os == "linux" && arch == "amd64":
 		distro = "linux-x64"
+	case os == "windows" && arch == "amd64":
+		distro = "windows-x64"
+	case os == "windows" && arch == "arm64":
+		distro = "windows-arm64"
+
 	default:
 		log.Fatal(fmt.Sprintf("Unsupported OS/ARCH: %s/%s", os, arch))
 	}

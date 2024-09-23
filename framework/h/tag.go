@@ -90,6 +90,10 @@ func Raw(text string) *RawContent {
 	return NewRawContent(text)
 }
 
+func Style(text string) Ren {
+	return Tag("style", Text(text))
+}
+
 func MultiLineQuotes(text string) string {
 	return "`" + text + "`"
 }
@@ -138,6 +142,19 @@ func Input(inputType string, children ...Ren) Ren {
 		attributes: attributeMap.ToMap(),
 		children:   children,
 	}
+}
+
+func IterMap[T any](m map[string]T, mapper func(key string, value T) *Element) *Element {
+	node := &Element{
+		tag:      "",
+		children: make([]Ren, len(m)),
+	}
+	index := 0
+	for key, value := range m {
+		node.children[index] = mapper(key, value)
+		index++
+	}
+	return node
 }
 
 func List[T any](items []T, mapper func(item T, index int) *Element) *Element {

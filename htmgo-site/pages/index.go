@@ -5,5 +5,5 @@ import (
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(MarkdownPage(ctx, "md/index.md"))
+	return h.NewPage(MarkdownPage(ctx, "md/index.md", ""))
 }

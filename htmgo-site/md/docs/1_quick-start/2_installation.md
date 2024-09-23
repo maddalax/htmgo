@@ -1,11 +1,14 @@
 ## **Getting Started**
 
 
+##### **Prerequisites:**
+Go: https://go.dev/doc/install
+<br>
 
 ##### 1. **Install htmgo**
 
 ```bash
-GONOPROXY=github.com/maddalax go install github.com/maddalax/htmgo/cli/htmgo@latest
+go install github.com/maddalax/htmgo/cli/htmgo@latest
 ```
 
 tip: GONOPROXY helps because the default proxy server for how go resolves modules appears to have fairly long caching on it, so without this env variable, an old version may get installed.

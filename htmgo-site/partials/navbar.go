@@ -74,7 +74,6 @@ func NavBar(expanded bool) *h.Element {
 	)
 
 	return h.Div(
-		h.Class("mb-4"),
 		h.Id("navbar"),
 		prelease,
 		MobileNav(expanded),

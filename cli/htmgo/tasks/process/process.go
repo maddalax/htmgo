@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"syscall"
@@ -178,7 +179,10 @@ func RunMany(commands []string, flags ...RunFlag) error {
 func Run(command string, flags ...RunFlag) error {
 	parts := strings.Fields(command)
 	cmd := exec.Command(parts[0], parts[1:]...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	if runtime.GOOS != "windows" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	}
 
 	if slices.Contains(flags, Silent) {
 		cmd.Stdout = nil
