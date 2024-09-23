@@ -16,10 +16,17 @@ RUN go get github.com/maddalax/htmgo/framework@latest
 # Copy the source code into the container
 COPY . .
 
-RUN CGO_ENABLED=1 GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
+RUN CGO_ENABLED=1 GOOS=linux go build -o ./dist -a -ldflags '-linkmode external -extldflags "-static"' .
+
+# Build the Go binary for Linux
+RUN CGO_ENABLED=0 GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
+
+RUN ls
+
+RUN cd dist && ls
 
 # Stage 2: Create the smallest possible image
-FROM gcr.io/distroless/base-debian11
+FROM golang:1.23
 
 # Set the working directory inside the container
 WORKDIR /app
