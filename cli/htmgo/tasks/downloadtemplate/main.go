@@ -60,8 +60,8 @@ func DownloadTemplate(outPath string) {
 	process.SetWorkingDir(newDir)
 
 	commands := [][]string{
-		{"go", "get", "github.com/maddalax/htmgo/framework"},
-		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
+		{"go", "get", "github.com/maddalax/htmgo/framework@latest"},
+		{"go", "get", "github.com/maddalax/htmgo/framework-ui@latest"},
 		{"git", "init"},
 	}
 
