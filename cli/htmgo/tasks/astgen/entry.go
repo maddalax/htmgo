@@ -26,6 +26,13 @@ type Partial struct {
 	Import   string
 }
 
+const GeneratedDirName = "__htmgo"
+const EchoModuleName = "github.com/labstack/echo/v4"
+const ModuleName = "github.com/maddalax/htmgo/framework/h"
+
+var PackageName = fmt.Sprintf("package %s", GeneratedDirName)
+var GeneratedFileLine = fmt.Sprintf("// Package %s THIS FILE IS GENERATED. DO NOT EDIT.", GeneratedDirName)
+
 func sliceCommonPrefix(dir1, dir2 string) string {
 	// Use filepath.Clean to normalize the paths
 	dir1 = filepath.Clean(dir1)
@@ -257,10 +264,10 @@ func writePartialsFile() {
 	}
 
 	builder := NewCodeBuilder(nil)
-	builder.AppendLine(`// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.`)
-	builder.AppendLine("package __htmgo")
-	builder.AddImport("github.com/maddalax/htmgo/framework/h")
-	builder.AddImport("github.com/labstack/echo/v4")
+	builder.AppendLine(GeneratedFileLine)
+	builder.AppendLine(PackageName)
+	builder.AddImport(ModuleName)
+	builder.AddImport(EchoModuleName)
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
@@ -269,7 +276,7 @@ func writePartialsFile() {
 
 	buildGetPartialFromContext(builder, partials)
 
-	WriteFile(filepath.Join("__htmgo", "partials-generated.go"), func(content *ast.File) string {
+	WriteFile(filepath.Join(GeneratedDirName, "partials-generated.go"), func(content *ast.File) string {
 		return builder.String()
 	})
 }
@@ -296,14 +303,14 @@ func formatRoute(path string) string {
 func writePagesFile() {
 
 	builder := NewCodeBuilder(nil)
-	builder.AppendLine(`// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.`)
-	builder.AppendLine("package __htmgo")
-	builder.AddImport("github.com/labstack/echo/v4")
+	builder.AppendLine(GeneratedFileLine)
+	builder.AppendLine(PackageName)
+	builder.AddImport(EchoModuleName)
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
 
 	if len(pages) > 0 {
-		builder.AddImport("github.com/maddalax/htmgo/framework/h")
+		builder.AddImport(ModuleName)
 	}
 
 	for _, page := range pages {
@@ -340,7 +347,7 @@ func writePagesFile() {
 
 	builder.Append(builder.BuildFunction(f))
 
-	WriteFile("__htmgo/pages-generated.go", func(content *ast.File) string {
+	WriteFile(filepath.Join(GeneratedDirName, "pages-generated.go"), func(content *ast.File) string {
 		return builder.String()
 	})
 }
