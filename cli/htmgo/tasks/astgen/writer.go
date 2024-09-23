@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -15,6 +16,8 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 	currentDir := process.GetWorkingDir()
 
 	path = filepath.Join(currentDir, path)
+
+	slog.Debug("astgen.WriteFile", slog.String("path", path))
 
 	dir := filepath.Dir(path)
 
@@ -49,7 +52,7 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 		bytes, err = format.Source(bytes)
 
 		if err != nil {
-			log.Printf("Failed to format source: %v\n\n%s", err)
+			log.Printf("Failed to format source: %v\n", err.Error())
 			data := string(bytes)
 			println(data)
 			return
