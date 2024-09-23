@@ -7,6 +7,7 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -67,7 +68,7 @@ func DownloadTemplate(outPath string) {
 		cmd.Stderr = os.Stderr
 		err = cmd.Run()
 		if err != nil {
-			println("Error executing command %s\n", err.Error())
+			log.Fatalf("Error executing command %s, error: %s\n", strings.Join(command, " "), err.Error())
 			return
 		}
 	}
