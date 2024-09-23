@@ -57,7 +57,7 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 	}
 
 	// Define the file path where you want to save the buffer
-	process.Run("git add " + path)
+	process.Run("git add "+path, process.Silent)
 
 	// Save the buffer to a file
 	err = os.WriteFile(path, bytes, 0644)

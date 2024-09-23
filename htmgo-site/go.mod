@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240922154638-789b9e9c7cf2
+	github.com/maddalax/htmgo/framework v0.0.0-20240923170417-9e23e7cf2bea
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
