@@ -7,6 +7,9 @@ import (
 import "golang.org/x/sys/windows"
 
 func KillProcess(process *os.Process) error {
+	if process == nil {
+		return nil
+	}
 	return process.Kill()
 }
 

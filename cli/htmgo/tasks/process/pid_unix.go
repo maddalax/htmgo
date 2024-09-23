@@ -10,6 +10,9 @@ import (
 )
 
 func KillProcess(process *os.Process) error {
+	if process == nil {
+		return nil
+	}
 	return syscall.Kill(-process.Pid, syscall.SIGKILL)
 }
 
