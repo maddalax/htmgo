@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func DownloadTemplate(outPath string) {
@@ -36,7 +37,9 @@ func DownloadTemplate(outPath string) {
 	// Replace all non-alphabetic characters with an empty string
 	newModuleName := re.ReplaceAllString(outPath, "")
 
-	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", outPath)
+	tempOut := newModuleName + "_temp_" + time.Now().String()
+
+	install := exec.Command("git", "clone", "https://github.com/maddalax/htmgo", "--depth=1", tempOut)
 	install.Stdout = os.Stdout
 	install.Stderr = os.Stderr
 	err := install.Run()
@@ -46,16 +49,17 @@ func DownloadTemplate(outPath string) {
 		return
 	}
 
-	dirutil.DeleteAllExcept(outPath, templatePath)
-
 	newDir := filepath.Join(cwd, outPath)
 
-	dirutil.CopyDir(templatePath, newDir, func(path string, exists bool) bool {
+	dirutil.CopyDir(filepath.Join(tempOut, templatePath), newDir, func(path string, exists bool) bool {
 		return true
 	})
 
+	dirutil.DeleteDir(tempOut)
+
+	process.SetWorkingDir(newDir)
+
 	commands := [][]string{
-		{"rm", "-rf", templatePath},
 		{"go", "get", "github.com/maddalax/htmgo/framework"},
 		{"go", "get", "github.com/maddalax/htmgo/framework-ui"},
 		{"git", "init"},

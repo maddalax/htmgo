@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func HasFileFromRoot(file string) bool {
@@ -75,64 +74,6 @@ func CopyFile(src, dst string) error {
 	return nil
 }
 
-func DeleteAllExcept(path string, keepDir string) error {
-	// Get the info of the path
-	info, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
-
-	if !info.IsDir() {
-		// We only care about directories
-		return nil
-	}
-
-	// If path is the keepDir, do nothing
-	if path == keepDir {
-		return nil
-	}
-
-	// Check if keepDir is under path (path is an ancestor of keepDir)
-	relToKeepDir, err := filepath.Rel(path, keepDir)
-	if err != nil {
-		return err
-	}
-
-	if !strings.HasPrefix(relToKeepDir, "..") {
-		// keepDir is under path; recurse into subdirectories
-		entries, err := os.ReadDir(path)
-		if err != nil {
-			return err
-		}
-
-		for _, entry := range entries {
-			entryPath := filepath.Join(path, entry.Name())
-			err := DeleteAllExcept(entryPath, keepDir)
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		// Check if path is under keepDir (path is a descendant of keepDir)
-		relFromKeepDir, err := filepath.Rel(keepDir, path)
-		if err != nil {
-			return err
-		}
-
-		if !strings.HasPrefix(relFromKeepDir, "..") {
-			// path is under keepDir; do nothing
-			return nil
-		} else {
-			// path is neither keepDir nor related; delete it
-			slog.Debug("Deleting directory:", slog.String("path", path))
-			err = os.RemoveAll(path)
-			if err != nil {
-				return err
-			}
-			// Skip further traversal since the directory is deleted
-			return nil
-		}
-	}
-
-	return nil
+func DeleteDir(dir string) error {
+	return os.RemoveAll(dir)
 }
