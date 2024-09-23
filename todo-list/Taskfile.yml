@@ -3,14 +3,14 @@ version: '3'
 tasks:
   run:
     cmds:
-      - go run github.com/maddalax/htmgo/cli@latest run
+      - go run github.com/maddalax/htmgo/cli/htmgo@latest run
     silent: true
 
   build:
     cmds:
-      - go run github.com/maddalax/htmgo/cli@latest build
+      - go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
   watch:
     cmds:
-      - go run github.com/maddalax/htmgo/cli@latest watch
+      - go run github.com/maddalax/htmgo/cli/htmgo@latest watch
     silent: true

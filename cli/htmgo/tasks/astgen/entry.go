@@ -257,22 +257,19 @@ func writePartialsFile() {
 	}
 
 	builder := NewCodeBuilder(nil)
-	builder.AppendLine(`// Package partials THIS FILE IS GENERATED. DO NOT EDIT.`)
-	builder.AppendLine("package load")
+	builder.AppendLine(`// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.`)
+	builder.AppendLine("package __htmgo")
 	builder.AddImport("github.com/maddalax/htmgo/framework/h")
 	builder.AddImport("github.com/labstack/echo/v4")
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
-		if partial.Import == "partials/load" {
-			continue
-		}
 		builder.AddImport(fmt.Sprintf(`%s/%s`, moduleName, partial.Import))
 	}
 
 	buildGetPartialFromContext(builder, partials)
 
-	WriteFile(filepath.Join("partials", "load", "generated.go"), func(content *ast.File) string {
+	WriteFile(filepath.Join("__htmgo", "partials-generated.go"), func(content *ast.File) string {
 		return builder.String()
 	})
 }
@@ -299,8 +296,8 @@ func formatRoute(path string) string {
 func writePagesFile() {
 
 	builder := NewCodeBuilder(nil)
-	builder.AppendLine(`// Package pages THIS FILE IS GENERATED. DO NOT EDIT.`)
-	builder.AppendLine("package pages")
+	builder.AppendLine(`// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.`)
+	builder.AppendLine("package __htmgo")
 	builder.AddImport("github.com/labstack/echo/v4")
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
@@ -310,8 +307,11 @@ func writePagesFile() {
 	}
 
 	for _, page := range pages {
-		if page.Import != "" && page.Package != "pages" {
-			builder.AddImport(page.Import)
+		if page.Import != "" {
+			moduleName := GetModuleName()
+			builder.AddImport(
+				fmt.Sprintf(`%s/%s`, moduleName, page.Import),
+			)
 		}
 	}
 
@@ -321,9 +321,6 @@ func writePagesFile() {
 
 	for _, page := range pages {
 		call := fmt.Sprintf("%s.%s", page.Package, page.FuncName)
-		if page.Package == "pages" {
-			call = page.FuncName
-		}
 
 		body += fmt.Sprintf(`
 			f.GET("%s", func(ctx echo.Context) error {
@@ -343,7 +340,7 @@ func writePagesFile() {
 
 	builder.Append(builder.BuildFunction(f))
 
-	WriteFile("pages/generated.go", func(content *ast.File) string {
+	WriteFile("__htmgo/pages-generated.go", func(content *ast.File) string {
 		return builder.String()
 	})
 }
@@ -369,5 +366,22 @@ func GenAst(flags ...process.RunFlag) error {
 	}
 	writePartialsFile()
 	writePagesFile()
+
+	WriteFile("__htmgo/setup-generated.go", func(content *ast.File) string {
+		return `
+			// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.
+			package __htmgo
+
+			import (
+				"github.com/labstack/echo/v4"
+			)
+
+			func Register(e *echo.Echo) {
+				RegisterPartials(e)
+				RegisterPages(e)
+			}
+		`
+	})
+
 	return nil
 }

@@ -1,5 +1,5 @@
-// Package partials THIS FILE IS GENERATED. DO NOT EDIT.
-package load
+// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.
+package __htmgo
 
 import "github.com/maddalax/htmgo/framework/h"
 import "github.com/labstack/echo/v4"

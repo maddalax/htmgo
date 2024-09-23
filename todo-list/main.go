@@ -5,10 +5,9 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	_ "github.com/mattn/go-sqlite3"
+	"todolist/__htmgo"
 	"todolist/ent"
 	"todolist/infrastructure/db"
-	"todolist/pages"
-	"todolist/partials/load"
 )
 
 func main() {
@@ -23,8 +22,7 @@ func main() {
 		LiveReload:     true,
 		Register: func(e *echo.Echo) {
 			e.Static("/public", "./assets/dist")
-			load.RegisterPartials(e)
-			pages.RegisterPages(e)
+			__htmgo.Register(e)
 		},
 	})
 }

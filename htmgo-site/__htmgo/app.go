@@ -1,9 +1,22 @@
-// Package partials THIS FILE IS GENERATED. DO NOT EDIT.
-package load
+package __htmgo
 
+import (
+	"github.com/labstack/echo/v4"
+	"htmgo-site/pages"
+	"htmgo-site/partials"
+)
 import "github.com/maddalax/htmgo/framework/h"
-import "github.com/labstack/echo/v4"
-import "htmgo-site/partials"
+
+func RegisterPages(f *echo.Echo) {
+	f.GET("/docs", func(ctx echo.Context) error {
+		cc := ctx.(*h.RequestContext)
+		return h.HtmlView(ctx, pages.DocsPage(cc))
+	})
+	f.GET("/", func(ctx echo.Context) error {
+		cc := ctx.(*h.RequestContext)
+		return h.HtmlView(ctx, pages.IndexPage(cc))
+	})
+}
 
 func GetPartialFromContext(ctx echo.Context) *h.Partial {
 	path := ctx.Request().URL.Path

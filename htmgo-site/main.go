@@ -6,9 +6,9 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	_ "github.com/mattn/go-sqlite3"
+	"htmgo-site/__htmgo"
 	"htmgo-site/internal/markdown"
 	"htmgo-site/pages"
-	"htmgo-site/partials/load"
 	"io/fs"
 )
 
@@ -42,8 +42,9 @@ func main() {
 				}
 			})
 
-			load.RegisterPartials(e)
-			pages.RegisterPages(e)
+			__htmgo.RegisterPartials(e)
+			__htmgo.RegisterPages(e)
+
 			pages.RegisterMarkdown(e, "md", MarkdownAssets, func(ctx echo.Context, path string) error {
 				return pages.MarkdownHandler(ctx.(*h.RequestContext), path)
 			})
