@@ -14,7 +14,6 @@ func Build() {
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
 
-	process.RunOrExit("rm -rf ./dist")
 	process.RunOrExit("mkdir -p ./dist")
 
 	if os.Getenv("SKIP_GO_BUILD") != "1" {
