@@ -46,6 +46,9 @@ func WriteFile(path string, cb func(content *ast.File) string) {
 	}
 
 	bytes = []byte(cb(f))
+
+	slog.Debug("astgen.WriteFile", slog.String("path", path), slog.String("content", string(bytes)))
+
 	formatEnabled := true
 
 	if formatEnabled {
