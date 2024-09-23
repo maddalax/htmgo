@@ -7,6 +7,7 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"log"
 	"log/slog"
+	"path/filepath"
 	"runtime"
 )
 
@@ -90,7 +91,9 @@ func downloadTailwindCli() {
 		}, process.ExitOnError)
 	}
 
-	err := dirutil.MoveFile(fileName, "./__htmgo/tailwind")
+	err := dirutil.MoveFile(
+		filepath.Join(process.GetWorkingDir(), fileName),
+		filepath.Join(process.GetWorkingDir(), "__htmgo/tailwind"))
 
 	if err != nil {
 		log.Fatalf("Error moving file: %s\n", err.Error())
