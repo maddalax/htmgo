@@ -82,15 +82,15 @@ func downloadTailwindCli() {
 	if os == "windows" {
 		process.RunMany([]string{
 			fmt.Sprintf(`curl -LO %s`, url),
-			fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
 		}, process.ExitOnError)
 	} else {
 		process.RunMany([]string{
 			fmt.Sprintf(`curl -LO %s`, url),
 			fmt.Sprintf(`chmod +x %s`, fileName),
-			fmt.Sprintf(`mv %s ./__htmgo/tailwind`, fileName),
 		}, process.ExitOnError)
 	}
+
+	dirutil.MoveFile(fileName, "./__htmgo/tailwind")
 
 	slog.Debug("Successfully downloaded Tailwind CLI", slog.String("url", url))
 }

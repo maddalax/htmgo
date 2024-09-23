@@ -52,6 +52,21 @@ func CopyDir(srcDir, dstDir string, predicate func(path string, exists bool) boo
 	})
 }
 
+func MoveFile(src, dst string) error {
+	slog.Debug("moving file", slog.String("src", src), slog.String("dst", dst))
+	// Copy the file.
+	err := CopyFile(src, dst)
+	if err != nil {
+		return fmt.Errorf("failed to copy file: %v", err)
+	}
+	// Remove the source file.
+	err = os.Remove(src)
+	if err != nil {
+		return fmt.Errorf("failed to remove source file: %v", err)
+	}
+	return nil
+}
+
 func CopyFile(src, dst string) error {
 	slog.Debug("copying file", slog.String("src", src), slog.String("dst", dst))
 	// Open the source file for reading.
