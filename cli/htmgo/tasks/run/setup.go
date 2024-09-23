@@ -1,7 +1,6 @@
 package run
 
 import (
-	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
@@ -16,7 +15,5 @@ func Setup() {
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
 
-	if dirutil.HasFileFromRoot("ent/schema") {
-		EntGenerate()
-	}
+	EntGenerate()
 }
