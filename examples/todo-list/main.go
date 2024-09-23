@@ -33,8 +33,6 @@ func main() {
 		LiveReload:     true,
 		Register: func(e *echo.Echo) {
 			e.StaticFS("/public", sub)
-
-			e.Static("/public", "./assets/dist")
 			__htmgo.Register(e)
 		},
 	})
