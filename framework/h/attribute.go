@@ -96,7 +96,7 @@ func TriggerChildren() Ren {
 	return HxExtension("trigger-children")
 }
 
-func TriggerString(triggers ...string) *AttributeMap {
+func HxTriggerString(triggers ...string) *AttributeMap {
 	trigger := hx.NewStringTrigger(strings.Join(triggers, ", "))
 	return Attribute(hx.TriggerAttr, trigger.ToString())
 }

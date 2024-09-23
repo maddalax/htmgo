@@ -128,7 +128,7 @@ func (m *AttributeMap) Render(context *RenderContext) {
 func (l *LifeCycle) fromAttributeMap(event string, key string, value string, context *RenderContext) {
 
 	if key == hx.GetAttr || key == hx.PatchAttr || key == hx.PostAttr {
-		TriggerString(hx.ToHtmxTriggerName(event)).Render(context)
+		HxTriggerString(hx.ToHtmxTriggerName(event)).Render(context)
 	}
 
 	Attribute(key, value).Render(context)

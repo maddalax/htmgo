@@ -31,8 +31,8 @@ const (
 // TaskMutation represents an operation that mutates the Task nodes in the graph.
 type TaskMutation struct {
 	config
-	op            Op
-	typ           string
+	op         Op
+	typ        string
 	id            *uuid.UUID
 	name          *string
 	created_at    *time.Time
@@ -41,9 +41,9 @@ type TaskMutation struct {
 	tags          *[]string
 	appendtags    []string
 	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Task, error)
-	predicates    []predicate.Task
+	done       bool
+	oldValue   func(context.Context) (*Task, error)
+	predicates []predicate.Task
 }
 
 var _ ent.Mutation = (*TaskMutation)(nil)

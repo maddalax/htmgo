@@ -3,7 +3,7 @@ package h
 import "github.com/maddalax/htmgo/framework/hx"
 
 func Get(path string, trigger ...string) *AttributeMap {
-	return AttributeList(Attribute(hx.GetAttr, path), TriggerString(trigger...))
+	return AttributeList(Attribute(hx.GetAttr, path), HxTriggerString(trigger...))
 }
 
 func GetPartial(partial PartialFunc, trigger ...string) *AttributeMap {
@@ -27,7 +27,7 @@ func PostPartialWithQs(partial PartialFunc, qs *Qs, trigger ...string) *Attribut
 }
 
 func Post(url string, trigger ...string) *AttributeMap {
-	return AttributeList(Attribute(hx.PostAttr, url), TriggerString(trigger...))
+	return AttributeList(Attribute(hx.PostAttr, url), HxTriggerString(trigger...))
 }
 
 func PostWithQs(url string, qs *Qs, trigger string) *AttributeMap {
