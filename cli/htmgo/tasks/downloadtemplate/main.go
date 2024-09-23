@@ -8,6 +8,7 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,7 +40,7 @@ func DownloadTemplate(outPath string) {
 
 	tempOut := newModuleName + "_temp_" + strconv.FormatInt(time.Now().Unix(), 10)
 
-	fmt.Printf("Downloading template %s\n", templateName)
+	fmt.Printf("Downloading template %s\n to %s", templateName, tempOut)
 
 	err := process.Run("git clone https://github.com/maddalax/htmgo --depth=1 "+tempOut, process.ExitOnError)
 
@@ -50,6 +51,8 @@ func DownloadTemplate(outPath string) {
 
 	newDir := filepath.Join(cwd, outPath)
 
+	slog.Debug("Copying template files to", slog.String("dir", newDir))
+
 	dirutil.CopyDir(filepath.Join(tempOut, templatePath), newDir, func(path string, exists bool) bool {
 		return true
 	})
@@ -57,6 +60,8 @@ func DownloadTemplate(outPath string) {
 	dirutil.DeleteDir(tempOut)
 
 	process.SetWorkingDir(newDir)
+
+	slog.Debug("current working dir", slog.String("cwd", process.GetWorkingDir()))
 
 	commands := [][]string{
 		{"go", "get", "github.com/maddalax/htmgo/framework@latest"},
