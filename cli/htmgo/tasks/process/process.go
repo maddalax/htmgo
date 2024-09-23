@@ -1,16 +1,13 @@
 package process
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -84,8 +81,7 @@ func KillAll(skipFlag ...RunFlag) {
 		if shouldSkipKilling(command.flags, skipFlag) {
 			continue
 		}
-		pid := command.cmd.Process.Pid
-		err := syscall.Kill(-pid, syscall.SIGKILL)
+		err := KillProcess(command.cmd.Process)
 		if err != nil {
 			continue
 		}
@@ -100,12 +96,9 @@ func KillAll(skipFlag ...RunFlag) {
 			if shouldSkipKilling(c.flags, skipFlag) {
 				continue
 			}
-			exists, err := PidExists(int32(c.cmd.Process.Pid))
-			if err != nil {
-				finished = false
-			}
+			exists := PidExists(int32(c.cmd.Process.Pid))
 			if exists {
-				syscall.Kill(-c.cmd.Process.Pid, syscall.SIGKILL)
+				KillProcess(c.cmd.Process)
 				finished = false
 			}
 		}
@@ -120,35 +113,6 @@ func KillAll(skipFlag ...RunFlag) {
 
 	commands = make([]CmdWithFlags, 0)
 	slog.Debug("all processes killed\n")
-}
-
-func PidExists(pid int32) (bool, error) {
-	if pid <= 0 {
-		return false, fmt.Errorf("invalid pid %v", pid)
-	}
-	proc, err := os.FindProcess(int(pid))
-	if err != nil {
-		return false, err
-	}
-	err = proc.Signal(syscall.Signal(0))
-	if err == nil {
-		return true, nil
-	}
-	if err.Error() == "os: process already finished" {
-		return false, nil
-	}
-	var errno syscall.Errno
-	ok := errors.As(err, &errno)
-	if !ok {
-		return false, err
-	}
-	switch errno {
-	case syscall.ESRCH:
-		return false, nil
-	case syscall.EPERM:
-		return true, nil
-	}
-	return false, err
 }
 
 func RunOrExit(command string) {
@@ -180,9 +144,7 @@ func Run(command string, flags ...RunFlag) error {
 	parts := strings.Fields(command)
 	cmd := exec.Command(parts[0], parts[1:]...)
 
-	if runtime.GOOS != "windows" {
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	}
+	PrepareCommand(cmd)
 
 	if slices.Contains(flags, Silent) {
 		cmd.Stdout = nil
