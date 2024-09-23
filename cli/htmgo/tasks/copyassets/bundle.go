@@ -52,17 +52,17 @@ func CopyAssets() {
 		}
 		assetDir = fmt.Sprintf("%s/go/pkg/mod/%s@%s/assets", dirname, modulePath, version)
 	} else {
-		assetDir = fmt.Sprintf("%s/assets", modulePath)
+		assetDir = filepath.Join(modulePath, "assets")
 	}
 
-	assetDistDir := fmt.Sprintf("%s/dist", assetDir)
-	assetCssDir := fmt.Sprintf("%s/css", assetDir)
+	assetDistDir := filepath.Join(assetDir, "dist")
+	assetCssDir := filepath.Join(assetDir, "css")
 
 	cwd := process.GetWorkingDir()
 
-	destDir := fmt.Sprintf("%s/assets", cwd)
-	destDirDist := fmt.Sprintf("%s/dist", destDir)
-	destDirCss := fmt.Sprintf("%s/css", destDir)
+	destDir := filepath.Join(cwd, "assets")
+	destDirDist := filepath.Join(destDir, "dist")
+	destDirCss := filepath.Join(destDir, "css")
 
 	err := dirutil.CopyDir(assetDistDir, destDirDist, func(path string, exists bool) bool {
 		return true
