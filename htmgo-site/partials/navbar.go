@@ -21,17 +21,21 @@ var navItems = []NavItem{
 	{Name: "Examples", Url: "/examples"},
 }
 
-func Star() *h.RawContent {
-	return h.Raw(`
+func Star() *h.Element {
+	return h.Div(
+		h.Id("github-star"),
+		h.Class("min-w-[100px]"),
+		h.Raw(`
 		<a 
-		class="github-button hidden" 
+		class="github-button hidden min-w-[100px]" 
 		href="https://github.com/maddalax/htmgo" 
 		data-color-scheme="no-preference: light; light: light; dark: dark;" 
 		data-icon="octicon-star" 
 		data-size="large" 
 		data-show-count="true"
 		aria-label="Star maddalax/htmgo on GitHub">Star</a>
-	`)
+	`),
+	)
 }
 
 func NavBar(expanded bool) *h.Element {
@@ -49,7 +53,6 @@ func NavBar(expanded bool) *h.Element {
 				h.Div(
 					h.Class("flex items-center"),
 					h.A(
-						h.Boost(),
 						h.Class("text-2xl"),
 						h.Href("/"),
 						h.Text("htmgo"),
@@ -60,7 +63,6 @@ func NavBar(expanded bool) *h.Element {
 						return h.Div(
 							h.Class("flex items-center"),
 							h.A(
-								h.Boost(),
 								h.Class(""),
 								h.Href(item.Url),
 								h.Text(item.Name),

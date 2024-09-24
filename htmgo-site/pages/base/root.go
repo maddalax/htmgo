@@ -16,7 +16,7 @@ func RootPage(children ...h.Ren) *h.Element {
 			h.LinkWithVersion("/public/main.css", "stylesheet", Version),
 			h.ScriptWithVersion("/public/htmgo.js", Version),
 			h.Raw(`
-				<script async defer src="https://buttons.github.io/buttons.js"></script>
+				<script src="https://buttons.github.io/buttons.js"></script>
 			`),
 			h.Style(`
 				html {
