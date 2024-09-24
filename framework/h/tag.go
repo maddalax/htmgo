@@ -63,6 +63,18 @@ func Meta(name string, content string) Ren {
 	}
 }
 
+func LinkWithVersion(href string, rel string, version string) Ren {
+	attributeMap := AttributeMap{
+		"href": href + "?v=" + version,
+		"rel":  rel,
+	}
+	return &Element{
+		tag:        "link",
+		attributes: attributeMap.ToMap(),
+		children:   make([]Ren, 0),
+	}
+}
+
 func Link(href string, rel string) Ren {
 	attributeMap := AttributeMap{
 		"href": href,
@@ -70,6 +82,17 @@ func Link(href string, rel string) Ren {
 	}
 	return &Element{
 		tag:        "link",
+		attributes: attributeMap.ToMap(),
+		children:   make([]Ren, 0),
+	}
+}
+
+func ScriptWithVersion(url string, version string) Ren {
+	attributeMap := AttributeMap{
+		"src": url + "?v=" + version,
+	}
+	return &Element{
+		tag:        "script",
 		attributes: attributeMap.ToMap(),
 		children:   make([]Ren, 0),
 	}

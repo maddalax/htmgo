@@ -1,17 +1,20 @@
 package base
 
 import (
+	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
 	"htmgo-site/partials"
 )
+
+var Version = uuid.NewString()[0:6]
 
 func RootPage(children ...h.Ren) *h.Element {
 	return h.Html(
 		h.HxExtension(h.BaseExtensions()),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
-			h.Link("/public/main.css", "stylesheet"),
-			h.Script("/public/htmgo.js"),
+			h.LinkWithVersion("/public/main.css", "stylesheet", Version),
+			h.ScriptWithVersion("/public/htmgo.js", Version),
 			h.Raw(`
 				<script async defer src="https://buttons.github.io/buttons.js"></script>
 			`),
