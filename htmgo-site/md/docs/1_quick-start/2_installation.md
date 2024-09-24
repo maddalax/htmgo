@@ -11,8 +11,6 @@ Go: https://go.dev/doc/install
 go install github.com/maddalax/htmgo/cli/htmgo@latest
 ```
 
-tip: GONOPROXY helps because the default proxy server for how go resolves modules appears to have fairly long caching on it, so without this env variable, an old version may get installed.
-
 
 
 **2. Create new project**
@@ -24,7 +22,7 @@ htmgo template
 
 this will ask you for a new app name, and it will clone our starter template to a new directory it creates with your app name.
 
-
+<br>
 
 **3. Running the dev server**
 htmgo has built in live reload on the dev server, to use this, run this command in the root of your project
@@ -43,9 +41,9 @@ htmgo run
 
 ##### **4. Core concepts**
 
-View the [core concepts](/docs#concepts) of how to use htmgo, such as adding pages, using partials, routing, etc.
+View the [core concepts](/docs#core-concepts-pages) of how to use htmgo, such as adding pages, using partials, routing, etc.
 
-
+<br>
 
 **5. Building for production**
 htmgo cli can be used to build the application for production as a single binary
@@ -59,8 +57,3 @@ it will be output to **./dist**
 
 
 <br>
-
-## **Troubleshooting:**
-
-**command not found: htmgo**
-ensure you installed htmgo above and ensure GOPATH is set in your shell

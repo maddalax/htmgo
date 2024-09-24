@@ -30,7 +30,7 @@ func MarkdownContent(ctx *h.RequestContext, path string, id string) *h.Element {
 	return h.Div(
 		h.If(id != "", h.Id(id)),
 		h.Article(
-			h.Class("prose max-w-[95vw] md:max-w-2xl px-4 prose-code:text-black"),
+			h.Class("prose max-w-[95vw] md:max-w-3xl px-4 prose-code:text-black prose-p:my-1"),
 			h.Raw(renderer.RenderFile(path, embeddedMd)),
 		),
 	)

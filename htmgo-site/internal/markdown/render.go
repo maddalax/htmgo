@@ -43,8 +43,6 @@ func RenderMarkdown(reader io.Reader) bytes.Buffer {
 			parser.WithAutoHeadingID(),
 		),
 		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithXHTML(),
 			html.WithUnsafe(),
 		),
 		goldmark.WithExtensions(

@@ -17,6 +17,12 @@ func formatPart(part string) string {
 	return part
 }
 
+func CreateAnchor(parts []string) string {
+	return strings.Join(h.Map(parts, func(part string) string {
+		return strings.ReplaceAll(strings.ToLower(formatPart(part)), " ", "-")
+	}), "-")
+}
+
 func partsToName(parts []string) string {
 	builder := strings.Builder{}
 	for i, part := range parts {
@@ -51,7 +57,7 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 	grouped := groupByFirstPart(pages)
 
 	return h.Div(
-		h.Class("px-3 py-2 pr-6 min-h-[(calc(100%))] min-h-screen bg-neutral-50 border-r border-r-slate-300"),
+		h.Class("px-3 py-2 pr-6 md:min-h-[(calc(100%))] md:min-h-screen bg-neutral-50 border-r border-r-slate-300"),
 		h.Div(
 			h.H4(h.Text("Contents"), h.Class("mt-4 text-slate-900 font-bold mb-3")),
 			h.Div(
@@ -62,7 +68,8 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 						h.Div(
 							h.Class("pl-4 flex flex-col"),
 							h.List(entry.Value, func(page *dirwalk.Page, index int) *h.Element {
-								anchor := strings.Join(page.Parts, "-")
+								anchor := CreateAnchor(page.Parts)
+								println(anchor)
 								return h.A(
 									h.Href("#"+anchor),
 									h.Text(partsToName(page.Parts)),

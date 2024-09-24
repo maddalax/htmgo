@@ -22,7 +22,7 @@ func RootPage(children ...h.Ren) *h.Element {
 			`),
 		),
 		h.Body(
-			h.Class("bg-neutral-50 min-h-screen overflow-x-hidden"),
+			h.Class("bg-stone-50 min-h-screen overflow-x-hidden"),
 			partials.NavBar(false),
 			h.Fragment(children...),
 		),
