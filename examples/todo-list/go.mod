@@ -4,8 +4,9 @@ go 1.23.0
 
 require (
 	entgo.io/ent v0.14.1
+	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240923034654-e82ed0497052
+	github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510
 	github.com/mattn/go-sqlite3 v1.14.16
 )
 
@@ -15,7 +16,6 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

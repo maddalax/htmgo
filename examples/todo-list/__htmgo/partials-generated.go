@@ -3,23 +3,10 @@ package __htmgo
 
 import "github.com/maddalax/htmgo/framework/h"
 import "github.com/labstack/echo/v4"
-import "todolist/partials"
 import "todolist/partials/task"
 
 func GetPartialFromContext(ctx echo.Context) *h.Partial {
 	path := ctx.Request().URL.Path
-	if path == "SamplePartial" || path == "/todolist/partials.SamplePartial" {
-		cc := ctx.(*h.RequestContext)
-		return partials.SamplePartial(cc)
-	}
-	if path == "NewPartial" || path == "/todolist/partials.NewPartial" {
-		cc := ctx.(*h.RequestContext)
-		return partials.NewPartial(cc)
-	}
-	if path == "NewPartial2" || path == "/todolist/partials.NewPartial2" {
-		cc := ctx.(*h.RequestContext)
-		return partials.NewPartial2(cc)
-	}
 	if path == "UpdateName" || path == "/todolist/partials/task.UpdateName" {
 		cc := ctx.(*h.RequestContext)
 		return task.UpdateName(cc)

@@ -3,6 +3,7 @@ package run
 import (
 	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"runtime"
 )
 
 func EntNewSchema(name string) {
@@ -11,6 +12,10 @@ func EntNewSchema(name string) {
 
 func EntGenerate() {
 	if dirutil.HasFileFromRoot("ent/schema") {
-		process.RunOrExit("GOWORK=off go generate ./ent")
+		if runtime.GOOS == "windows" {
+			process.RunOrExit("go generate ./ent")
+		} else {
+			process.RunOrExit("bash -c GOWORK=off go generate ./ent")
+		}
 	}
 }
