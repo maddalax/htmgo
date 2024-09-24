@@ -38,4 +38,4 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 
 **get started:**
 
-View documentation on [htmgo.dev](https://htmgo.dev/).
+View documentation on [htmgo.dev](https://htmgo.dev/docs).
