@@ -54,7 +54,7 @@ func shouldSkipKilling(flags []RunFlag, skipFlag []RunFlag) bool {
 func KillAll(skipFlag ...RunFlag) {
 
 	tries := 0
-	removeIndexes := make([]int, 0)
+	updatedCommands := make([]CmdWithFlags, len(commands))
 	for {
 		tries++
 		allFinished := true
@@ -66,12 +66,13 @@ func KillAll(skipFlag ...RunFlag) {
 					args := strings.Join(cmd.cmd.Args, " ")
 					slog.Debug("process is not running after 50 tries, breaking.", slog.String("command", args))
 					allFinished = true
-					removeIndexes = append(removeIndexes, i)
 					break
 				} else {
 					time.Sleep(time.Millisecond * 50)
 					continue
 				}
+			} else {
+				updatedCommands[i] = cmd
 			}
 		}
 		if allFinished {
@@ -79,8 +80,11 @@ func KillAll(skipFlag ...RunFlag) {
 		}
 	}
 
-	for i := len(removeIndexes) - 1; i >= 0; i-- {
-		commands = append(commands[:removeIndexes[i]], commands[removeIndexes[i]+1:]...)
+	commands = make([]CmdWithFlags, 0)
+	for _, command := range updatedCommands {
+		if command.cmd != nil && command.cmd.Process != nil {
+			commands = append(commands, command)
+		}
 	}
 
 	for _, command := range commands {

@@ -42,8 +42,7 @@ func main() {
 				}
 			})
 
-			__htmgo.RegisterPartials(e)
-			__htmgo.RegisterPages(e)
+			__htmgo.Register(e)
 
 			pages.RegisterMarkdown(e, "md", MarkdownAssets, func(ctx echo.Context, path string) error {
 				return pages.MarkdownHandler(ctx.(*h.RequestContext), path, "")

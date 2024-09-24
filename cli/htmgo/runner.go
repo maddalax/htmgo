@@ -65,7 +65,7 @@ func main() {
 			css.GenerateCssWatch(process.ExitOnError)
 		}()
 		go func() {
-			_ = run.Server(process.ExitOnError)
+			_ = run.Server()
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {

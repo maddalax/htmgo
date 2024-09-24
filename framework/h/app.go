@@ -7,6 +7,8 @@ import (
 	"github.com/maddalax/htmgo/framework/internal/process"
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
+	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -94,7 +96,13 @@ func (a App) start() {
 		// and try again
 		if IsDevelopment() && IsWatchMode() {
 			slog.Info("Port already in use, trying to kill the process and start again")
-			process.RunOrExit(fmt.Sprintf("kill -9 $(lsof -t -i%s)", port))
+			if runtime.GOOS == "windows" {
+				cmd := exec.Command("cmd", "/C", fmt.Sprintf(`for /F "tokens=5" %%i in ('netstat -aon ^| findstr :%s') do taskkill /F /PID %%i`, port))
+				cmd.Run()
+			} else {
+				process.RunOrExit(fmt.Sprintf("kill -9 $(lsof -t -i%s)", port))
+			}
+
 			time.Sleep(time.Millisecond * 50)
 			err = a.Echo.Start(port)
 			if err != nil {

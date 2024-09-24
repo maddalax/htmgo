@@ -102,7 +102,7 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 										if selectorExpr.Sel.Name == "Partial" {
 											p := Partial{
 												Package:  node.Name.Name,
-												Import:   sliceCommonPrefix(cwd, filepath.Dir(path)),
+												Import:   sliceCommonPrefix(cwd, strings.ReplaceAll(filepath.Dir(path), `\`, `/`)),
 												FuncName: funcDecl.Name.Name,
 											}
 											if predicate(p) {
@@ -168,7 +168,7 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 										if selectorExpr.Sel.Name == "Page" {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
-												Import:   filepath.Dir(path),
+												Import:   strings.ReplaceAll(filepath.Dir(path), `\`, `/`),
 												Path:     path,
 												FuncName: funcDecl.Name.Name,
 											})
@@ -285,9 +285,11 @@ func formatRoute(path string) string {
 	path = strings.TrimSuffix(path, "index.go")
 	path = strings.TrimSuffix(path, ".go")
 	path = strings.TrimPrefix(path, "pages/")
+	path = strings.TrimPrefix(path, "pages\\")
 	path = strings.ReplaceAll(path, "$", ":")
 	path = strings.ReplaceAll(path, "_", "/")
 	path = strings.ReplaceAll(path, ".", "/")
+	path = strings.ReplaceAll(path, "\\", "/")
 	if path == "" {
 		return "/"
 	}
