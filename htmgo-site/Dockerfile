@@ -4,6 +4,7 @@ FROM golang:1.23-alpine AS builder
 RUN apk update
 RUN apk add git
 RUN apk add curl
+RUN apk add nodejs npm
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -20,6 +21,8 @@ COPY . .
 # Always download the latest version of the framework
 RUN go get github.com/maddalax/htmgo/framework@latest
 RUN go mod tidy
+
+RUN npm install
 
 # Build the Go binary for Linux
 RUN LOG_LEVEL=debug GOPRIVATE=github.com/maddalax GOPROXY=direct go run github.com/maddalax/htmgo/cli/htmgo@latest build
