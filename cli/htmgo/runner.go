@@ -55,15 +55,18 @@ func main() {
 	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
 
 	if taskName == "watch" {
+		fmt.Printf("Running in watch mode\n")
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
+		fmt.Printf("Starting processes...")
 		copyassets.CopyAssets()
 		astgen.GenAst(process.ExitOnError)
-		css.GenerateCss(process.ExitOnError, process.Silent)
+		css.GenerateCss(process.ExitOnError)
 		run.EntGenerate()
 		go func() {
 			css.GenerateCssWatch(process.ExitOnError)
 		}()
+		fmt.Printf("Starting server...\n")
 		go func() {
 			_ = run.Server()
 		}()

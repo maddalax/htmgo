@@ -90,22 +90,18 @@ func downloadTailwindCli() {
 	}
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
 	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
-	if os == "windows" {
-		process.RunMany([]string{
-			fmt.Sprintf(`curl -LO %s`, url),
-		}, process.ExitOnError)
-	} else {
-		process.RunMany([]string{
-			fmt.Sprintf(`curl -LO %s`, url),
-			fmt.Sprintf(`chmod +x %s`, fileName),
-		}, process.ExitOnError)
-	}
+	process.Run(fmt.Sprintf(`curl -LO %s`, url), process.ExitOnError)
 
 	outputFileName := GetTailwindExecutableName()
+	newPath := filepath.Join(process.GetWorkingDir(), outputFileName)
 
 	err := dirutil.MoveFile(
 		filepath.Join(process.GetWorkingDir(), fileName),
-		filepath.Join(process.GetWorkingDir(), outputFileName))
+		newPath)
+
+	if os != "windows" {
+		err = process.Run(fmt.Sprintf(`chmod +x %s`, newPath), process.ExitOnError)
+	}
 
 	if err != nil {
 		log.Fatalf("Error moving file: %s\n", err.Error())
