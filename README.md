@@ -1,5 +1,5 @@
 > [!WARNING]
-> This is a prerelease version and generally should not be used at this time. Watch on github for the stable release!
+> htmgo is in alpha release. Please report any issues on GitHub.
 
 ## **htmgo**
 
@@ -37,7 +37,5 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 6. custom [htmx extensions](https://github.com/maddalax/htmgo/tree/b610aefa36e648b98a13823a6f8d87566120cfcc/framework/assets/js/htmxextensions) to reduce boilerplate with common tasks
 
 **get started:**
-> [!WARNING]
-> This is a prerelease version and generally should not be used at this time. Watch on github for the stable release!
 
 View documentation on [htmgo.dev](https://htmgo.dev/).

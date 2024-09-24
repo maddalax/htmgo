@@ -67,11 +67,12 @@ func CompleteAllIcon(list []*ent.Task) *h.Element {
 		return item.CompletedAt == nil
 	}))
 
-	return h.Div(
-		h.ClassX("absolute top-0 left-0 p-4 rotate-90 text-2xl cursor-pointer", map[string]bool{
-			"text-slate-400": notCompletedCount > 0,
-		}), h.Text("❯"),
-		h.PostPartialWithQs(CompleteAll, h.NewQs("complete", h.Ternary(notCompletedCount > 0, "true", "false"))),
+	return h.Button(
+		h.TextF("Complete %s tasks", notCompletedCount),
+		h.PostPartialWithQs(CompleteAll,
+			h.NewQs("complete",
+				h.Ternary(notCompletedCount > 0, "true", "false"),
+			)),
 	)
 }
 
@@ -268,12 +269,10 @@ func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 
 func CompleteAll(ctx *h.RequestContext) *h.Partial {
 	service := tasks.NewService(ctx.ServiceLocator())
-
 	service.SetAllCompleted(ctx.QueryParam("complete") == "true")
-
-	list, _ := service.List()
-
-	return h.NewPartial(h.OobSwap(ctx, CardBody(list, getActiveTab(ctx))))
+	return h.SwapPartial(ctx,
+		Card(ctx),
+	)
 }
 
 func ClearCompleted(ctx *h.RequestContext) *h.Partial {

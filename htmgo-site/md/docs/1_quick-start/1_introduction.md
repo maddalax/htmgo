@@ -28,7 +28,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 }
 ```
 
-**[This site](https://github.com/maddalax/htmgo/tree/master/htmgo-site) was written with htmgo!**
+**[The site you are reading now](https://github.com/maddalax/htmgo/tree/master/htmgo-site) was written with htmgo!**
 
 <br>
 

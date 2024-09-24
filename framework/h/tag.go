@@ -181,6 +181,18 @@ func IterMap[T any](m map[string]T, mapper func(key string, value T) *Element) *
 }
 
 func List[T any](items []T, mapper func(item T, index int) *Element) *Element {
+
+	values := map[string]string{
+		"key": "value",
+	}
+
+	IterMap(values, func(key string, value string) *Element {
+		return Div(
+			Text(key),
+			Text(value),
+		)
+	})
+
 	node := &Element{
 		tag:      "",
 		children: make([]Ren, len(items)),

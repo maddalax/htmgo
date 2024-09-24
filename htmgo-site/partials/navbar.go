@@ -39,8 +39,10 @@ func Star() *h.Element {
 }
 
 func NavBar(expanded bool) *h.Element {
-	prelease := h.Div(h.Class("bg-yellow-200 text-yellow-800 text-center p-2"),
-		h.Text("This is a prerelease version and generally should not be used at this time. Watch on github for the stable release!"),
+	prelease := h.A(h.Class("bg-yellow-200 text-yellow-800 text-center p-2 flex items-center justify-center"),
+		h.Href("https://github.com/maddalax/htmgo/issues"),
+		h.Attribute("target", "_blank"),
+		h.Text("htmgo is in alpha release. Please report any issues on GitHub."),
 	)
 
 	desktopNav := h.Nav(

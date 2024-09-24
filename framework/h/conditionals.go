@@ -49,3 +49,10 @@ func ClassIf(condition bool, value string) Ren {
 	}
 	return Empty()
 }
+
+func AttributeIf(condition bool, name string, value string) Ren {
+	if condition {
+		return Attribute(name, value)
+	}
+	return Empty()
+}

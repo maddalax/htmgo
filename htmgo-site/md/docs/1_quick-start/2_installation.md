@@ -2,7 +2,11 @@
 
 
 ##### **Prerequisites:**
-Go: https://go.dev/doc/install
+1. Go: https://go.dev/doc/install
+2. Familiarity with https://htmx.org and html/hypermedia
+   1. If you have not read the htmx docs, please do so before continuting, a lot of concepts below will be much more clear after.
+
+
 <br>
 
 ##### 1. **Install htmgo**

@@ -51,6 +51,11 @@ func SwapManyPartialWithHeaders(ctx *RequestContext, headers *Headers, swaps ...
 	)
 }
 
+func SwapPartial(ctx *RequestContext, swap *Element) *Partial {
+	return NewPartial(
+		SwapMany(ctx, swap))
+}
+
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {
 	return NewPartial(
 		SwapMany(ctx, swaps...),
@@ -63,7 +68,7 @@ func SwapManyXPartial(ctx *RequestContext, swaps ...SwapArg) *Partial {
 	)
 }
 
-func GetPartialPath(partial func(ctx *RequestContext) *Partial) string {
+func GetPartialPath(partial PartialFunc) string {
 	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }
 
