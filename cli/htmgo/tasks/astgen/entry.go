@@ -292,12 +292,12 @@ func formatRoute(path string) string {
 		return "/"
 	}
 	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
+		path = filepath.Join("/", path)
 	}
 	if strings.HasSuffix(path, "/") {
-		return path[:len(path)-1]
+		return strings.ReplaceAll(path[:len(path)-1], `\`, "/")
 	}
-	return path
+	return strings.ReplaceAll(filepath.Clean(path), `\`, "/")
 }
 
 func writePagesFile() {
