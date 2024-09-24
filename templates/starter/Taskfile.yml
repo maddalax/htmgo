@@ -10,6 +10,10 @@ tasks:
     cmds:
       - go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
+  docker:
+    cmds:
+      - docker build .
+
   watch:
     cmds:
       - go run github.com/maddalax/htmgo/cli/htmgo@latest watch
