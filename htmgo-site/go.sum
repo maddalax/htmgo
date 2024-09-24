@@ -14,12 +14,16 @@ github.com/labstack/echo/v4 v4.12.0 h1:IKpw49IMryVB2p1a4dzwlhP1O2Tf2E0Ir/450lH+k
 github.com/labstack/echo/v4 v4.12.0/go.mod h1:UP9Cr2DJXbOK3Kr9ONYzNowSh7HP0aG0ShAyycHSJvM=
 github.com/labstack/gommon v0.4.2 h1:F8qTUNXgG1+6WQmqoUWnz8WiEU60mXVVw0P4ht1WRA0=
 github.com/labstack/gommon v0.4.2/go.mod h1:QlUFxVM+SNXhDL/Z7YhocGIBYOiwB0mXm1+1bAPHPyU=
+github.com/maddalax/htmgo v0.0.1-alpha h1:xT1nMFneyNR1VDYrCYDBk/JQEt3PJ7+hGymLclBvy80=
+github.com/maddalax/htmgo v0.0.1-alpha/go.mod h1:I7jCNNdzGH0+0BqrY9U+h72/dzY1KB0T8zAYl8+bedI=
 github.com/maddalax/htmgo/framework v0.0.0-20240923170417-9e23e7cf2bea h1:TcZtFXyrJ86nPK6YBeOtkzjYbFMxiPNDJzvmaKRfB/c=
 github.com/maddalax/htmgo/framework v0.0.0-20240923170417-9e23e7cf2bea/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/maddalax/htmgo/framework v0.0.0-20240924173916-2b8ba6e1aa58 h1:xvBCxG0r2XJHPIb5q994lbZJVPxIOxCRsxoFj5mtlO4=
 github.com/maddalax/htmgo/framework v0.0.0-20240924173916-2b8ba6e1aa58/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510 h1:Gl9QRbIr008Qgvcsnsnkn1Q7Fusw3Hn6dPEbiV8M8wk=
 github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
+github.com/maddalax/htmgo/framework v0.0.0-20240924201008-83760397d146 h1:bPiww6JmlY0o157e1upjRDo1MAxzwjmxm1hjuswHym8=
+github.com/maddalax/htmgo/framework v0.0.0-20240924201008-83760397d146/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
