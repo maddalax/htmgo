@@ -24,7 +24,7 @@ var navItems = []NavItem{
 func Star() *h.RawContent {
 	return h.Raw(`
 		<a 
-		class="github-button" 
+		class="github-button hidden" 
 		href="https://github.com/maddalax/htmgo" 
 		data-color-scheme="no-preference: light; light: light; dark: dark;" 
 		data-icon="octicon-star" 
@@ -43,7 +43,7 @@ func NavBar(expanded bool) *h.Element {
 		h.Script("https://buttons.github.io/buttons.js"),
 		h.Class("hidden sm:block bg-neutral-100 border border-b-slate-300 p-4 md:p-3"),
 		h.Div(
-			h.Class("max-w-[95%] md:max-w-prose mx-auto"),
+			h.Class("max-w-[95%] md:max-w-3xl px-4 mx-auto"),
 			h.Div(
 				h.Class("flex justify-between items-center"),
 				h.Div(
@@ -67,7 +67,10 @@ func NavBar(expanded bool) *h.Element {
 							),
 						)
 					}),
-					h.Div(h.Class("ml-2 hidden md:block"), Star()),
+					h.Div(
+						h.Class("ml-2 hidden md:block min-w-[99px]"),
+						Star(),
+					),
 				),
 			),
 		),
