@@ -6,12 +6,6 @@ github.com/labstack/echo/v4 v4.12.0 h1:IKpw49IMryVB2p1a4dzwlhP1O2Tf2E0Ir/450lH+k
 github.com/labstack/echo/v4 v4.12.0/go.mod h1:UP9Cr2DJXbOK3Kr9ONYzNowSh7HP0aG0ShAyycHSJvM=
 github.com/labstack/gommon v0.4.2 h1:F8qTUNXgG1+6WQmqoUWnz8WiEU60mXVVw0P4ht1WRA0=
 github.com/labstack/gommon v0.4.2/go.mod h1:QlUFxVM+SNXhDL/Z7YhocGIBYOiwB0mXm1+1bAPHPyU=
-github.com/maddalax/htmgo/framework v0.0.0-20240923041212-939e80968f38 h1:iafqe7AZQe/eoJe9ETZtvWsHCGLMxPIjpAM5+O58u54=
-github.com/maddalax/htmgo/framework v0.0.0-20240923041212-939e80968f38/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
-github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510 h1:Gl9QRbIr008Qgvcsnsnkn1Q7Fusw3Hn6dPEbiV8M8wk=
-github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
-github.com/maddalax/htmgo/framework v0.0.0-20240925034103-16736e34eb9c h1:3ubRmGOGUItHhDYIct3B431f+igTBUWqj6gXiAowC4U=
-github.com/maddalax/htmgo/framework v0.0.0-20240925034103-16736e34eb9c/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/maddalax/htmgo/framework v0.0.0-20240925165909-2b970ea49a5d h1:I//B7/DdrAYrC8K/uxwmMG0xgjGB1CI9YLN8T05flf0=
 github.com/maddalax/htmgo/framework v0.0.0-20240925165909-2b970ea49a5d/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
@@ -19,8 +13,6 @@ github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovk
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
-github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
-github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
