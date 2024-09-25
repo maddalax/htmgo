@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240924182609-b2c6b5207510
+	github.com/maddalax/htmgo/framework v0.0.0-20240925034103-16736e34eb9c
 	github.com/mattn/go-sqlite3 v1.14.16
 )
 
