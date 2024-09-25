@@ -8,7 +8,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"htmgo-site/__htmgo"
 	"htmgo-site/internal/markdown"
-	"htmgo-site/pages"
 	"io/fs"
 )
 
@@ -43,10 +42,6 @@ func main() {
 			})
 
 			__htmgo.Register(e)
-
-			pages.RegisterMarkdown(e, "md", MarkdownAssets, func(ctx echo.Context, path string) error {
-				return pages.MarkdownHandler(ctx.(*h.RequestContext), path, "")
-			})
 		},
 	})
 }

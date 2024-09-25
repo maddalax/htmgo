@@ -13,6 +13,10 @@ func RootPage(children ...h.Ren) *h.Element {
 		h.HxExtension(h.BaseExtensions()),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
+			h.Meta("og:title", "htmgo"),
+			h.Meta("og:url", "https://htmgo.dev"),
+			h.Link("canonical", "https://htmgo.dev"),
+			h.Meta("og:description", "build simple and scalable systems with go + htmx"),
 			h.LinkWithVersion("/public/main.css", "stylesheet", Version),
 			h.ScriptWithVersion("/public/htmgo.js", Version),
 			h.Raw(`
