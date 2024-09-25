@@ -48,3 +48,19 @@ jobs:
             exit 1
           fi
         shell: bash
+
+
+      # Step 7: Start the server
+      - name: Start myapp server
+        run: |
+         nohup ./myapp/dist/myapp &
+        working-directory: ./myapp
+
+      # Step 8: Wait for server to start
+      - name: Wait for server startup
+        run: sleep 5
+
+      # Step 9: Send curl request to verify the server is running
+      - name: Test server with curl
+        run: |
+          curl --fail http://localhost:3000 || exit 1
