@@ -54,7 +54,6 @@ jobs:
       - name: Start myapp server
         run: |
          nohup ./myapp/dist/myapp &
-        working-directory: ./myapp
 
       # Step 8: Wait for server to start
       - name: Wait for server startup
