@@ -5,7 +5,7 @@ We give you the utilities to build html using pure go code in a reusable way (go
 
 ```go
 func DocsPage(ctx *h.RequestContext) *h.Page {
-	assets := ctx.Get("embeddedMarkdown").(*embed.FS)
+	assets := ctx.Get("embeddedMarkdown").(fs.FS)
 	pages := dirwalk.WalkPages("md/docs", assets)
 
 	return h.NewPage(base.RootPage(

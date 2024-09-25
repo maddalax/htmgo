@@ -1,10 +1,10 @@
 package pages
 
 import (
-	"embed"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"htmgo-site/internal/markdown"
+	"io/fs"
 )
 
 func MarkdownPage(ctx *h.RequestContext, path string, id string) *h.Element {
@@ -17,7 +17,7 @@ func MarkdownPage(ctx *h.RequestContext, path string, id string) *h.Element {
 }
 
 func MarkdownContent(ctx *h.RequestContext, path string, id string) *h.Element {
-	embeddedMd := ctx.Get("embeddedMarkdown").(*embed.FS)
+	embeddedMd := ctx.Get("embeddedMarkdown").(fs.FS)
 	renderer := service.Get[markdown.Renderer](ctx.ServiceLocator())
 	return h.Div(
 		h.If(id != "", h.Id(id)),

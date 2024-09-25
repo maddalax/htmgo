@@ -17,7 +17,7 @@ func Build() {
 	process.RunOrExit("mkdir -p ./dist")
 
 	if os.Getenv("SKIP_GO_BUILD") != "1" {
-		process.RunOrExit(fmt.Sprintf("go build -o ./dist"))
+		process.RunOrExit(fmt.Sprintf("go build -tags prod -o ./dist"))
 	}
 
 	fmt.Printf("Executable built at %s\n", process.GetPathRelativeToCwd("dist"))

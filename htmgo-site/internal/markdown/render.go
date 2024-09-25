@@ -25,6 +25,11 @@ func (r *Renderer) RenderFile(source string, system fs.FS) string {
 	}
 
 	o, err := system.Open(source)
+
+	if o == nil {
+		return ""
+	}
+
 	defer o.Close()
 
 	if err != nil {
