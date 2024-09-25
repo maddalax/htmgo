@@ -22,7 +22,7 @@ func MarkdownContent(ctx *h.RequestContext, path string, id string) *h.Element {
 	return h.Div(
 		h.If(id != "", h.Id(id)),
 		h.Div(
-			h.Class("w-full flex flex-col prose max-w-[95vw] md:max-w-3xl prose-code:text-black prose-p:my-1"),
+			h.Class("w-full flex flex-col prose max-w-[95vw] md:max-w-3xl prose-code:text-black prose-p:my-1 prose:p-0 prose-li:m-0 prose-ul:m-0 prose-ol:m-0"),
 			h.Raw(renderer.RenderFile(path, embeddedMd)),
 		),
 	)

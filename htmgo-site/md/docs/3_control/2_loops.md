@@ -35,8 +35,4 @@ h.List(list, func(item *ent.Task, index int) *h.Element {
   			Text(value),
   		)
   	})
-  ```
-- 
-
-
-
+```

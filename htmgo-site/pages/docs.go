@@ -21,7 +21,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 				h.List(pages, func(page *dirwalk.Page, index int) *h.Element {
 					anchor := partials.CreateAnchor(page.Parts)
 					return h.Div(
-						h.Class("border-b border-b-slate-300 w-full pb-8 mb-8 p-4 md:p-0"),
+						h.Class("border-b border-b-slate-300 w-full pb-8 mb-8 p-4 md:px-0 -mb-2"),
 						MarkdownContent(ctx, page.FilePath, anchor),
 						h.Div(
 							h.Class("ml-4 pl-1 mt-2 bg-rose-200"),
