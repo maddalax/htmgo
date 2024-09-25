@@ -22,7 +22,7 @@ func Setup() bool {
 	}
 	downloadTailwindCli()
 
-	if dirutil.HasFileFromRoot("assets/css/input.css") {
+	if !dirutil.HasFileFromRoot("assets/css/input.css") {
 		copyassets.CopyAssets()
 	}
 
