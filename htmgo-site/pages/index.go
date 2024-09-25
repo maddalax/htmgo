@@ -5,21 +5,6 @@ import (
 	"htmgo-site/pages/base"
 )
 
-func Test() *h.Element {
-	return h.Button(
-		h.Text("Submit"),
-		h.OnClick(
-			// language=js
-			h.EvalJs(`
-				   if(Math.random() > 0.5) {
-				       self.innerHTML = "Success!";
-				   }
-		       `,
-			),
-		),
-	)
-}
-
 func IndexPage(ctx *h.RequestContext) *h.Page {
 	return h.NewPage(
 		base.RootPage(h.Div(
@@ -44,7 +29,6 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 						),
 					),
 				),
-				Test(),
 				h.Div(
 					h.Class("border-b border-b-slate-200 h-1"),
 					h.Div(
