@@ -14,7 +14,7 @@ type RenderContext struct {
 func (ctx *RenderContext) AddScript(funcName string, body string) {
 	script := fmt.Sprintf(`
 	<script id="%s">
-		function %s() {
+		function %s(self) {
 				%s
 		}
 	</script>`, funcName, funcName, body)
@@ -145,7 +145,7 @@ func (l *LifeCycle) Render(context *RenderContext) {
 				m[event] += fmt.Sprintf("%s;", c.Command)
 			case ComplexJsCommand:
 				context.AddScript(c.TempFuncName, c.Command)
-				m[event] += fmt.Sprintf("%s();", c.TempFuncName)
+				m[event] += fmt.Sprintf("%s(this);", c.TempFuncName)
 			case *AttributeMap:
 				for k, v := range c.ToMap() {
 					l.fromAttributeMap(event, k, v, context)
