@@ -13,7 +13,7 @@ require (
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
-	github.com/maddalax/htmgo/framework v0.0.0-20240925160031-488b415f8850 // indirect
+	github.com/maddalax/htmgo/framework v0.0.0-20240925160932-90c8201519b5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

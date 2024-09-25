@@ -19,7 +19,7 @@ RUN go mod download
 COPY . .
 
 # Always download the latest version of the framework
-RUN go get github.com/maddalax/htmgo/framework@latest
+RUN GOPRIVATE=github.com/maddalax GOPROXY=direct go get github.com/maddalax/htmgo/framework@latest
 RUN go mod tidy
 
 RUN npm install
