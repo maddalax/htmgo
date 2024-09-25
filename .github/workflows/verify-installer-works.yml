@@ -1,0 +1,50 @@
+name: Build and Verify Installer Works
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20'
+
+      # Step 3: Install htmgo CLI
+      - name: Install htmgo CLI
+        run: |
+          go install github.com/maddalax/htmgo/cli/htmgo@latest
+
+      # Step 4: Generate template using htmgo
+      - name: Generate myapp template
+        run: |
+          htmgo template myapp
+
+      # Step 5: Build the app
+      - name: Build myapp
+        run: |
+          cd myapp
+          htmgo build
+
+      # Step 6: Verify that the dist directory exists
+      - name: Verify build output
+        run: |
+          if [ ! -d "./myapp/dist" ]; then
+            echo "Build directory ./dist/myapp does not exist"
+            exit 1
+          fi
+        shell: bash

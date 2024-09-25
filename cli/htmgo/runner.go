@@ -112,13 +112,18 @@ func main() {
 			_ = css.GenerateCss(process.ExitOnError)
 			_ = run.Server(process.ExitOnError)
 		} else if taskName == "template" {
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Print("What would you like to call your new app?: ")
-			text, _ := reader.ReadString('\n')
-			text = strings.TrimSuffix(text, "\n")
-			text = strings.ReplaceAll(text, " ", "-")
-			text = strings.ToLower(text)
-			downloadtemplate.DownloadTemplate(fmt.Sprintf("./%s", text))
+			name := ""
+			if len(os.Args) > 2 {
+				name = os.Args[2]
+			} else {
+				reader := bufio.NewReader(os.Stdin)
+				fmt.Print("What would you like to call your new app?: ")
+				name, _ = reader.ReadString('\n')
+			}
+			name = strings.TrimSuffix(name, "\n")
+			name = strings.ReplaceAll(name, " ", "-")
+			name = strings.ToLower(name)
+			downloadtemplate.DownloadTemplate(fmt.Sprintf("./%s", name))
 		} else if taskName == "build" {
 			run.Build()
 		} else if taskName == "generate" {
