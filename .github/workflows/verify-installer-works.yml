@@ -27,7 +27,7 @@ jobs:
       # Step 3: Install htmgo CLI
       - name: Install htmgo CLI
         run: |
-          go install github.com/maddalax/htmgo/cli/htmgo@latest
+          GOPRIVATE=github.com/maddalax GOPROXY=direct go install github.com/maddalax/htmgo/cli/htmgo@latest
 
       # Step 4: Generate template using htmgo
       - name: Generate myapp template
