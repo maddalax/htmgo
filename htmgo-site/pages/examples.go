@@ -9,6 +9,7 @@ type Example struct {
 	Title  string
 	Github string
 	Demo   string
+	Image  string
 }
 
 var examples = []Example{
@@ -16,6 +17,13 @@ var examples = []Example{
 		Title:  "Todo List MVC",
 		Github: "https://github.com/maddalax/htmgo/tree/master/examples/todo-list",
 		Demo:   "https://todo-example.htmgo.dev",
+		Image:  "public/todo-example.jpg",
+	},
+	{
+		Title:  "htmgo.dev",
+		Github: "https://github.com/maddalax/htmgo/tree/master/htmgo-site",
+		Demo:   "https://htmgo.dev",
+		Image:  "public/htmgo-site.jpg",
 	},
 }
 
@@ -52,7 +60,7 @@ func ExamplesPage(ctx *h.RequestContext) *h.Page {
 
 func ExampleCards() *h.Element {
 	return h.Div(
-		h.Class("prose-h2:my-1 prose-img:my-1 flex flex-wrap gap-4 justify-start"), // Left-aligns and allows multiple cards in a row
+		h.Class("prose-h2:my-1 prose-img:my-1 flex gap-2"), // Left-aligns and allows multiple cards in a row
 		h.List(examples, func(example Example, index int) *h.Element {
 			return h.Div(
 				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 w-full md:w-1/2"), // Reduces padding
@@ -67,7 +75,7 @@ func ExampleCards() *h.Element {
 							h.Href(example.Demo),
 							h.Class("not-prose"),
 							h.Img(
-								h.Src("public/todo-example.jpg"),
+								h.Src(example.Image),
 								h.Class("md:w-full rounded-md mx-auto"),
 							),
 						), // Ensures image is centered within the card
