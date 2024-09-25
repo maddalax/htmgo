@@ -1,11 +1,3 @@
-## **htmgo**
-
-### build simple and scalable systems with go + htmx
-
--------
-
-
-
 **introduction:**
 
 htmgo is a lightweight pure go way to build interactive websites / web applications using go & htmx.
