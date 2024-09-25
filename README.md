@@ -40,6 +40,8 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 
 View documentation on [htmgo.dev](https://htmgo.dev/docs).
 
+<br>
+
 **license**
 
 MIT License
