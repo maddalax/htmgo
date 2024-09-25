@@ -66,6 +66,7 @@ func OnFileChange(events []*fsnotify.Event) {
 	now := time.Now()
 
 	tasks := Tasks{}
+	hasTask := false
 
 	for _, event := range events {
 		c := NewChange(event)
@@ -78,36 +79,47 @@ func OnFileChange(events []*fsnotify.Event) {
 
 		if c.IsGo() && c.HasAnyPrefix("pages/", "partials/") {
 			tasks.AstGen = true
+			hasTask = true
 		}
 
 		if c.IsGo() {
 			tasks.Run = true
+			hasTask = true
 		}
 
 		if c.HasAnySuffix(".md") {
 			tasks.Run = true
+			hasTask = true
 		}
 
 		if c.HasAnySuffix("tailwind.config.js", ".css") {
 			tasks.Run = true
+			hasTask = true
 		}
 
 		if c.HasAnyPrefix("ent/schema") {
 			tasks.Ent = true
+			hasTask = true
 		}
 
-		slog.Info("file changed", slog.String("file", c.Name()))
+		if hasTask {
+			slog.Info("file changed", slog.String("file", c.Name()))
+		}
+	}
+
+	if !hasTask {
+		return
 	}
 
 	deps := make([]func() any, 0)
 
 	if tasks.AstGen {
-		deps = append(deps, func() any {
-			return util.Trace("generate ast", func() any {
+		go func() {
+			util.Trace("generate ast", func() any {
 				astgen.GenAst()
 				return nil
 			})
-		})
+		}()
 	}
 
 	if tasks.Ent {

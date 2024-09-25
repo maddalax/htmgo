@@ -14,6 +14,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -58,14 +59,33 @@ func main() {
 		fmt.Printf("Running in watch mode\n")
 		os.Setenv("ENV", "development")
 		os.Setenv("WATCH_MODE", "true")
-		fmt.Printf("Starting processes...")
+		fmt.Printf("Starting processes...\n")
+
 		copyassets.CopyAssets()
-		astgen.GenAst(process.ExitOnError)
+
+		fmt.Printf("Generating CSS...this may take a few seconds.\n")
 		css.GenerateCss(process.ExitOnError)
-		run.EntGenerate()
+
+		wg := sync.WaitGroup{}
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			astgen.GenAst(process.ExitOnError)
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			run.EntGenerate()
+		}()
+
+		wg.Wait()
+
 		go func() {
 			css.GenerateCssWatch(process.ExitOnError)
 		}()
+
 		fmt.Printf("Starting server...\n")
 		go func() {
 			_ = run.Server()

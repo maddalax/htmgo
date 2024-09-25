@@ -76,7 +76,7 @@ func CopyAssets() {
 		if strings.HasSuffix(path, "tailwind.config.js") {
 			return false
 		}
-		return true
+		return !exists
 	})
 
 	if err != nil {
@@ -101,5 +101,5 @@ func CopyAssets() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	process.Run(fmt.Sprintf("cd %s && git add .", destDirCss))
+	process.Run(fmt.Sprintf("cd %s && git add .", destDirCss), process.Silent)
 }

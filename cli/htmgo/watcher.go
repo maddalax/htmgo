@@ -6,14 +6,12 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
 
 func startWatcher(cb func(file []*fsnotify.Event)) {
 	events := make([]*fsnotify.Event, 0)
-	debouncer := NewDebouncer(100 * time.Millisecond)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -36,10 +34,8 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 				}
 				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
-					debouncer.Do(func() {
-						cb(events)
-						events = make([]*fsnotify.Event, 0)
-					})
+					cb(events)
+					events = make([]*fsnotify.Event, 0)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
