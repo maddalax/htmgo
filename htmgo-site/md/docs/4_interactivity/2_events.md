@@ -91,3 +91,15 @@ func MyButton() *h.Element {
 }
 ```
 
+tip: If you are using Jetbrains IDE's, you can write `// language=js` as a comment above the function call (h.EvalJS) and it will automatically give you syntax highlighting on the raw JS.
+
+```go
+// language=js
+h.EvalJs(`
+     if(Math.random() > 0.5) {
+         self.innerHTML = "Success!";
+     }
+     `,
+),
+```
+
