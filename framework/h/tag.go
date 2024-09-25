@@ -29,7 +29,7 @@ func Text(text string) *TextContent {
 }
 
 func Pf(format string, args ...interface{}) Ren {
-	return P(Text(fmt.Sprintf(format, args...)))
+	return TagF("p", format, args...)
 }
 
 func Tag(tag string, children ...Ren) *Element {
@@ -167,6 +167,22 @@ func Input(inputType string, children ...Ren) Ren {
 	}
 }
 
+func TextInput(children ...Ren) Ren {
+	return Input("text", children...)
+}
+
+func NumberInput(children ...Ren) Ren {
+	return Input("number", children...)
+}
+
+func FileInput(children ...Ren) Ren {
+	return Input("file", children...)
+}
+
+func Radio(children ...Ren) Ren {
+	return Input("radio", children...)
+}
+
 func IterMap[T any](m map[string]T, mapper func(key string, value T) *Element) *Element {
 	node := &Element{
 		tag:      "",
@@ -213,28 +229,86 @@ func P(children ...Ren) *Element {
 	return Tag("p", children...)
 }
 
+func TagF(tag string, format string, args ...interface{}) *Element {
+
+	/*
+		An invocation can look like
+		h.H3F("build simple and scalable systems with %s", "go + htmx", h.Class("-mt-4")),
+
+		where the args may be a mix of strings, *Element, *AttributeMap, *ChildList, *AttributeR
+		We need to separate the children from the format arguments
+	*/
+	children := make([]Ren, 0)
+	fmtArgs := make([]interface{}, 0)
+	for _, arg := range args {
+		switch d := arg.(type) {
+		case *Element:
+			children = append(children, d)
+		case *AttributeMap:
+			children = append(children, d)
+		case *ChildList:
+			for _, child := range d.Children {
+				children = append(children, child)
+			}
+		case *AttributeR:
+			children = append(children, d)
+		default:
+			fmtArgs = append(fmtArgs, d)
+		}
+	}
+
+	combined := Children(Text(fmt.Sprintf(format, fmtArgs...)))
+	combined.Children = append(combined.Children, children...)
+
+	return Tag(tag, combined)
+}
+
 func H1(children ...Ren) *Element {
 	return Tag("h1", children...)
+}
+
+func H1F(format string, args ...interface{}) *Element {
+	return TagF("h1", format, args...)
 }
 
 func H2(children ...Ren) *Element {
 	return Tag("h2", children...)
 }
 
+func H2F(format string, args ...interface{}) *Element {
+	return TagF("h2", format, args...)
+}
+
 func H3(children ...Ren) *Element {
 	return Tag("h3", children...)
+}
+
+func H3F(format string, args ...interface{}) *Element {
+	return TagF("h3", format, args...)
 }
 
 func H4(children ...Ren) *Element {
 	return Tag("h4", children...)
 }
 
+func H4F(format string, args ...interface{}) *Element {
+	return TagF("h4", format, args...)
+}
+
 func H5(children ...Ren) *Element {
 	return Tag("h5", children...)
 }
 
+func H5F(format string, args ...interface{}) *Element {
+	return TagF("h5", format, args...)
+}
+
 func H6(children ...Ren) *Element {
 	return Tag("h6", children...)
+}
+
+func H6F(format string, args ...interface{}) *Element {
+	return TagF("h6", format, args...)
 }
 
 func Img(children ...Ren) *Element {
@@ -269,4 +343,108 @@ func Children(children ...Ren) *ChildList {
 
 func Label(text string) *Element {
 	return Tag("label", Text(text))
+}
+
+func IFrame(src string) *Element {
+	return Tag("iframe", Src(src))
+}
+
+func Address(children ...Ren) *Element {
+	return Tag("address", children...)
+}
+
+func Span(children ...Ren) *Element {
+	return Tag("span", children...)
+}
+
+func Aside(children ...Ren) *Element {
+	return Tag("aside", children...)
+}
+
+func Section(children ...Ren) *Element {
+	return Tag("section", children...)
+}
+
+func Code(children ...Ren) *Element {
+	return Tag("code", children...)
+}
+
+func Dialog(children ...Ren) *Element {
+	return Tag("dialog", children...)
+}
+
+func FieldSet(children ...Ren) *Element {
+	return Tag("fieldset", children...)
+}
+
+func Footer(children ...Ren) *Element {
+	return Tag("footer", children...)
+}
+
+func Header(children ...Ren) *Element {
+	return Tag("header", children...)
+}
+
+func Hr() *Element {
+	return Tag("hr")
+}
+
+func LabelFor(id string, text string) *Element {
+	return Tag("label", Attribute("for", id), Text(text))
+}
+
+func Main(children ...Ren) *Element {
+	return Tag("main", children...)
+}
+
+func Ol(children ...Ren) *Element {
+	return Tag("ol", children...)
+}
+
+func Ul(children ...Ren) *Element {
+	return Tag("ul", children...)
+}
+
+func Select(children ...Ren) *Element {
+	return Tag("select", children...)
+}
+
+func Option(children ...Ren) *Element {
+	return Tag("option", children...)
+}
+
+func Strong(children ...Ren) *Element {
+	return Tag("strong", children...)
+}
+
+func Table(children ...Ren) *Element {
+	return Tag("table", children...)
+}
+
+func TBody(children ...Ren) *Element {
+	return Tag("tbody", children...)
+}
+
+func Td(children ...Ren) *Element {
+	return Tag("td", children...)
+}
+
+func Th(children ...Ren) *Element {
+	return Tag("th", children...)
+}
+
+func Tr(children ...Ren) *Element {
+	return Tag("tr", children...)
+}
+
+func THead(children ...Ren) *Element {
+	return Tag("thead", children...)
+}
+
+func TFoot(children ...Ren) *Element {
+	return Tag("tfoot", children...)
+}
+
+func Abbr(children ...Ren) *Element {
+	return Tag("abbr", children...)
 }

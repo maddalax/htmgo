@@ -14,13 +14,11 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 				h.Div(
 					h.Class("flex flex-col mb-6 md:mb-0 md:flex-row justify-between items-center"),
 					h.Div(
-						h.H1(
-							h.Class("text-center md:text-left"),
-							h.Text("htmgo"),
-						),
-						h.H3(
+						h.H1F("htmgo", h.Class("text-center md:text-left")),
+						h.H3F(
+							"build simple and scalable systems with %s",
+							"go + htmx",
 							h.Class("-mt-4"),
-							h.TextF("build simple and scalable systems with go + htmx"),
 						),
 					),
 					h.Div(
