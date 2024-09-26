@@ -25,13 +25,7 @@ jobs:
       - name: Run update-htmgo-dep.go script
         run: go run tools/update-htmgo-dep.go
 
-      - name: Check if changes are present
-        run: |
-          git diff --exit-code || echo "Changes detected"
-          continue-on-error: true
-
-      - name: Commit changes if any
-        if: steps.check_changes.outcome == 'failure'
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
