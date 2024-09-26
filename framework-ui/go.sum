@@ -8,3 +8,5 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926202839-ac4c35aae414 h1:TU1TB5
 github.com/maddalax/htmgo/framework v0.0.0-20240926202839-ac4c35aae414/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
 github.com/maddalax/htmgo/framework v0.0.0-20240926204641-9d0f397c0409 h1:nN6y/y3qoTh4TAmE13BqtxeAFGTHwlKH5PYs80NBT5Q=
 github.com/maddalax/htmgo/framework v0.0.0-20240926204641-9d0f397c0409/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
+github.com/maddalax/htmgo/framework v0.0.0-20240926210145-dc4b710ef244 h1:kSQHKZLbaj7QfvCF6Lp0HqEluSWX/0kHnHEaECUfaBY=
+github.com/maddalax/htmgo/framework v0.0.0-20240926210145-dc4b710ef244/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
