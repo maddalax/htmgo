@@ -1,18 +1,20 @@
 package h
 
 import (
+	"context"
 	"fmt"
-	"github.com/labstack/echo/v4"
+	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
+	"net/http"
 	"os/exec"
 	"runtime"
 	"time"
 )
 
 type RequestContext struct {
-	echo.Context
+	*http.Request
 	locator           *service.Locator
 	isBoosted         bool
 	currentBrowserUrl string
@@ -21,6 +23,21 @@ type RequestContext struct {
 	hxTargetId        string
 	hxTriggerName     string
 	hxTriggerId       string
+	kv                map[string]interface{}
+}
+
+func (c *RequestContext) Set(key string, value interface{}) {
+	if c.kv == nil {
+		c.kv = make(map[string]interface{})
+	}
+	c.kv[key] = value
+}
+
+func (c *RequestContext) Get(key string) interface{} {
+	if c.kv == nil {
+		return nil
+	}
+	return c.kv[key]
 }
 
 func (c *RequestContext) ServiceLocator() *service.Locator {
@@ -30,65 +47,72 @@ func (c *RequestContext) ServiceLocator() *service.Locator {
 type AppOpts struct {
 	LiveReload     bool
 	ServiceLocator *service.Locator
-	Register       func(echo *echo.Echo)
+	Register       func(app *App)
 }
 
 type App struct {
-	Opts AppOpts
-	Echo *echo.Echo
-}
-
-var instance *App
-
-func GetApp() *App {
-	if instance == nil {
-		panic("App instance not initialized")
-	}
-	return instance
+	Opts   AppOpts
+	Router *chi.Mux
 }
 
 func Start(opts AppOpts) {
-	e := echo.New()
+	router := chi.NewRouter()
 	instance := App{
-		Opts: opts,
-		Echo: e,
+		Opts:   opts,
+		Router: router,
 	}
 	instance.start()
 }
 
+const RequestContextKey = "htmgo.request.context"
+
 func populateHxFields(cc *RequestContext) {
-	cc.isBoosted = cc.Request().Header.Get(hx.BoostedHeader) == "true"
-	cc.currentBrowserUrl = cc.Request().Header.Get(hx.CurrentUrlHeader)
-	cc.hxPromptResponse = cc.Request().Header.Get(hx.PromptResponseHeader)
-	cc.isHxRequest = cc.Request().Header.Get(hx.RequestHeader) == "true"
-	cc.hxTargetId = cc.Request().Header.Get(hx.TargetIdHeader)
-	cc.hxTriggerName = cc.Request().Header.Get(hx.TriggerNameHeader)
-	cc.hxTriggerId = cc.Request().Header.Get(hx.TriggerIdHeader)
+	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
+	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
+	cc.currentBrowserUrl = cc.Request.Header.Get(hx.CurrentUrlHeader)
+	cc.hxPromptResponse = cc.Request.Header.Get(hx.PromptResponseHeader)
+	cc.isHxRequest = cc.Request.Header.Get(hx.RequestHeader) == "true"
+	cc.hxTargetId = cc.Request.Header.Get(hx.TargetIdHeader)
+	cc.hxTriggerName = cc.Request.Header.Get(hx.TriggerNameHeader)
+	cc.hxTriggerId = cc.Request.Header.Get(hx.TriggerIdHeader)
 }
 
-func (a App) start() {
+func (app *App) UseWithContext(h func(w http.ResponseWriter, r *http.Request, context map[string]any)) {
+	app.Router.Use(func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cc := r.Context().Value(RequestContextKey).(*RequestContext)
+			h(w, r, cc.kv)
+			handler.ServeHTTP(w, r)
+		})
+	})
+}
 
-	if a.Opts.Register != nil {
-		a.Opts.Register(a.Echo)
-	}
+func (app *App) start() {
 
-	a.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+	app.Router.Use(func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cc := &RequestContext{
-				Context: c,
-				locator: a.Opts.ServiceLocator,
+				locator: app.Opts.ServiceLocator,
+				Request: r,
+				kv:      make(map[string]interface{}),
 			}
 			populateHxFields(cc)
-			return next(cc)
-		}
+			ctx := context.WithValue(r.Context(), RequestContextKey, cc)
+			h.ServeHTTP(w, r.WithContext(ctx))
+		})
 	})
 
-	if a.Opts.LiveReload && IsDevelopment() {
-		AddLiveReloadHandler("/dev/livereload", a.Echo)
+	if app.Opts.Register != nil {
+		app.Opts.Register(app)
+	}
+
+	if app.Opts.LiveReload && IsDevelopment() {
+		app.AddLiveReloadHandler("/dev/livereload")
 	}
 
 	port := ":3000"
-	err := a.Echo.Start(port)
+	slog.Info(fmt.Sprintf("Server started on port %s", port))
+	err := http.ListenAndServe(port, app.Router)
 
 	if err != nil {
 		// If we are in watch mode, just try to kill any processes holding that port
@@ -103,7 +127,7 @@ func (a App) start() {
 				cmd.Run()
 			}
 			time.Sleep(time.Millisecond * 50)
-			err = a.Echo.Start(port)
+			err = http.ListenAndServe(":3000", app.Router)
 			if err != nil {
 				panic(err)
 			}
@@ -114,46 +138,38 @@ func (a App) start() {
 	}
 }
 
-func HtmlView(c echo.Context, page *Page) error {
-	root := page.Root
-	return c.HTML(200,
-		Render(
-			root,
-		),
-	)
+func writeHtml(w http.ResponseWriter, element Ren) error {
+	w.Header().Set("Content-Type", "text/html")
+	_, err := fmt.Fprint(w, Render(element))
+	return err
 }
 
-func PartialViewWithHeaders(c echo.Context, headers *Headers, partial *Partial) error {
+func HtmlView(w http.ResponseWriter, page *Page) error {
+	return writeHtml(w, page.Root)
+}
+
+func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Partial) error {
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
-			c.Set(s, a)
+			w.Header().Set(s, a)
 		}
 	}
 
 	if headers != nil {
 		for s, a := range *headers {
-			c.Response().Header().Set(s, a)
+			w.Header().Set(s, a)
 		}
 	}
 
-	return c.HTML(200,
-		Render(
-			partial,
-		),
-	)
+	return writeHtml(w, partial.Root)
 }
 
-func PartialView(c echo.Context, partial *Partial) error {
-	c.Set(echo.HeaderContentType, echo.MIMETextHTML)
+func PartialView(w http.ResponseWriter, partial *Partial) error {
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
-			c.Response().Header().Set(s, a)
+			w.Header().Set(s, a)
 		}
 	}
 
-	return c.HTML(200,
-		Render(
-			partial,
-		),
-	)
+	return writeHtml(w, partial.Root)
 }
