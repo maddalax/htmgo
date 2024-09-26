@@ -12,7 +12,7 @@
 ##### 1. **Install htmgo**
 
 ```bash
-go install github.com/maddalax/htmgo/cli/htmgo@latest
+GOPROXY=direct go install github.com/maddalax/htmgo/cli/htmgo@latest
 ```
 
 
