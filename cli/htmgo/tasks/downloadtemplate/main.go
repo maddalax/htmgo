@@ -43,7 +43,7 @@ func DownloadTemplate(outPath string) {
 
 	fmt.Printf("Downloading template %s\n to %s", templateName, tempOut)
 
-	err := process.Run("git clone https://github.com/maddalax/htmgo --depth=1 "+tempOut, process.ExitOnError)
+	err := process.Run(process.NewRawCommand("clone-template", "git clone https://github.com/maddalax/htmgo --depth=1 "+tempOut, process.ExitOnError))
 
 	if err != nil {
 		log.Fatalf("Error cloning the template, error: %s\n", err.Error())
@@ -75,7 +75,7 @@ func DownloadTemplate(outPath string) {
 	}
 
 	for _, command := range commands {
-		process.Run(strings.Join(command, " "), process.ExitOnError)
+		process.Run(process.NewRawCommand("", strings.Join(command, " "), process.ExitOnError))
 	}
 
 	_ = util.ReplaceTextInFile(filepath.Join(newDir, "go.mod"),

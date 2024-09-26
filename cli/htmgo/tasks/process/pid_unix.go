@@ -4,16 +4,23 @@ package process
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
 )
 
-func KillProcess(process *os.Process) error {
-	if process == nil {
+func KillProcess(process CmdWithFlags) error {
+	if process.Cmd == nil || process.Cmd.Process == nil {
 		return nil
 	}
-	return syscall.Kill(-process.Pid, syscall.SIGKILL)
+	slog.Debug("killing process",
+		slog.String("name", process.Name),
+		slog.Int("pid", process.Cmd.Process.Pid))
+	_ = syscall.Kill(-process.Cmd.Process.Pid, syscall.SIGKILL)
+	time.Sleep(time.Millisecond * 50)
+	return nil
 }
 
 func PrepareCommand(command *exec.Cmd) {

@@ -2,16 +2,20 @@ package main
 
 import (
 	"github.com/fsnotify/fsnotify"
+	"github.com/google/uuid"
+	"github.com/maddalax/htmgo/cli/htmgo/internal"
 	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
 
-func startWatcher(cb func(file []*fsnotify.Event)) {
+func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 	events := make([]*fsnotify.Event, 0)
+	debouncer := internal.NewDebouncer(500 * time.Millisecond)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -34,8 +38,18 @@ func startWatcher(cb func(file []*fsnotify.Event)) {
 				}
 				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
-					cb(events)
-					events = make([]*fsnotify.Event, 0)
+					debouncer.Do(func() {
+						seen := make(map[string]bool)
+						dedupe := make([]*fsnotify.Event, 0)
+						for _, e := range events {
+							if _, ok := seen[e.Name]; !ok {
+								seen[e.Name] = true
+								dedupe = append(dedupe, e)
+							}
+						}
+						cb(uuid.NewString()[0:6], dedupe)
+						events = make([]*fsnotify.Event, 0)
+					})
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {

@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"log/slog"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func getLogLevel() slog.Level {
+func GetLogLevel() slog.Level {
 	// Get the log level from the environment variable
 	logLevel := os.Getenv("LOG_LEVEL")
 	switch strings.ToUpper(logLevel) {

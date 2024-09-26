@@ -8,8 +8,8 @@ import (
 )
 
 func Setup() {
-	process.RunOrExit("go mod download")
-	process.RunOrExit("go mod tidy")
+	process.RunOrExit(process.NewRawCommand("", "go mod download"))
+	process.RunOrExit(process.NewRawCommand("", "go mod tidy"))
 
 	copyassets.CopyAssets()
 	astgen.GenAst(process.ExitOnError)

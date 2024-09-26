@@ -14,10 +14,10 @@ func Build() {
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
 
-	process.RunOrExit("mkdir -p ./dist")
+	process.RunOrExit(process.NewRawCommand("", "mkdir -p ./dist"))
 
 	if os.Getenv("SKIP_GO_BUILD") != "1" {
-		process.RunOrExit(fmt.Sprintf("go build -tags prod -o ./dist"))
+		process.RunOrExit(process.NewRawCommand("", fmt.Sprintf("go build -tags prod -o ./dist")))
 	}
 
 	fmt.Printf("Executable built at %s\n", process.GetPathRelativeToCwd("dist"))

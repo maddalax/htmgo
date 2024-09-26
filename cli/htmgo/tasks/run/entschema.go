@@ -7,15 +7,15 @@ import (
 )
 
 func EntNewSchema(name string) {
-	process.RunOrExit("GOWORK=off go run -mod=mod entgo.io/ent/cmd/ent new " + name)
+	process.RunOrExit(process.NewRawCommand("", "GOWORK=off go run -mod=mod entgo.io/ent/cmd/ent new "+name))
 }
 
 func EntGenerate() {
 	if dirutil.HasFileFromRoot("ent/schema") {
 		if runtime.GOOS == "windows" {
-			process.RunOrExit("go generate ./ent")
+			process.RunOrExit(process.NewRawCommand("ent-generate", "go generate ./ent"))
 		} else {
-			process.RunOrExit("bash -c GOWORK=off go generate ./ent")
+			process.RunOrExit(process.NewRawCommand("ent-generate", "bash -c GOWORK=off go generate ./ent"))
 		}
 	}
 }

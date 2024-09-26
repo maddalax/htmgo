@@ -1,9 +1,14 @@
 package h
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/service"
+	"log/slog"
+	"os/exec"
+	"runtime"
+	"time"
 )
 
 type RequestContext struct {
@@ -86,6 +91,25 @@ func (a App) start() {
 	err := a.Echo.Start(port)
 
 	if err != nil {
+		// If we are in watch mode, just try to kill any processes holding that port
+		// and try again
+		if IsDevelopment() && IsWatchMode() {
+			slog.Info("Port already in use, trying to kill the process and start again")
+			if runtime.GOOS == "windows" {
+				cmd := exec.Command("cmd", "/C", fmt.Sprintf(`for /F "tokens=5" %%i in ('netstat -aon ^| findstr :%s') do taskkill /F /PID %%i`, port))
+				cmd.Run()
+			} else {
+				cmd := exec.Command("bash", "-c", fmt.Sprintf("kill -9 $(lsof -ti%s)", port))
+				cmd.Run()
+			}
+			time.Sleep(time.Millisecond * 50)
+			err = a.Echo.Start(port)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
 		panic(err)
 	}
 }

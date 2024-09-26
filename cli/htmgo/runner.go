@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
@@ -48,7 +49,7 @@ func main() {
 		return
 	}
 
-	slog.SetLogLoggerLevel(getLogLevel())
+	slog.SetLogLoggerLevel(internal.GetLogLevel())
 
 	taskName := os.Args[1]
 
@@ -63,7 +64,7 @@ func main() {
 
 		copyassets.CopyAssets()
 
-		fmt.Printf("Generating CSS...this may take a few seconds.\n")
+		fmt.Printf("Generating CSS...\n")
 		css.GenerateCss(process.ExitOnError)
 
 		wg := sync.WaitGroup{}
@@ -82,11 +83,8 @@ func main() {
 
 		wg.Wait()
 
-		go func() {
-			css.GenerateCssWatch(process.ExitOnError)
-		}()
-
 		fmt.Printf("Starting server...\n")
+		process.KillAll()
 		go func() {
 			_ = run.Server()
 		}()

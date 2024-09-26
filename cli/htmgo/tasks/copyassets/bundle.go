@@ -101,5 +101,6 @@ func CopyAssets() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	process.Run(fmt.Sprintf("cd %s && git add .", destDirCss), process.Silent)
+	cmd := fmt.Sprintf("cd %s && git add .", destDirCss)
+	process.Run(process.NewRawCommand(cmd, cmd, process.Silent))
 }

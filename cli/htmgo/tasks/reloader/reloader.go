@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
-	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
 	"log/slog"
@@ -60,9 +60,10 @@ type Tasks struct {
 	AstGen bool
 	Run    bool
 	Ent    bool
+	Css    bool
 }
 
-func OnFileChange(events []*fsnotify.Event) {
+func OnFileChange(version string, events []*fsnotify.Event) {
 	now := time.Now()
 
 	tasks := Tasks{}
@@ -71,11 +72,13 @@ func OnFileChange(events []*fsnotify.Event) {
 	for _, event := range events {
 		c := NewChange(event)
 
-		if c.IsGenerated() {
+		if c.HasAnySuffix(".go~", ".css~") {
 			continue
 		}
 
-		slog.Debug("file changed", slog.String("file", c.Name()))
+		if c.IsGenerated() {
+			continue
+		}
 
 		if c.IsGo() && c.HasAnyPrefix("pages/", "partials/") {
 			tasks.AstGen = true
@@ -84,15 +87,11 @@ func OnFileChange(events []*fsnotify.Event) {
 
 		if c.IsGo() {
 			tasks.Run = true
+			tasks.Css = true
 			hasTask = true
 		}
 
 		if c.HasAnySuffix(".md") {
-			tasks.Run = true
-			hasTask = true
-		}
-
-		if c.HasAnySuffix("tailwind.config.js", ".css") {
 			tasks.Run = true
 			hasTask = true
 		}
@@ -103,7 +102,7 @@ func OnFileChange(events []*fsnotify.Event) {
 		}
 
 		if hasTask {
-			slog.Info("file changed", slog.String("file", c.Name()))
+			slog.Info("file changed", slog.String("version", version), slog.String("file", c.Name()))
 		}
 	}
 
@@ -120,6 +119,15 @@ func OnFileChange(events []*fsnotify.Event) {
 				return nil
 			})
 		}()
+	}
+
+	if tasks.Css {
+		deps = append(deps, func() any {
+			return util.Trace("generate css", func() any {
+				css.GenerateCss()
+				return nil
+			})
+		})
 	}
 
 	if tasks.Ent {
@@ -145,13 +153,6 @@ func OnFileChange(events []*fsnotify.Event) {
 	}
 
 	wg.Wait()
-
-	if tasks.Run {
-		util.Trace("kill all processes", func() any {
-			process.KillAll(process.KillOnlyOnExit)
-			return nil
-		})
-	}
 
 	if tasks.Run {
 		go run.Server()

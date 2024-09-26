@@ -42,19 +42,8 @@ func GenerateCss(flags ...process.RunFlag) error {
 		return nil
 	}
 	exec := GetTailwindExecutableName()
-	return process.RunMany([]string{
-		fmt.Sprintf("%s -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js", exec),
-	}, append(flags, process.Silent)...)
-}
-
-func GenerateCssWatch(flags ...process.RunFlag) error {
-	if !Setup() {
-		return nil
-	}
-	exec := GetTailwindExecutableName()
-	return process.RunMany([]string{
-		fmt.Sprintf("%s -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js --watch=always", exec),
-	}, append(flags, process.KillOnlyOnExit, process.Silent)...)
+	cmd := fmt.Sprintf("%s -i ./assets/css/input.css -o ./assets/dist/main.css -c ./tailwind.config.js", exec)
+	return process.Run(process.NewRawCommand("tailwind", cmd, append(flags, process.Silent)...))
 }
 
 func downloadTailwindCli() {
@@ -90,7 +79,9 @@ func downloadTailwindCli() {
 	}
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
 	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
-	process.Run(fmt.Sprintf(`curl -LO %s`, url), process.ExitOnError)
+
+	cmd := fmt.Sprintf(`curl -LO %s`, url)
+	process.Run(process.NewRawCommand("tailwind-cli-download", cmd, process.ExitOnError))
 
 	outputFileName := GetTailwindExecutableName()
 	newPath := filepath.Join(process.GetWorkingDir(), outputFileName)
@@ -100,7 +91,9 @@ func downloadTailwindCli() {
 		newPath)
 
 	if os != "windows" {
-		err = process.Run(fmt.Sprintf(`chmod +x %s`, newPath), process.ExitOnError)
+		err = process.Run(process.NewRawCommand("chmod-tailwind-cli",
+			fmt.Sprintf(`chmod +x %s`, newPath),
+			process.ExitOnError))
 	}
 
 	if err != nil {

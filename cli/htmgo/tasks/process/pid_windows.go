@@ -2,18 +2,17 @@ package process
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"time"
 )
 import "golang.org/x/sys/windows"
 
-func KillProcess(process *os.Process) error {
-	if process == nil {
+func KillProcess(process CmdWithFlags) error {
+	if process.Cmd == nil || process.Cmd.Process == nil {
 		return nil
 	}
-	Run(fmt.Sprintf("taskkill /F /T /PID %s", strconv.Itoa(process.Pid)))
+	Run(NewRawCommand("killprocess", fmt.Sprintf("taskkill /F /T /PID %s", strconv.Itoa(process.Cmd.Process.Pid))))
 	time.Sleep(time.Millisecond * 50)
 	return nil
 }
