@@ -1,0 +1,40 @@
+name: Update HTMGO Dependencies
+
+on:
+  workflow_dispatch:  # Trigger on manual workflow_dispatch
+  push:
+    branches:
+      - master
+
+jobs:
+  update-htmgo-dep:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # Necessary to avoid using the runner's credentials for commit
+          fetch-depth: 0  # Full history for committing back changes
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.20"
+
+      - name: Run update-htmgo-dep.go script
+        run: go run tools/update-htmgo-dep.go
+
+      - name: Check if changes are present
+        run: git diff --exit-code || echo "Changes detected"
+
+      - name: Commit changes if any
+        if: success() && steps.commit.outputs.changes_detected == 'Changes detected'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-update HTMGO dependencies"
+          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
