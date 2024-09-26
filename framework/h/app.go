@@ -26,6 +26,10 @@ type RequestContext struct {
 	kv                map[string]interface{}
 }
 
+func (c *RequestContext) QueryParam(key string) string {
+	return c.Request.URL.Query().Get(key)
+}
+
 func (c *RequestContext) Set(key string, value interface{}) {
 	if c.kv == nil {
 		c.kv = make(map[string]interface{})
