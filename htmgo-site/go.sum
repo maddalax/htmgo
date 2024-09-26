@@ -18,6 +18,8 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926195523-4d003b6db286 h1:254Aqc
 github.com/maddalax/htmgo/framework v0.0.0-20240926195523-4d003b6db286/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
 github.com/maddalax/htmgo/framework v0.0.0-20240926200955-44fe5ab25526 h1:/S6oUVfV+4kxqK7qhlxL7kiaY6O7NMLJbMWONgeUtd4=
 github.com/maddalax/htmgo/framework v0.0.0-20240926200955-44fe5ab25526/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
+github.com/maddalax/htmgo/framework v0.0.0-20240926202506-cb57375f6373 h1:r3u5SKD5dFYm6pqnsExeV30StnWGQ/+6Mxv9fF7vvP8=
+github.com/maddalax/htmgo/framework v0.0.0-20240926202506-cb57375f6373/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
 github.com/maddalax/htmgo/framework v0.1.0 h1:bWMPlCCuoW2Fa++YUk7yhpRLHyU3d5GcvQ0gp+bDO+g=
 github.com/maddalax/htmgo/framework v0.1.0/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
