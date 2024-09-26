@@ -27,7 +27,8 @@ type Partial struct {
 }
 
 const GeneratedDirName = "__htmgo"
-const EchoModuleName = "github.com/labstack/echo/v4"
+const HttpModuleName = "net/http"
+const ChiModuleName = "github.com/go-chi/chi/v5"
 const ModuleName = "github.com/maddalax/htmgo/framework/h"
 
 var PackageName = fmt.Sprintf("package %s", GeneratedDirName)
@@ -198,7 +199,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	fName := "GetPartialFromContext"
 
 	body := `
-		path := ctx.Request().URL.Path
+		path := r.URL.Path
 	`
 
 	if len(partials) == 0 {
@@ -215,7 +216,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 
 		body += fmt.Sprintf(`
 			if path == "%s" || path == "%s" {
-				cc := ctx.(*h.RequestContext)
+				cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 				return %s(cc)
 			}
 		`, f.FuncName, path, caller)
@@ -226,7 +227,7 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	f := Function{
 		Name: fName,
 		Parameters: []NameType{
-			{Name: "ctx", Type: "echo.Context"},
+			{Name: "r", Type: "*http.Request"},
 		},
 		Return: []ReturnType{
 			{Type: "*h.Partial"},
@@ -237,14 +238,15 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 	builder.Append(builder.BuildFunction(f))
 
 	registerFunction := fmt.Sprintf(`
-		func RegisterPartials(f *echo.Echo) {
-			f.Any("%s/partials*", func(ctx echo.Context) error {
-			partial := GetPartialFromContext(ctx)
-			if partial == nil {
-				return ctx.NoContent(404)
-			}
-			return h.PartialView(ctx, partial)
-			})
+		func RegisterPartials(router *chi.Mux) {
+				router.Handle("/%s/partials*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					partial := GetPartialFromContext(r)
+					if partial == nil {
+						w.WriteHeader(404)	
+						return
+					}		
+					h.PartialView(w, partial)	
+			}))
 		}
 	`, moduleName)
 
@@ -267,7 +269,8 @@ func writePartialsFile() {
 	builder.AppendLine(GeneratedFileLine)
 	builder.AppendLine(PackageName)
 	builder.AddImport(ModuleName)
-	builder.AddImport(EchoModuleName)
+	builder.AddImport(HttpModuleName)
+	builder.AddImport(ChiModuleName)
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
@@ -307,7 +310,8 @@ func writePagesFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(GeneratedFileLine)
 	builder.AppendLine(PackageName)
-	builder.AddImport(EchoModuleName)
+	builder.AddImport(HttpModuleName)
+	builder.AddImport(ChiModuleName)
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
 
@@ -331,18 +335,20 @@ func writePagesFile() {
 	for _, page := range pages {
 		call := fmt.Sprintf("%s.%s", page.Package, page.FuncName)
 
-		body += fmt.Sprintf(`
-			f.GET("%s", func(ctx echo.Context) error {
-				cc := ctx.(*h.RequestContext)
-				return h.HtmlView(ctx, %s(cc))
+		body += fmt.Sprintf(
+			`
+			router.Get("%s", func(writer http.ResponseWriter, request *http.Request) {
+				cc := request.Context().Value(h.RequestContextKey).(*h.RequestContext)
+				h.HtmlView(writer, %s(cc))
 			})
-		`, formatRoute(page.Path), call)
+			`, formatRoute(page.Path), call,
+		)
 	}
 
 	f := Function{
 		Name: fName,
 		Parameters: []NameType{
-			{Name: "f", Type: "*echo.Echo"},
+			{Name: "router", Type: "*chi.Mux"},
 		},
 		Body: body,
 	}
@@ -377,19 +383,20 @@ func GenAst(flags ...process.RunFlag) error {
 	writePagesFile()
 
 	WriteFile("__htmgo/setup-generated.go", func(content *ast.File) string {
-		return `
+
+		return fmt.Sprintf(`
 			// Package __htmgo THIS FILE IS GENERATED. DO NOT EDIT.
 			package __htmgo
 
 			import (
-				"github.com/labstack/echo/v4"
+				"%s"
 			)
 
-			func Register(e *echo.Echo) {
-				RegisterPartials(e)
-				RegisterPages(e)
+			func Register(r *chi.Mux) {
+				RegisterPartials(r)
+				RegisterPages(r)
 			}
-		`
+		`, ChiModuleName)
 	})
 
 	return nil
