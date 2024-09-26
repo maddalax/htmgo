@@ -69,8 +69,6 @@ func DownloadTemplate(outPath string) {
 	slog.Debug("current working dir", slog.String("cwd", process.GetWorkingDir()))
 
 	commands := [][]string{
-		{"go", "get", "github.com/maddalax/htmgo/framework@latest"},
-		{"go", "get", "github.com/maddalax/htmgo/framework-ui@latest"},
 		{"git", "init"},
 	}
 
