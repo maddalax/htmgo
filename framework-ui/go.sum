@@ -12,3 +12,5 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926210145-dc4b710ef244 h1:kSQHKZ
 github.com/maddalax/htmgo/framework v0.0.0-20240926210145-dc4b710ef244/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a h1:RLoGgiB57Y4bVHvlVlRIXaPWpN9vsBVJbGqG4hdwf6A=
 github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
+github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611 h1:8Rce7GPfosRxT3Gx9Vb1db4zUqW8JUseuULmv0haSlk=
+github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
