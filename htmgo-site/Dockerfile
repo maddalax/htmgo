@@ -18,10 +18,6 @@ RUN go mod download
 # Copy the source code into the container
 COPY . .
 
-# Always download the latest version of the framework
-RUN GOPRIVATE=github.com/maddalax GOPROXY=direct go get github.com/maddalax/htmgo/framework@latest
-RUN go mod tidy
-
 RUN npm install
 
 # Build the Go binary for Linux

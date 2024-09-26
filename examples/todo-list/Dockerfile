@@ -13,10 +13,6 @@ RUN go mod download
 # Copy the source code into the container
 COPY . .
 
-# Always download the latest version of the framework
-RUN go get github.com/maddalax/htmgo/framework@latest
-RUN go mod tidy
-
 # Build the Go binary for Linux
 RUN CGO_ENABLED=0 GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
 
