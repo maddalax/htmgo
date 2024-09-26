@@ -50,7 +50,7 @@ func (q *Qs) ToString() string {
 
 func GetQueryParam(ctx *RequestContext, key string) string {
 	value, ok := ctx.URL.Query()[key]
-	if value == nil || !ok {
+	if !ok {
 		current := ctx.currentBrowserUrl
 		if current != "" {
 			u, err := url.Parse(current)
@@ -58,9 +58,6 @@ func GetQueryParam(ctx *RequestContext, key string) string {
 				return u.Query().Get(key)
 			}
 		}
-	}
-	if len(value) == 0 {
-		return ""
 	}
 	return value[0]
 }
