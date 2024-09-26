@@ -35,6 +35,10 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/maddalax/htmgo/framework v0.0.0-20240926194146-5bbd35d2728f h1:A4MEslfWXKvqsZt1DbvZpguzVAbyjCRclEZNt6TjSRw=
 github.com/maddalax/htmgo/framework v0.0.0-20240926194146-5bbd35d2728f/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
+github.com/maddalax/htmgo/framework v0.0.0-20240926195523-4d003b6db286 h1:254AqceggeJ0yLXUud3IiYfNjRnetfgcyuCVIlDtgbc=
+github.com/maddalax/htmgo/framework v0.0.0-20240926195523-4d003b6db286/go.mod h1:JBHqkKSv6frIsSlT1itIU0hUTW9NgDcyM6Cf6npK0bQ=
+github.com/maddalax/htmgo/framework v0.1.0 h1:bWMPlCCuoW2Fa++YUk7yhpRLHyU3d5GcvQ0gp+bDO+g=
+github.com/maddalax/htmgo/framework v0.1.0/go.mod h1:TA7KCaKhurpXceQrzClJOHqRsUSd5NL64ZngSg+I3oc=
 github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
 github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 h1:DpOJ2HYzCv8LZP15IdmG+YdwD2luVPHITV96TkirNBM=
