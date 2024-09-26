@@ -90,6 +90,10 @@ func downloadTailwindCli() {
 		filepath.Join(process.GetWorkingDir(), fileName),
 		newPath)
 
+	if err != nil {
+		log.Fatalf("Error moving file: %s\n", err.Error())
+	}
+
 	if os != "windows" {
 		err = process.Run(process.NewRawCommand("chmod-tailwind-cli",
 			fmt.Sprintf(`chmod +x %s`, newPath),

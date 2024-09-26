@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/htmgo/internal"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
@@ -55,6 +56,10 @@ func main() {
 
 	slog.Debug("Running task:", slog.String("task", taskName))
 	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
+
+	if !dirutil.HasFileFromRoot("__htmgo") {
+		dirutil.CreateDirFromRoot("__htmgo")
+	}
 
 	if taskName == "watch" {
 		fmt.Printf("Running in watch mode\n")

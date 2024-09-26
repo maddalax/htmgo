@@ -17,6 +17,12 @@ func HasFileFromRoot(file string) bool {
 	return err == nil
 }
 
+func CreateDirFromRoot(dir string) error {
+	cwd := process.GetWorkingDir()
+	path := filepath.Join(cwd, dir)
+	return os.MkdirAll(path, 0700)
+}
+
 func CopyDir(srcDir, dstDir string, predicate func(path string, exists bool) bool) error {
 	// Walk the source directory tree.
 	return filepath.Walk(srcDir, func(srcPath string, info os.FileInfo, err error) error {
