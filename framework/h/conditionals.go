@@ -37,7 +37,7 @@ func IfElseLazy[T any](condition bool, cb1 func() T, cb2 func() T) T {
 }
 
 func IfHtmxRequest(ctx *RequestContext, node Ren) Ren {
-	if ctx.isHxRequest {
+	if ctx.Get("HX-Request") != "" {
 		return node
 	}
 	return Empty()

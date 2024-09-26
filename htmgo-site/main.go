@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"htmgo-site/__htmgo"
 	"htmgo-site/internal/markdown"
 	"io/fs"
-	"net/http"
 )
 
 func main() {
@@ -19,23 +19,21 @@ func main() {
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,
 		LiveReload:     true,
-		Register: func(app *h.App) {
-
-			app.UseWithContext(func(w http.ResponseWriter, r *http.Request, context map[string]any) {
-				context["embeddedMarkdown"] = markdownAssets
-			})
-
+		Register: func(e *echo.Echo) {
 			sub, err := fs.Sub(staticAssets, "assets/dist")
-
 			if err != nil {
 				panic(err)
 			}
+			e.StaticFS("/public", sub)
 
-			http.FileServerFS(sub)
+			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					c.Set("embeddedMarkdown", markdownAssets)
+					return next(c)
+				}
+			})
 
-			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
-
-			__htmgo.Register(app.Router)
+			__htmgo.Register(e)
 		},
 	})
 }

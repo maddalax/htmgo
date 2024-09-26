@@ -1,41 +1,30 @@
 package h
 
 import (
-	"fmt"
 	"github.com/google/uuid"
-	"net/http"
+	"github.com/labstack/echo/v4"
+	"golang.org/x/net/websocket"
 	"time"
 )
 
 var Version = uuid.NewString()
 
-func sseHandler(w http.ResponseWriter, r *http.Request) {
-	// Set the necessary headers
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Optional for CORS
-
-	// Flush the headers immediately
-	flusher, ok := w.(http.Flusher)
-
-	if !ok {
-		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
-		return
-	}
-
-	for {
-		// Write an event to the stream
-		_, err := fmt.Fprintf(w, "data: %s\n\n", Version)
-		if err != nil {
-			break
+func handler(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		_ = websocket.Message.Send(ws, Version)
+		// keep ws alive
+		for {
+			err := websocket.Message.Send(ws, Version)
+			if err != nil {
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
 		}
-		// Flush the response to ensure the client gets it immediately
-		flusher.Flush()
-		time.Sleep(500 * time.Millisecond)
-	}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }
 
-func (app *App) AddLiveReloadHandler(path string) {
-	app.Router.Get(path, sseHandler)
+func AddLiveReloadHandler(path string, app *echo.Echo) {
+	app.GET(path, handler)
 }
