@@ -22,7 +22,9 @@ var navItems = []NavItem{
 }
 
 func Star() *h.Element {
+
 	return h.Div(
+		h.Script("https://buttons.github.io/buttons.js"),
 		h.Id("github-star"),
 		h.Class("min-w-[100px]"),
 		h.Raw(`
@@ -46,7 +48,6 @@ func NavBar(expanded bool) *h.Element {
 	)
 
 	desktopNav := h.Nav(
-		h.Script("https://buttons.github.io/buttons.js"),
 		h.Class("hidden sm:block bg-neutral-100 border border-b-slate-300 p-4 md:p-3"),
 		h.Div(
 			h.Class("max-w-[95%] md:max-w-3xl px-4 mx-auto"),
@@ -105,7 +106,8 @@ func MobileNav(expanded bool) *h.Element {
 						h.Text("htmgo"),
 					)),
 				h.Div(
-					h.Class("flex items-center"),
+					h.Class("flex items-center gap-3"),
+					h.Div(h.Class("mt-1"), Star()),
 					h.Button(
 						h.Boost(),
 
@@ -121,14 +123,13 @@ func MobileNav(expanded bool) *h.Element {
 						),
 
 						h.Class("text-2xl"),
-						h.Text("☰"),
+						h.Text("&#9776;"),
 					),
 				),
 			),
 		),
 		h.If(expanded, h.Div(
 			h.Class("mt-2 ml-2 flex flex-col gap-2"),
-			h.Script("https://buttons.github.io/buttons.js"),
 			h.List(navItems, func(item NavItem, index int) *h.Element {
 				return h.Div(
 					h.Class("flex items-center"),
@@ -140,7 +141,6 @@ func MobileNav(expanded bool) *h.Element {
 					),
 				)
 			}),
-			h.Div(Star()),
 		)),
 	)
 }
