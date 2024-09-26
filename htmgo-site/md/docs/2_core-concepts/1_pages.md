@@ -22,14 +22,14 @@ func HelloHtmgoPage(ctx *h.RequestContext) *h.Page {
 }
 ```
 
-htmgo uses [Echo Go](https://echo.labstack.com/docs/context) as its web server, ***h.RequestContext** is a thin wrapper around **echo.Context**. A page
+htmgo uses [std http](https://pkg.go.dev/net/http) with chi router as its web server, ***h.RequestContext** is a thin wrapper around ***http.Request**. A page
 must return *h.Page, and accept *h.RequestContext as a parameter
 
 <br>
 
 **Auto Registration**
 
-htmgo uses file based routing. This means that we will automatically generate and register your routes with echo based on the files you have in the 'pages' directory.
+htmgo uses file based routing. This means that we will automatically generate and register your routes with chi based on the files you have in the 'pages' directory.
 
 For example, if you have a directory structure such as:
 
@@ -40,7 +40,7 @@ pages
   users.$id //id parameter can be accessed in your page with ctx.Param("id")
 ```
 
-it will get registered into Echo as follows:
+it will get registered into chi router as follows:
 
 ```bash
 /

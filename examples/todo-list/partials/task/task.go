@@ -68,9 +68,9 @@ func CompleteAllIcon(list []*ent.Task) *h.Element {
 	}))
 
 	return h.Div(
-		h.ClassX("absolute top-0 left-0 p-4 rotate-90 text-2xl cursor-pointer", map[string]bool{
+		h.ClassX("absolute top-1 left-5 p-2 rotate-90 text-3xl cursor-pointer", map[string]bool{
 			"text-slate-400": notCompletedCount > 0,
-		}), h.Text("❯"),
+		}), h.Text("&#x203A;"),
 		h.PostPartialWithQs(CompleteAll, h.NewQs("complete", h.Ternary(notCompletedCount > 0, "true", "false"))),
 	)
 }

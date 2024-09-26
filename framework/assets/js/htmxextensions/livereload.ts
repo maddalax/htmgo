@@ -5,7 +5,6 @@ let lastVersion = "";
 
 htmx.defineExtension("livereload", {
     init: function () {
-        const host = window.location.host;
 
         let enabled = false
         for (const element of Array.from(htmx.findAll("[hx-ext]"))) {
@@ -21,25 +20,25 @@ htmx.defineExtension("livereload", {
         }
 
         console.log('livereload extension initialized.');
-
-        createWebSocketClient({
-            url: `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${host}/dev/livereload`,
-            onOpen: () => {
-            },
-            onMessage: (message) => {
-               if(lastVersion === "") {
-                   lastVersion = message;
-               }
-               if(lastVersion !== message) {
-                   lastVersion = message;
-                   reload()
-               }
-            },
-            onError: (error) => {
-            },
-            onClose: () => {
+        // Create a new EventSource object and point it to your SSE endpoint
+        const eventSource = new EventSource('/dev/livereload');
+        // Listen for messages from the server
+        eventSource.onmessage = function(event) {
+            const message = event.data
+            // Log the message data received from the server
+            if(lastVersion === "") {
+                lastVersion = message;
             }
-        })
+            if(lastVersion !== message) {
+                lastVersion = message;
+                reload()
+            }
+        };
+        // Handle errors (e.g., when the connection is closed)
+        eventSource.onerror = function(error) {
+            console.error('EventSource error:', error);
+        };
+
     },
     // @ts-ignore
     onEvent: function (name, evt) {
@@ -49,14 +48,4 @@ htmx.defineExtension("livereload", {
 
 function reload() {
     window.location.reload()
-    // fetch(window.location.href).then(response => {
-    //     return response.text();
-    // }).then(html => {
-    //    document.open();
-    //     document.write(html);
-    //     document.close();
-    // }).catch(err => {
-    //     console.log('failed to fetch live reload', err)
-    //     setTimeout(reload, 100)
-    // })
 }
