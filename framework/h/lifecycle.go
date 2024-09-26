@@ -181,6 +181,11 @@ func Alert(text string) SimpleJsCommand {
 	return SimpleJsCommand{Command: fmt.Sprintf("alert('%s')", text)}
 }
 
+func Remove() SimpleJsCommand {
+	// language=JavaScript
+	return SimpleJsCommand{Command: "this.remove()"}
+}
+
 func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
 }

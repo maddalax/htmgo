@@ -54,11 +54,11 @@ func shouldSkipKilling(flags []RunFlag, skipFlag []RunFlag) bool {
 func KillAll(skipFlag ...RunFlag) {
 
 	tries := 0
-	updatedCommands := make([]CmdWithFlags, len(commands))
+	updatedCommands := make([]CmdWithFlags, 0)
 	for {
 		tries++
 		allFinished := true
-		for i, cmd := range commands {
+		for _, cmd := range commands {
 			if cmd.cmd.Process == nil {
 				allFinished = false
 
@@ -72,7 +72,7 @@ func KillAll(skipFlag ...RunFlag) {
 					continue
 				}
 			} else {
-				updatedCommands[i] = cmd
+				updatedCommands = append(updatedCommands, cmd)
 			}
 		}
 		if allFinished {
@@ -152,7 +152,13 @@ func RunMany(commands []string, flags ...RunFlag) error {
 
 func Run(command string, flags ...RunFlag) error {
 	parts := strings.Fields(command)
-	cmd := exec.Command(parts[0], parts[1:]...)
+
+	args := make([]string, 0)
+	if len(parts) > 1 {
+		args = parts[1:]
+	}
+
+	cmd := exec.Command(parts[0], args...)
 
 	PrepareCommand(cmd)
 

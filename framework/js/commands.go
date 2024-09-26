@@ -12,6 +12,7 @@ var SetOuterHtml = h.SetOuterHtml
 var SetDisabled = h.SetDisabled
 var RemoveClass = h.RemoveClass
 var Alert = h.Alert
+var Remove = h.Remove
 var EvalJs = h.EvalJs
 var InjectScript = h.InjectScript
 var InjectScriptIfNotExist = h.InjectScriptIfNotExist

@@ -20,6 +20,11 @@ func (node *Element) AppendChild(child Ren) *Element {
 	return node
 }
 
+func (node *Element) AppendChildren(children ...Ren) *Element {
+	node.children = append(node.children, children...)
+	return node
+}
+
 func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }
@@ -28,7 +33,7 @@ func Text(text string) *TextContent {
 	return NewTextContent(text)
 }
 
-func Pf(format string, args ...interface{}) Ren {
+func Pf(format string, args ...interface{}) *Element {
 	return TagF("p", format, args...)
 }
 
@@ -52,7 +57,7 @@ func Body(children ...Ren) *Element {
 	return Tag("body", children...)
 }
 
-func Meta(name string, content string) Ren {
+func Meta(name string, content string) *Element {
 	return &Element{
 		tag: "meta",
 		attributes: map[string]string{
@@ -63,7 +68,7 @@ func Meta(name string, content string) Ren {
 	}
 }
 
-func LinkWithVersion(href string, rel string, version string) Ren {
+func LinkWithVersion(href string, rel string, version string) *Element {
 	attributeMap := AttributeMap{
 		"href": href + "?v=" + version,
 		"rel":  rel,
@@ -75,7 +80,7 @@ func LinkWithVersion(href string, rel string, version string) Ren {
 	}
 }
 
-func Link(href string, rel string) Ren {
+func Link(href string, rel string) *Element {
 	attributeMap := AttributeMap{
 		"href": href,
 		"rel":  rel,
@@ -87,7 +92,7 @@ func Link(href string, rel string) Ren {
 	}
 }
 
-func ScriptWithVersion(url string, version string) Ren {
+func ScriptWithVersion(url string, version string) *Element {
 	attributeMap := AttributeMap{
 		"src": url + "?v=" + version,
 	}
@@ -98,7 +103,7 @@ func ScriptWithVersion(url string, version string) Ren {
 	}
 }
 
-func Script(url string) Ren {
+func Script(url string) *Element {
 	attributeMap := AttributeMap{
 		"src": url,
 	}
@@ -113,7 +118,7 @@ func Raw(text string) *RawContent {
 	return NewRawContent(text)
 }
 
-func Style(text string) Ren {
+func Style(text string) *Element {
 	return Tag("style", Text(text))
 }
 
@@ -141,11 +146,11 @@ func Article(children ...Ren) *Element {
 	return Tag("article", children...)
 }
 
-func Checkbox(children ...Ren) Ren {
+func Checkbox(children ...Ren) *Element {
 	return Input("checkbox", children...)
 }
 
-func Value(value any) Ren {
+func Value(value any) *AttributeMap {
 	switch v := value.(type) {
 	case string:
 		return Attribute("value", v)
@@ -156,7 +161,7 @@ func Value(value any) Ren {
 	}
 }
 
-func Input(inputType string, children ...Ren) Ren {
+func Input(inputType string, children ...Ren) *Element {
 	attributeMap := AttributeMap{
 		"type": inputType,
 	}
@@ -167,19 +172,19 @@ func Input(inputType string, children ...Ren) Ren {
 	}
 }
 
-func TextInput(children ...Ren) Ren {
+func TextInput(children ...Ren) *Element {
 	return Input("text", children...)
 }
 
-func NumberInput(children ...Ren) Ren {
+func NumberInput(children ...Ren) *Element {
 	return Input("number", children...)
 }
 
-func FileInput(children ...Ren) Ren {
+func FileInput(children ...Ren) *Element {
 	return Input("file", children...)
 }
 
-func Radio(children ...Ren) Ren {
+func Radio(children ...Ren) *Element {
 	return Input("radio", children...)
 }
 
@@ -207,15 +212,17 @@ func List[T any](items []T, mapper func(item T, index int) *Element) *Element {
 	return node
 }
 
-func Fragment(children ...Ren) *ChildList {
-	return Children(children...)
+func Fragment(children ...Ren) *Element {
+	e := Empty()
+	e.children = children
+	return e
 }
 
 func Template(children ...Ren) *Element {
 	return Tag("template", children...)
 }
 
-func AppendChildren(node *Element, children ...Ren) Ren {
+func AppendChildren(node *Element, children ...Ren) *Element {
 	node.children = append(node.children, children...)
 	return node
 
@@ -315,7 +322,7 @@ func Img(children ...Ren) *Element {
 	return Tag("img", children...)
 }
 
-func Src(src string) Ren {
+func Src(src string) *AttributeMap {
 	return Attribute("src", src)
 }
 
