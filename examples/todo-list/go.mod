@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.1
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240926200955-44fe5ab25526
+	github.com/maddalax/htmgo/framework v0.0.0-20240926202506-cb57375f6373
 	github.com/mattn/go-sqlite3 v1.14.16
 )
 
