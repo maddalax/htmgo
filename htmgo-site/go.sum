@@ -22,6 +22,8 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a h1:RLoGgi
 github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611 h1:8Rce7GPfosRxT3Gx9Vb1db4zUqW8JUseuULmv0haSlk=
 github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368 h1:6MhgKot+CWjSIrQ6FTJTIznVbHDvOefREXAQ/Z4jCIA=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
