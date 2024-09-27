@@ -26,16 +26,17 @@ func (m *AttributeMap) ToMap() map[string]string {
 	return result
 }
 
-func Attribute(key string, value string) *AttributeMap {
-	return Attributes(&AttributeMap{key: value})
+func Attribute(key string, value string) *AttributeR {
+	return &AttributeR{
+		Name:  key,
+		Value: value,
+	}
 }
 
-func AttributeList(children ...*AttributeMap) *AttributeMap {
+func AttributeList(children ...*AttributeR) *AttributeMap {
 	m := make(AttributeMap)
 	for _, child := range children {
-		for k, v := range *child {
-			m[k] = v
-		}
+		m[child.Name] = child.Value
 	}
 	return &m
 }
@@ -88,7 +89,7 @@ func HxInclude(selector string) Ren {
 	return Attribute(hx.IncludeAttr, selector)
 }
 
-func HxIndicator(tag string) *AttributeMap {
+func HxIndicator(tag string) *AttributeR {
 	return Attribute(hx.IndicatorAttr, tag)
 }
 
@@ -96,16 +97,16 @@ func TriggerChildren() Ren {
 	return HxExtension("trigger-children")
 }
 
-func HxTriggerString(triggers ...string) *AttributeMap {
+func HxTriggerString(triggers ...string) *AttributeR {
 	trigger := hx.NewStringTrigger(strings.Join(triggers, ", "))
 	return Attribute(hx.TriggerAttr, trigger.ToString())
 }
 
-func HxTrigger(opts ...hx.TriggerEvent) *AttributeMap {
+func HxTrigger(opts ...hx.TriggerEvent) *AttributeR {
 	return Attribute(hx.TriggerAttr, hx.NewTrigger(opts...).ToString())
 }
 
-func HxTriggerClick(opts ...hx.Modifier) *AttributeMap {
+func HxTriggerClick(opts ...hx.Modifier) *AttributeR {
 	return HxTrigger(hx.OnClick(opts...))
 }
 
@@ -145,7 +146,7 @@ func Hidden() Ren {
 	return Attribute("style", "display:none")
 }
 
-func Class(value ...string) *AttributeMap {
+func Class(value ...string) *AttributeR {
 	return Attribute("class", MergeClasses(value...))
 }
 

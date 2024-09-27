@@ -35,23 +35,42 @@ func (node *Element) Render(context *RenderContext) {
 		}
 	}
 
-	// first pass, flatten the children
-	flatChildren := make([]Ren, 0, len(node.children))
+	totalChildren := 0
+	shouldFlatten := false
 	for _, child := range node.children {
-		switch child.(type) {
+		switch c := child.(type) {
 		case *ChildList:
-			flatChildren = append(flatChildren, child.(*ChildList).Children...)
+			shouldFlatten = true
+			totalChildren += len(c.Children)
 		default:
-			flatChildren = append(flatChildren, child)
+			totalChildren++
 		}
 	}
 
-	node.children = flatChildren
+	if shouldFlatten {
+		// first pass, flatten the children
+		flatChildren := make([]Ren, totalChildren)
+		for i, child := range node.children {
+			switch c := child.(type) {
+			case *ChildList:
+				for _, ren := range c.Children {
+					flatChildren[i] = ren
+					i++
+				}
+			default:
+				flatChildren[i] = child
+			}
+		}
+
+		node.children = flatChildren
+	}
 
 	// second pass, render any attributes within the tag
 	for _, child := range node.children {
 		switch child.(type) {
 		case *AttributeMap:
+			child.Render(context)
+		case *AttributeR:
 			child.Render(context)
 		case *LifeCycle:
 			child.Render(context)
@@ -67,6 +86,8 @@ func (node *Element) Render(context *RenderContext) {
 	for _, child := range node.children {
 		switch child.(type) {
 		case *AttributeMap:
+			continue
+		case *AttributeR:
 			continue
 		case *LifeCycle:
 			continue
@@ -158,6 +179,8 @@ func (l *LifeCycle) Render(context *RenderContext) {
 				for k, v := range c.ToMap() {
 					l.fromAttributeMap(event, k, v, context)
 				}
+			case *AttributeR:
+				l.fromAttributeMap(event, c.Name, c.Value, context)
 			}
 		}
 	}

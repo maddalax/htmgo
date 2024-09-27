@@ -158,7 +158,7 @@ func Checkbox(children ...Ren) *Element {
 	return Input("checkbox", children...)
 }
 
-func Value(value any) *AttributeMap {
+func Value(value any) *AttributeR {
 	switch v := value.(type) {
 	case string:
 		return Attribute("value", v)
@@ -330,7 +330,7 @@ func Img(children ...Ren) *Element {
 	return Tag("img", children...)
 }
 
-func Src(src string) *AttributeMap {
+func Src(src string) *AttributeR {
 	return Attribute("src", src)
 }
 
