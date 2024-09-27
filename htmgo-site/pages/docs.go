@@ -13,6 +13,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 	pages := dirwalk.WalkPages("md/docs", assets)
 
 	return h.NewPage(base.RootPage(
+		ctx,
 		h.Div(
 			h.Class("flex flex-col md:flex-row gap-4 justify-center mb-12"),
 			partials.DocSidebar(pages),

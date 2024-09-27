@@ -7,7 +7,7 @@ import (
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
 	return h.NewPage(
-		base.RootPage(h.Div(
+		base.RootPage(ctx, h.Div(
 			h.Class("flex items-center justify-center "),
 			h.Div(
 				h.Class("w-full px-4 flex flex-col prose md:max-w-3xl mt-6 mx-auto"),

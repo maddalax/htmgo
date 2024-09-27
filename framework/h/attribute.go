@@ -117,6 +117,14 @@ func Href(path string) Ren {
 	return Attribute("href", path)
 }
 
+func Target(target string) Ren {
+	return Attribute("target", target)
+}
+
+func D(value string) Ren {
+	return Attribute("d", value)
+}
+
 func Type(name string) Ren {
 	return Attribute("type", name)
 }

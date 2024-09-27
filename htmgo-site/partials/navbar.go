@@ -2,6 +2,10 @@ package partials
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/service"
+	"htmgo-site/internal/cache"
+	"htmgo-site/internal/httpjson"
+	"time"
 )
 
 type NavItem struct {
@@ -12,7 +16,7 @@ type NavItem struct {
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
 	return h.SwapManyPartial(
 		ctx,
-		MobileNav(h.GetQueryParam(ctx, "expanded") == "true"),
+		MobileNav(ctx, h.GetQueryParam(ctx, "expanded") == "true"),
 	)
 }
 
@@ -21,26 +25,46 @@ var navItems = []NavItem{
 	{Name: "Examples", Url: "/examples"},
 }
 
-func Star() *h.Element {
+func Star(ctx *h.RequestContext) *h.Element {
 
-	return h.Div(
-		h.Script("https://buttons.github.io/buttons.js"),
-		h.Id("github-star"),
-		h.Class("min-w-[100px]"),
-		h.Raw(`
-		<a 
-		class="github-button hidden min-w-[100px]" 
-		href="https://github.com/maddalax/htmgo" 
-		data-color-scheme="no-preference: light; light: light; dark: dark;" 
-		data-icon="octicon-star" 
-		data-size="large" 
-		data-show-count="true"
-		aria-label="Star maddalax/htmgo on GitHub">Star</a>
-	`),
+	type Repo struct {
+		StarCount int `json:"stargazers_count"`
+	}
+
+	simpleCache := service.Get[cache.SimpleCache](ctx.ServiceLocator())
+	count := cache.GetOrSet(simpleCache, "starCount", 10*time.Minute, func() (int, bool) {
+		response, err := httpjson.Get[Repo]("https://api.github.com/repos/maddalax/htmgo")
+		if err != nil {
+			return 0, false
+		}
+		return response.StarCount, true
+	})
+
+	return h.A(
+		h.Href("https://github.com/maddalax/htmgo"),
+		h.Target("_blank"),
+		h.Class("inline-flex items-center rounded overflow-hidden shadow-sm"),
+		h.Div(
+			h.Class("flex items-center px-2 py-1 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-700 transition"),
+			h.Svg(
+				h.Class("w-4 h-4 -mt-0.5 mr-0.5 fill-current text-white"),
+				h.Attribute("xmlns", "http://www.w3.org/2000/svg"),
+				h.Attribute("viewBox", "0 0 24 24"),
+				h.Attribute("fill", "currentColor"),
+				h.Path(
+					h.D("M12 17.27l5.18 3.05-1.64-5.68 4.46-3.87-5.88-.5L12 3.5l-2.12 6.77-5.88.5 4.46 3.87-1.64 5.68L12 17.27z"),
+				),
+			),
+			h.Text("Star"),
+		),
+		h.If(count > 0, h.Div(
+			h.Class("flex items-center px-3 py-1 bg-black text-white text-sm font-semibold"),
+			h.Pf("%d", count),
+		)),
 	)
 }
 
-func NavBar(expanded bool) *h.Element {
+func NavBar(ctx *h.RequestContext, expanded bool) *h.Element {
 	prelease := h.A(h.Class("bg-yellow-200 text-yellow-800 text-center p-2 flex items-center justify-center"),
 		h.Href("https://github.com/maddalax/htmgo/issues"),
 		h.Attribute("target", "_blank"),
@@ -72,10 +96,7 @@ func NavBar(expanded bool) *h.Element {
 							),
 						)
 					}),
-					h.Div(
-						h.Class("ml-2 hidden md:block min-w-[99px]"),
-						Star(),
-					),
+					Star(ctx),
 				),
 			),
 		),
@@ -84,12 +105,12 @@ func NavBar(expanded bool) *h.Element {
 	return h.Div(
 		h.Id("navbar"),
 		prelease,
-		MobileNav(expanded),
+		MobileNav(ctx, expanded),
 		desktopNav,
 	)
 }
 
-func MobileNav(expanded bool) *h.Element {
+func MobileNav(ctx *h.RequestContext, expanded bool) *h.Element {
 	return h.Nav(
 		h.Id("mobile-nav"),
 		h.Class("block sm:hidden bg-neutral-100 border border-b-slate-300 p-4 md:p-3"),
@@ -107,7 +128,7 @@ func MobileNav(expanded bool) *h.Element {
 					)),
 				h.Div(
 					h.Class("flex items-center gap-3"),
-					h.Div(h.Class("mt-1"), Star()),
+					h.Div(h.Class("mt-1"), Star(ctx)),
 					h.Button(
 						h.Boost(),
 

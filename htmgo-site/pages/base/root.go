@@ -8,7 +8,7 @@ import (
 
 var Version = uuid.NewString()[0:6]
 
-func RootPage(children ...h.Ren) *h.Element {
+func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 	title := "htmgo"
 	description := "build simple and scalable systems with go + htmx"
 
@@ -26,9 +26,6 @@ func RootPage(children ...h.Ren) *h.Element {
 			h.Meta("og:description", description),
 			h.LinkWithVersion("/public/main.css", "stylesheet", Version),
 			h.ScriptWithVersion("/public/htmgo.js", Version),
-			h.Raw(`
-				<script src="https://buttons.github.io/buttons.js"></script>
-			`),
 			h.Style(`
 				html {
 					scroll-behavior: smooth;
@@ -37,7 +34,7 @@ func RootPage(children ...h.Ren) *h.Element {
 		),
 		h.Body(
 			h.Class("bg-stone-50 min-h-screen overflow-x-hidden"),
-			partials.NavBar(false),
+			partials.NavBar(ctx, false),
 			h.Fragment(children...),
 		),
 	)

@@ -4,6 +4,7 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"htmgo-site/__htmgo"
+	"htmgo-site/internal/cache"
 	"htmgo-site/internal/markdown"
 	"io/fs"
 	"net/http"
@@ -15,6 +16,7 @@ func main() {
 	markdownAssets := GetMarkdownAssets()
 
 	service.Set(locator, service.Singleton, markdown.NewRenderer)
+	service.Set(locator, service.Singleton, cache.NewSimpleCache)
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,

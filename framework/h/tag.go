@@ -25,6 +25,14 @@ func (node *Element) AppendChildren(children ...Ren) *Element {
 	return node
 }
 
+func Svg(children ...Ren) *Element {
+	return Tag("svg", children...)
+}
+
+func Path(children ...Ren) *Element {
+	return Tag("path", children...)
+}
+
 func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }

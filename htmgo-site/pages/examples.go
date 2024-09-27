@@ -29,7 +29,7 @@ var examples = []Example{
 
 func ExamplesPage(ctx *h.RequestContext) *h.Page {
 	return h.NewPage(
-		base.RootPage(h.Div(
+		base.RootPage(ctx, h.Div(
 			h.Class("flex items-center justify-center"),
 			h.Div(
 				h.Class("w-full px-4 flex flex-col prose max-w-[95vw] md:max-w-3xl mt-6"),
