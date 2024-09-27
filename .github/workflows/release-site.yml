@@ -7,6 +7,9 @@ on:
       - master         # Trigger on pushes to master
     paths:
       - 'htmgo-site/**'  # Trigger only if files in this directory change
+      - "framework/**"
+      - "framework-ui/**"
+      - "cli/**"
 
 jobs:
   build-and-push:
