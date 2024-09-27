@@ -1,1 +1,0 @@
-go run github.com/maddalax/cli/htmgo@latest template
