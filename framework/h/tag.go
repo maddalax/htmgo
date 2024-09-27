@@ -467,3 +467,11 @@ func TFoot(children ...Ren) *Element {
 func Abbr(children ...Ren) *Element {
 	return Tag("abbr", children...)
 }
+
+func Title(children ...Ren) *Element {
+	return Tag("title", children...)
+}
+
+func Br() *Element {
+	return Tag("br")
+}
