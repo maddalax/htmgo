@@ -16,6 +16,8 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611 h1:8Rce7G
 github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368 h1:6MhgKot+CWjSIrQ6FTJTIznVbHDvOefREXAQ/Z4jCIA=
 github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021901-3c4927f918da h1:ZfKB93c1NT2NwuKOwl0EsfQmgCsInFxPbdqwZRLGHno=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021901-3c4927f918da/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
