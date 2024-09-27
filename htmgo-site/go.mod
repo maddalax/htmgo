@@ -3,9 +3,8 @@ module htmgo-site
 go 1.23.0
 
 require (
-	github.com/go-chi/chi/v5 v5.1.0
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240927152340-96f3baf3c4f4
+	github.com/maddalax/htmgo/framework v0.0.0-20240927152824-61a9d8e80f84
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )
@@ -13,5 +12,6 @@ require (
 require (
 	github.com/alecthomas/chroma/v2 v2.2.0 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/go-chi/chi/v5 v5.1.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 )
