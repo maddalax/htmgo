@@ -2,6 +2,7 @@ package h
 
 import (
 	"bytes"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
 	"sort"
@@ -104,13 +105,25 @@ func TestConditional(t *testing.T) {
 	assert.Equal(t, "<div ></div>", result)
 }
 
-func BenchmarkMailTo(b *testing.B) {
+func BenchmarkMailToStatic(b *testing.B) {
+	b.ReportAllocs()
+	ctx := RenderContext{
+		builder: &strings.Builder{},
+	}
+	page := MailTo("myemail")
+	for i := 0; i < b.N; i++ {
+		page.Render(&ctx)
+		ctx.builder.Reset()
+	}
+}
+
+func BenchmarkMailToDynamic(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
 		builder: &strings.Builder{},
 	}
 	for i := 0; i < b.N; i++ {
-		MailTo().Render(&ctx)
+		MailTo(uuid.NewString()).Render(&ctx)
 		ctx.builder.Reset()
 	}
 }
@@ -252,7 +265,7 @@ func ComplexPage() *Element {
 	)
 }
 
-func MailTo() *Element {
+func MailTo(email string) *Element {
 	return Div(
 		H1(
 			Text("Contact Us"),
@@ -264,7 +277,7 @@ func MailTo() *Element {
 			Div(
 				Text("email:"),
 				A(
-					Href("mailto:"+"test@htmgo.dev"),
+					Href(email),
 					Text("Email me"),
 				),
 			),
