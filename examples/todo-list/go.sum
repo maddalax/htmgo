@@ -43,6 +43,8 @@ github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a h1:RLoGgi
 github.com/maddalax/htmgo/framework v0.0.0-20240926211224-80b3a1d1a66a/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611 h1:8Rce7GPfosRxT3Gx9Vb1db4zUqW8JUseuULmv0haSlk=
 github.com/maddalax/htmgo/framework v0.0.0-20240926220034-f2c4574e9611/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368 h1:6MhgKot+CWjSIrQ6FTJTIznVbHDvOefREXAQ/Z4jCIA=
+github.com/maddalax/htmgo/framework v0.0.0-20240927021509-a8b79ea8e368/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
 github.com/mattn/go-sqlite3 v1.14.23 h1:gbShiuAP1W5j9UOksQ06aiiqPMxYecovVGwmTxWtuw0=
 github.com/mattn/go-sqlite3 v1.14.23/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 h1:DpOJ2HYzCv8LZP15IdmG+YdwD2luVPHITV96TkirNBM=
