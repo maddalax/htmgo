@@ -356,8 +356,8 @@ func Children(children ...Ren) *ChildList {
 	return NewChildList(children...)
 }
 
-func Label(text string) *Element {
-	return Tag("label", Text(text))
+func Label(children ...Ren) *Element {
+	return Tag("label", children...)
 }
 
 func IFrame(src string) *Element {
@@ -400,8 +400,8 @@ func Header(children ...Ren) *Element {
 	return Tag("header", children...)
 }
 
-func Hr() *Element {
-	return Tag("hr")
+func Hr(children ...Ren) *Element {
+	return Tag("hr", children...)
 }
 
 func LabelFor(id string, text string) *Element {
@@ -418,6 +418,10 @@ func Ol(children ...Ren) *Element {
 
 func Ul(children ...Ren) *Element {
 	return Tag("ul", children...)
+}
+
+func Li(children ...Ren) *Element {
+	return Tag("li", children...)
 }
 
 func Select(children ...Ren) *Element {

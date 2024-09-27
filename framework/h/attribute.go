@@ -125,6 +125,14 @@ func D(value string) Ren {
 	return Attribute("d", value)
 }
 
+func Alt(value string) Ren {
+	return Attribute("alt", value)
+}
+
+func For(value string) Ren {
+	return Attribute("for", value)
+}
+
 func Type(name string) Ren {
 	return Attribute("type", name)
 }

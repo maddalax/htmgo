@@ -3,6 +3,7 @@ package h
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/hx"
+	"golang.org/x/net/html"
 	"strings"
 )
 
@@ -25,7 +26,8 @@ func (node *Element) Render(context *RenderContext) {
 	// some elements may not have a tag, such as a Fragment
 
 	if node.tag != "" {
-		context.builder.WriteString("<" + node.tag)
+		context.builder.WriteString("<")
+		context.builder.WriteString(node.tag)
 		context.builder.WriteString(" ")
 
 		for name, value := range node.attributes {
@@ -34,7 +36,7 @@ func (node *Element) Render(context *RenderContext) {
 	}
 
 	// first pass, flatten the children
-	flatChildren := make([]Ren, 0)
+	flatChildren := make([]Ren, 0, len(node.children))
 	for _, child := range node.children {
 		switch child.(type) {
 		case *ChildList:
@@ -75,7 +77,9 @@ func (node *Element) Render(context *RenderContext) {
 
 	if node.tag != "" {
 		renderScripts(context)
-		context.builder.WriteString("</" + node.tag + ">")
+		context.builder.WriteString("</")
+		context.builder.WriteString(node.tag)
+		context.builder.WriteString(">")
 	}
 }
 
@@ -87,7 +91,11 @@ func renderScripts(context *RenderContext) {
 }
 
 func (a *AttributeR) Render(context *RenderContext) {
-	context.builder.WriteString(fmt.Sprintf(`%s="%s"`, a.Name, a.Value))
+	context.builder.WriteString(a.Name)
+	context.builder.WriteString(`=`)
+	context.builder.WriteString(`"`)
+	context.builder.WriteString(html.EscapeString(a.Value))
+	context.builder.WriteString(`"`)
 }
 
 func (t *TextContent) Render(context *RenderContext) {
