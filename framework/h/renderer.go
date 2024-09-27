@@ -7,6 +7,26 @@ import (
 	"strings"
 )
 
+/*
+*
+void tags are tags that cannot have children
+*/
+var voidTags = map[string]bool{
+	"area":   true,
+	"base":   true,
+	"br":     true,
+	"col":    true,
+	"embed":  true,
+	"hr":     true,
+	"img":    true,
+	"input":  true,
+	"link":   true,
+	"meta":   true,
+	"source": true,
+	"track":  true,
+	"wbr":    true,
+}
+
 type RenderContext struct {
 	builder *strings.Builder
 	scripts []string
@@ -79,28 +99,36 @@ func (node *Element) Render(context *RenderContext) {
 
 	// close the tag
 	if node.tag != "" {
+		if voidTags[node.tag] {
+			context.builder.WriteString("/")
+		}
 		context.builder.WriteString(">")
 	}
 
-	// render the children elements that are not attributes
-	for _, child := range node.children {
-		switch child.(type) {
-		case *AttributeMap:
-			continue
-		case *AttributeR:
-			continue
-		case *LifeCycle:
-			continue
-		default:
-			child.Render(context)
+	// void elements do not have children
+	if !voidTags[node.tag] {
+		// render the children elements that are not attributes
+		for _, child := range node.children {
+			switch child.(type) {
+			case *AttributeMap:
+				continue
+			case *AttributeR:
+				continue
+			case *LifeCycle:
+				continue
+			default:
+				child.Render(context)
+			}
 		}
 	}
 
 	if node.tag != "" {
 		renderScripts(context)
-		context.builder.WriteString("</")
-		context.builder.WriteString(node.tag)
-		context.builder.WriteString(">")
+		if !voidTags[node.tag] {
+			context.builder.WriteString("</")
+			context.builder.WriteString(node.tag)
+			context.builder.WriteString(">")
+		}
 	}
 }
 

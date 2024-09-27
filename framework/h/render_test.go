@@ -105,6 +105,24 @@ func TestConditional(t *testing.T) {
 	assert.Equal(t, "<div ></div>", result)
 }
 
+func TestTagSelfClosing(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, `<input type="text"/>`, Render(
+		Input("text"),
+	))
+	// assert the tag cannot have children
+	assert.Equal(t, `<input type="text"/>`, Render(
+		Input("text", Div()),
+	))
+
+	assert.Equal(t, `<div id="test"></div>`, Render(
+		Div(Id("test")),
+	))
+	assert.Equal(t, `<div id="test"><div ></div></div>`, Render(
+		Div(Id("test"), Div()),
+	))
+}
+
 func BenchmarkMailToStatic(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
