@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	entgo.io/ent v0.14.1
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240927152257-2456beb49424
+	github.com/maddalax/htmgo/framework v0.0.0-20240927152340-96f3baf3c4f4
 	github.com/mattn/go-sqlite3 v1.14.23
 )
 
@@ -20,5 +20,6 @@ require (
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
 	golang.org/x/mod v0.20.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 )

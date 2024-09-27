@@ -20,6 +20,14 @@ type Commit struct {
 	Sha string `json:"sha"`
 }
 
+func RunCommand(path string, command string, args ...string) error {
+	cmd := exec.Command(command, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Dir = path // Set the working directory to the current path.
+	return cmd.Run()
+}
+
 func main() {
 	// Get the latest commit hash from the remote repository.
 	latestCommitHash, err := getLatestCommitHash()
@@ -51,15 +59,8 @@ func main() {
 					defer wg.Done()
 					// Run go get github.com/maddalax/htmgo/framework@<latestCommitHash>.
 					fmt.Printf("Running 'go get' with latest commit hash in %s\n", path)
-					cmd := exec.Command("go", "get", fmt.Sprintf("%s@%s", frameworkRepo, latestCommitHash))
-					cmd.Dir = path // Set the working directory to the current path.
-					cmd.Stdout = os.Stdout
-					cmd.Stderr = os.Stderr
-					if err := cmd.Run(); err != nil {
-						fmt.Println("Error running go get:", err)
-					} else {
-						fmt.Println("Updated framework in", path)
-					}
+					RunCommand(path, "go", "get", fmt.Sprintf("%s@%s", frameworkRepo, latestCommitHash))
+					RunCommand(path, "go", "mod", "tidy")
 				}()
 			}
 		}
