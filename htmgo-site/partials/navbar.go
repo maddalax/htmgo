@@ -47,10 +47,12 @@ func Star(ctx *h.RequestContext) *h.Element {
 		h.Div(
 			h.Class("flex items-center px-2 py-1 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-700 transition"),
 			h.Svg(
-				h.Class("w-4 h-4 -mt-0.5 mr-0.5 fill-current text-white"),
+				h.Class("w-4 h-4 -mt-0.5 mr-0.5 stroke-current text-white"),
 				h.Attribute("xmlns", "http://www.w3.org/2000/svg"),
 				h.Attribute("viewBox", "0 0 24 24"),
-				h.Attribute("fill", "currentColor"),
+				h.Attribute("fill", "none"),           // No fill
+				h.Attribute("stroke", "currentColor"), // Apply stroke
+				h.Attribute("stroke-width", "2"),      // Stroke width
 				h.Path(
 					h.D("M12 17.27l5.18 3.05-1.64-5.68 4.46-3.87-5.88-.5L12 3.5l-2.12 6.77-5.88.5 4.46 3.87-1.64 5.68L12 17.27z"),
 				),
