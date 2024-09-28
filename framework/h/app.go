@@ -8,8 +8,10 @@ import (
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -91,7 +93,27 @@ func (app *App) UseWithContext(h func(w http.ResponseWriter, r *http.Request, co
 	})
 }
 
+func GetLogLevel() slog.Level {
+	// Get the log level from the environment variable
+	logLevel := os.Getenv("LOG_LEVEL")
+	switch strings.ToUpper(logLevel) {
+	case "DEBUG":
+		return slog.LevelDebug
+	case "INFO":
+		return slog.LevelInfo
+	case "WARN":
+		return slog.LevelWarn
+	case "ERROR":
+		return slog.LevelError
+	default:
+		// Default to INFO if no valid log level is set
+		return slog.LevelInfo
+	}
+}
+
 func (app *App) start() {
+
+	slog.SetLogLoggerLevel(GetLogLevel())
 
 	app.Router.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
