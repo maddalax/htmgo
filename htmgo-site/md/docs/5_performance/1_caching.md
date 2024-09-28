@@ -64,4 +64,5 @@ If the component takes more arguments, use CachedT2, CachedT3, etc.
 
 **Important**: 
 1. The cached value is stored globally in memory, so it is shared across all requests. Do not store request-specific data in a cached component. Only cache components that you are OK with all users seeing the same data.
-2. Ensure the declaration of the cached component is **outside the function** that uses it. This is to prevent the component from being redeclared on each request.
+2. The arguments passed into cached component **DO NOT** affect the cache key. You will get the same cached component regardless of the arguments passed in. This is different from what you may be used to from something like React useMemo.
+3. Ensure the declaration of the cached component is **outside the function** that uses it. This is to prevent the component from being redeclared on each request.
