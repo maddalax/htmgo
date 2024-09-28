@@ -43,6 +43,22 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
   )
 }
 ```
+
+**Real Example:**
+I want to make a navbar that renders how many github stars my repository has. I don't want to make a request to the GitHub API everytime someone visits my page, so I will cache the component for 15 minutes.
+```go
+var CachedGithubStars = h.CachedT(time.Minute*15, func(t *h.RequestContext) *h.Element {
+    return GithubStars(t)
+})
+
+func GithubStars(ctx *h.RequestContext) *h.Element {
+  stars := http.Get("https://api.github.com/repos/maddalax/htmgo/stargazers")
+  return h.Div(
+    h.Text(stars),
+  )
+}
+```
+
 **Note:** We are using CachedT because the component takes one argument, the RequestContext.
 If the component takes more arguments, use CachedT2, CachedT3, etc.
 

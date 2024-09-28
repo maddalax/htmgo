@@ -17,16 +17,16 @@ var navItems = []NavItem{
 	{Name: "Examples", Url: "/examples"},
 }
 
-var CachedStar = h.CachedT(time.Minute*15, func(t *h.RequestContext) *h.Element {
-	return Star(t)
-})
-
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
 	return h.SwapManyPartial(
 		ctx,
 		MobileNav(ctx, h.GetQueryParam(ctx, "expanded") == "true"),
 	)
 }
+
+var CachedStar = h.CachedT(time.Minute*15, func(t *h.RequestContext) *h.Element {
+	return Star(t)
+})
 
 func Star(ctx *h.RequestContext) *h.Element {
 
