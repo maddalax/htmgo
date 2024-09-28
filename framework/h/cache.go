@@ -1,6 +1,7 @@
 package h
 
 import (
+	"flag"
 	"log/slog"
 	"sync"
 	"time"
@@ -35,9 +36,14 @@ type GetElementFuncT3WithKey[K comparable, T any, T2 any, T3 any] func(T, T2, T3
 type GetElementFuncT4WithKey[K comparable, T any, T2 any, T3 any, T4 any] func(T, T2, T3, T4) (K, GetElementFunc)
 
 func startExpiredCacheCleaner(node *CachedNode) {
+	isTests := flag.Lookup("test.v") != nil
 	go func() {
 		for {
-			time.Sleep(time.Second)
+			if isTests {
+				time.Sleep(time.Second)
+			} else {
+				time.Sleep(time.Minute)
+			}
 			node.ClearExpired()
 		}
 	}()
