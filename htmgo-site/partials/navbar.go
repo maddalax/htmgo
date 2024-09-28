@@ -1,9 +1,8 @@
 package partials
 
 import (
+	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/service"
-	"htmgo-site/internal/cache"
 	"htmgo-site/internal/httpjson"
 	"time"
 )
@@ -13,16 +12,20 @@ type NavItem struct {
 	Url  string
 }
 
+var navItems = []NavItem{
+	{Name: "Docs", Url: "/docs"},
+	{Name: "Examples", Url: "/examples"},
+}
+
+var CachedStar = h.CachedT(time.Minute*15, func(t *h.RequestContext) *h.Element {
+	return Star(t)
+})
+
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
 	return h.SwapManyPartial(
 		ctx,
 		MobileNav(ctx, h.GetQueryParam(ctx, "expanded") == "true"),
 	)
-}
-
-var navItems = []NavItem{
-	{Name: "Docs", Url: "/docs"},
-	{Name: "Examples", Url: "/examples"},
 }
 
 func Star(ctx *h.RequestContext) *h.Element {
@@ -31,14 +34,13 @@ func Star(ctx *h.RequestContext) *h.Element {
 		StarCount int `json:"stargazers_count"`
 	}
 
-	simpleCache := service.Get[cache.SimpleCache](ctx.ServiceLocator())
-	count := cache.GetOrSet(simpleCache, "starCount", 10*time.Minute, func() (int, bool) {
-		response, err := httpjson.Get[Repo]("https://api.github.com/repos/maddalax/htmgo")
-		if err != nil {
-			return 0, false
-		}
-		return response.StarCount, true
-	})
+	fmt.Printf("making github star request\n")
+	count := 0
+	response, err := httpjson.Get[Repo]("https://api.github.com/repos/maddalax/htmgo")
+
+	if err == nil && response != nil {
+		count = response.StarCount
+	}
 
 	return h.A(
 		h.Href("https://github.com/maddalax/htmgo"),
@@ -98,7 +100,7 @@ func NavBar(ctx *h.RequestContext, expanded bool) *h.Element {
 							),
 						)
 					}),
-					Star(ctx),
+					CachedStar(ctx),
 				),
 			),
 		),
@@ -130,7 +132,7 @@ func MobileNav(ctx *h.RequestContext, expanded bool) *h.Element {
 					)),
 				h.Div(
 					h.Class("flex items-center gap-3"),
-					h.Div(h.Class("mt-1"), Star(ctx)),
+					h.Div(h.Class("mt-1"), CachedStar(ctx)),
 					h.Button(
 						h.Boost(),
 

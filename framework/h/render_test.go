@@ -7,7 +7,9 @@ import (
 	"golang.org/x/net/html"
 	"sort"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 )
 
 // Sort attributes of a node by attribute name
@@ -28,7 +30,7 @@ func traverseAndSortAttributes(node *html.Node) {
 }
 
 // Parse HTML, sort attributes, and render back to a string
-func parseSortAndRenderHTML(input string) string {
+func sortHtmlAttributes(input string) string {
 	// Parse the HTML string into a node tree
 	doc, err := html.Parse(strings.NewReader(input))
 	if err != nil {
@@ -73,8 +75,8 @@ func TestRender(t *testing.T) {
 	div.attributes["data-attr-1"] = "value"
 
 	expectedRaw := `<div data-attr-1="value" id="my-div" data-attr-2="value" data-attr-3="value" data-attr-4="value" hx-on::before-request="this.innerText = 'before request';" hx-on::after-request="this.innerText = 'after request';"><div >hello, world</div>hello, child</div>`
-	expected := parseSortAndRenderHTML(expectedRaw)
-	result := parseSortAndRenderHTML(Render(div))
+	expected := sortHtmlAttributes(expectedRaw)
+	result := sortHtmlAttributes(Render(div))
 
 	assert.Equal(t,
 		expected,
@@ -123,6 +125,64 @@ func TestTagSelfClosing(t *testing.T) {
 	))
 }
 
+func TestCached(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := Cached(time.Hour, func() *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page()))
+	secondRender := sortHtmlAttributes(Render(page()))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+}
+
+func TestCachedExpired(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := Cached(time.Millisecond*3, func() *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page()))
+	time.Sleep(time.Millisecond * 5)
+	secondRender := sortHtmlAttributes(Render(page()))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 2, count)
+}
+
+func TestCacheMultiple(t *testing.T) {
+	t.Parallel()
+	count := 0
+	cachedItem := Cached(time.Hour, func() *Element {
+		count++
+		return Div(Text("hello"))
+	})
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			Render(Div(
+				cachedItem(),
+				cachedItem(),
+				cachedItem(),
+			))
+		}()
+	}
+
+	wg.Wait()
+
+	assert.Equal(t, 1, count)
+}
+
 func BenchmarkMailToStatic(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
@@ -146,18 +206,31 @@ func BenchmarkMailToDynamic(b *testing.B) {
 	}
 }
 
-func BenchmarkComplexPage(b *testing.B) {
-	b.Skip()
+func BenchmarkCachedComplexPage(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
 		builder: &strings.Builder{},
 	}
-	page := ComplexPage()
 	for i := 0; i < b.N; i++ {
-		page.Render(&ctx)
+		CachedComplexPage().Render(&ctx)
 		ctx.builder.Reset()
 	}
 }
+
+func BenchmarkComplexPage(b *testing.B) {
+	b.ReportAllocs()
+	ctx := RenderContext{
+		builder: &strings.Builder{},
+	}
+	for i := 0; i < b.N; i++ {
+		ComplexPage().Render(&ctx)
+		ctx.builder.Reset()
+	}
+}
+
+var CachedComplexPage = Cached(time.Hour, func() *Element {
+	return ComplexPage()
+})
 
 func ComplexPage() *Element {
 	return Html(

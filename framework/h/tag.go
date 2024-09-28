@@ -12,6 +12,7 @@ type PartialFunc = func(ctx *RequestContext) *Partial
 type Element struct {
 	tag        string
 	attributes map[string]string
+	meta       any
 	children   []Ren
 }
 

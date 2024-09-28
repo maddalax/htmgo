@@ -20,6 +20,14 @@ func ElementIf(condition bool, element *Element) *Element {
 	}
 }
 
+func IfElseE(condition bool, element *Element, element2 *Element) *Element {
+	if condition {
+		return element
+	} else {
+		return element2
+	}
+}
+
 func IfElse[T any](condition bool, node T, node2 T) T {
 	if condition {
 		return node

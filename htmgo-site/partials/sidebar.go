@@ -69,7 +69,6 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 							h.Class("pl-4 flex flex-col"),
 							h.List(entry.Value, func(page *dirwalk.Page, index int) *h.Element {
 								anchor := CreateAnchor(page.Parts)
-								println(anchor)
 								return h.A(
 									h.Href("#"+anchor),
 									h.Text(partsToName(page.Parts)),

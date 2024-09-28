@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+type CustomElement = string
+
+var (
+	CachedNodeTag CustomElement = "htmgo_cache_node"
+)
+
 /*
 *
 void tags are tags that cannot have children
@@ -44,6 +50,12 @@ func (ctx *RenderContext) AddScript(funcName string, body string) {
 
 func (node *Element) Render(context *RenderContext) {
 	// some elements may not have a tag, such as a Fragment
+
+	if node.tag == CachedNodeTag {
+		meta := node.meta.(*CachedNode)
+		meta.Render(context)
+		return
+	}
 
 	if node.tag != "" {
 		context.builder.WriteString("<")
