@@ -10,7 +10,8 @@ import (
 type CustomElement = string
 
 var (
-	CachedNodeTag CustomElement = "htmgo_cache_node"
+	CachedNodeTag        CustomElement = "htmgo_cache_node"
+	CachedNodeByKeyEntry CustomElement = "htmgo_cached_node_by_key_entry"
 )
 
 /*
@@ -53,6 +54,12 @@ func (node *Element) Render(context *RenderContext) {
 
 	if node.tag == CachedNodeTag {
 		meta := node.meta.(*CachedNode)
+		meta.Render(context)
+		return
+	}
+
+	if node.tag == CachedNodeByKeyEntry {
+		meta := node.meta.(*ByKeyEntry)
 		meta.Render(context)
 		return
 	}

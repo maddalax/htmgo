@@ -183,6 +183,190 @@ func TestCacheMultiple(t *testing.T) {
 	assert.Equal(t, 1, count)
 }
 
+func TestCacheByKey(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	callCount := 0
+	cachedItem := CachedPerKey(time.Hour, func() (any, GetElementFunc) {
+		key := "key"
+		if callCount == 3 {
+			key = "key2"
+		}
+		if callCount == 4 {
+			key = "key"
+		}
+		callCount++
+		return key, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	Render(Div(
+		cachedItem(),
+		cachedItem(),
+		cachedItem(),
+		cachedItem(),
+		cachedItem(),
+	))
+
+	assert.Equal(t, 5, callCount)
+	assert.Equal(t, 2, renderCount)
+}
+
+func TestCacheByKeyT(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Hour, func(key string) (any, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	Render(Div(
+		cachedItem("one"),
+		cachedItem("one"),
+		cachedItem("two"),
+		cachedItem("two"),
+		cachedItem("three"),
+	))
+
+	assert.Equal(t, 3, renderCount)
+}
+
+func TestCacheByKeyT4(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT4(time.Hour, func(arg1 string, arg2 string, arg3 string, arg4 string) (any, GetElementFunc) {
+		return arg1, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	Render(Div(
+		cachedItem("one", uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		cachedItem("one", uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		cachedItem("two", uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		cachedItem("two", uuid.NewString(), uuid.NewString(), uuid.NewString()),
+		cachedItem("three", uuid.NewString(), uuid.NewString(), uuid.NewString()),
+	))
+
+	assert.Equal(t, 3, renderCount)
+}
+
+func TestCacheByKeyT3(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT3(time.Hour, func(arg1 string, arg2 string, arg3 string) (any, GetElementFunc) {
+		return arg1, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	Render(Div(
+		cachedItem("one", uuid.NewString(), uuid.NewString()),
+		cachedItem("one", uuid.NewString(), uuid.NewString()),
+		cachedItem("two", uuid.NewString(), uuid.NewString()),
+		cachedItem("two", uuid.NewString(), uuid.NewString()),
+		cachedItem("three", uuid.NewString(), uuid.NewString()),
+	))
+
+	assert.Equal(t, 3, renderCount)
+}
+
+func TestCacheByKeyT2(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT2(time.Hour, func(arg1 string, arg2 string) (any, GetElementFunc) {
+		return arg1, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	Render(Div(
+		cachedItem("one", uuid.NewString()),
+		cachedItem("one", uuid.NewString()),
+		cachedItem("two", uuid.NewString()),
+		cachedItem("two", uuid.NewString()),
+		cachedItem("three", uuid.NewString()),
+	))
+
+	assert.Equal(t, 3, renderCount)
+}
+
+func TestCacheByKeyConcurrent(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	callCount := 0
+	cachedItem := CachedPerKey(time.Hour, func() (any, GetElementFunc) {
+		key := "key"
+		if callCount == 3 {
+			key = "key2"
+		}
+		if callCount == 4 {
+			key = "key"
+		}
+		callCount++
+		return key, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
+		}
+	})
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			Render(Div(
+				cachedItem(),
+			))
+		}()
+	}
+
+	wg.Wait()
+
+	assert.Equal(t, 5, callCount)
+	assert.Equal(t, 2, renderCount)
+}
+
+func TestCacheByKeyT1_2(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Hour, func(key string) (any, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Pf(key)
+		}
+	})
+
+	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, 2, renderCount)
+}
+
+func TestCacheByKeyT1Expired(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Millisecond, func(key string) (any, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Pf(key)
+		}
+	})
+
+	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	time.Sleep(time.Millisecond * 2)
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, 3, renderCount)
+}
+
 func BenchmarkMailToStatic(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
