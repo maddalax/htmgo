@@ -6,12 +6,14 @@ import (
 )
 
 type CachedNode struct {
-	cb         func() *Element
-	isByKey    bool
-	byKeyCache map[any]*Entry
-	mutex      sync.Mutex
-	expiration time.Time
-	html       string
+	cb              func() *Element
+	isByKey         bool
+	byKeyCache      map[any]*Entry
+	byKeyExpiration map[any]time.Time
+	mutex           sync.Mutex
+	expiration      time.Time
+	duration        time.Duration
+	html            string
 }
 
 type Entry struct {
@@ -49,10 +51,10 @@ func CachedPerKey[K comparable](duration time.Duration, cb GetElementFuncWithKey
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			isByKey:    true,
-			cb:         nil,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			isByKey:  true,
+			cb:       nil,
+			html:     "",
+			duration: duration,
 		},
 	}
 	return func() *Element {
@@ -78,10 +80,10 @@ func CachedPerKeyT[K comparable, T any](duration time.Duration, cb GetElementFun
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			isByKey:    true,
-			cb:         nil,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			isByKey:  true,
+			cb:       nil,
+			html:     "",
+			duration: duration,
 		},
 	}
 	return func(data T) *Element {
@@ -101,10 +103,10 @@ func CachedPerKeyT2[K comparable, T any, T2 any](duration time.Duration, cb GetE
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			isByKey:    true,
-			cb:         nil,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			isByKey:  true,
+			cb:       nil,
+			html:     "",
+			duration: duration,
 		},
 	}
 	return func(data T, data2 T2) *Element {
@@ -124,10 +126,10 @@ func CachedPerKeyT3[K comparable, T any, T2 any, T3 any](duration time.Duration,
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			isByKey:    true,
-			cb:         nil,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			isByKey:  true,
+			cb:       nil,
+			html:     "",
+			duration: duration,
 		},
 	}
 	return func(data T, data2 T2, data3 T3) *Element {
@@ -147,10 +149,10 @@ func CachedPerKeyT4[K comparable, T any, T2 any, T3 any, T4 any](duration time.D
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			isByKey:    true,
-			cb:         nil,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			isByKey:  true,
+			cb:       nil,
+			html:     "",
+			duration: duration,
 		},
 	}
 	return func(data T, data2 T2, data3 T3, data4 T4) *Element {
@@ -233,6 +235,11 @@ func CachedT4[T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetEleme
 
 func (c *CachedNode) ClearCache() {
 	c.html = ""
+	if c.byKeyCache != nil {
+		for key := range c.byKeyCache {
+			delete(c.byKeyCache, key)
+		}
+	}
 }
 
 func (c *CachedNode) Render(ctx *RenderContext) {
@@ -258,11 +265,16 @@ func (c *ByKeyEntry) Render(ctx *RenderContext) {
 	key := c.key
 	parentMeta := c.parent.meta.(*CachedNode)
 
+	parentMeta.mutex.Lock()
+	defer parentMeta.mutex.Unlock()
+
 	if parentMeta.byKeyCache == nil {
 		parentMeta.byKeyCache = make(map[any]*Entry)
 	}
 
-	entry := parentMeta.byKeyCache[key]
+	if parentMeta.byKeyExpiration == nil {
+		parentMeta.byKeyExpiration = make(map[any]time.Time)
+	}
 
 	var setAndWrite = func() {
 		html := Render(c.cb())
@@ -273,12 +285,20 @@ func (c *ByKeyEntry) Render(ctx *RenderContext) {
 		ctx.builder.WriteString(html)
 	}
 
-	// exists in cache but expired
-	if entry != nil && entry.expiration.Before(time.Now()) {
-		delete(parentMeta.byKeyCache, key)
-		setAndWrite()
-		return
+	expEntry, ok := parentMeta.byKeyExpiration[key]
+
+	if !ok {
+		parentMeta.byKeyExpiration[key] = time.Now().Add(parentMeta.duration)
+	} else {
+		// key is expired
+		if expEntry.Before(time.Now()) {
+			parentMeta.byKeyExpiration[key] = time.Now().Add(parentMeta.duration)
+			setAndWrite()
+			return
+		}
 	}
+
+	entry := parentMeta.byKeyCache[key]
 
 	// not in cache
 	if entry == nil {

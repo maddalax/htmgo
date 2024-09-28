@@ -367,6 +367,43 @@ func TestCacheByKeyT1Expired(t *testing.T) {
 	assert.Equal(t, 3, renderCount)
 }
 
+func TestCacheByKeyT1Expired_2(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Millisecond*5, func(key string) (any, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Pf(key)
+		}
+	})
+
+	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
+	time.Sleep(time.Millisecond * 3)
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	time.Sleep(time.Millisecond * 3)
+	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, 3, renderCount)
+}
+
+func BenchmarkCacheByKey(b *testing.B) {
+	b.ReportAllocs()
+	page := CachedPerKeyT(time.Hour, func(userId string) (any, GetElementFunc) {
+		return userId, func() *Element {
+			return MailTo(userId)
+		}
+	})
+
+	for i := 0; i < 5000; i++ {
+		userId := uuid.NewString()
+		Render(page(userId))
+	}
+
+	Render(page(uuid.NewString()))
+}
+
 func BenchmarkMailToStatic(b *testing.B) {
 	b.ReportAllocs()
 	ctx := RenderContext{
