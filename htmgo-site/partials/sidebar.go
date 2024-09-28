@@ -72,7 +72,7 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 								return h.A(
 									h.Href("#"+anchor),
 									h.Text(partsToName(page.Parts)),
-									h.ClassX("text-slate-900", map[string]bool{}),
+									h.Class("text-slate-900 hover:text-rose-400"),
 								)
 							}),
 						),
