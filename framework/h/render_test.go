@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -135,6 +136,70 @@ func TestCached(t *testing.T) {
 
 	firstRender := sortHtmlAttributes(Render(page()))
 	secondRender := sortHtmlAttributes(Render(page()))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+}
+
+func TestCachedT(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := CachedT(time.Hour, func(a string) *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page("a")))
+	secondRender := sortHtmlAttributes(Render(page("a")))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+}
+
+func TestCachedT2(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := CachedT2(time.Hour, func(a string, b string) *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page("a", "b")))
+	secondRender := sortHtmlAttributes(Render(page("a", "b")))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+}
+
+func TestCachedT3(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := CachedT3(time.Hour, func(a string, b string, c string) *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page("a", "b", "c")))
+	secondRender := sortHtmlAttributes(Render(page("a", "b", "c")))
+
+	assert.Equal(t, firstRender, secondRender)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+}
+
+func TestCachedT4(t *testing.T) {
+	t.Parallel()
+	count := 0
+	page := CachedT4(time.Hour, func(a string, b string, c string, d string) *Element {
+		count++
+		return ComplexPage()
+	})
+
+	firstRender := sortHtmlAttributes(Render(page("a", "b", "c", "d")))
+	secondRender := sortHtmlAttributes(Render(page("a", "b", "c", "d")))
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
@@ -388,9 +453,82 @@ func TestCacheByKeyT1Expired_2(t *testing.T) {
 	assert.Equal(t, 3, renderCount)
 }
 
+func TestClearExpiredCached(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := Cached(time.Millisecond*3, func() *Element {
+		renderCount++
+		return Pf("hello")
+	})
+
+	Render(cachedItem())
+	Render(cachedItem())
+	node := cachedItem().meta.(*CachedNode)
+	assert.Equal(t, 1, renderCount)
+	assert.NotEmpty(t, node.html)
+
+	time.Sleep(time.Millisecond * 3)
+	node.ClearExpired()
+
+	assert.Empty(t, node.html)
+}
+
+func TestClearExpiredCacheByKey(t *testing.T) {
+	t.Parallel()
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Millisecond, func(key int) (any, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Pf(strconv.Itoa(key))
+		}
+	})
+
+	for i := 0; i < 100; i++ {
+		Render(cachedItem(i))
+	}
+
+	node := cachedItem(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
+	assert.Equal(t, 100, len(node.byKeyExpiration))
+	assert.Equal(t, 100, len(node.byKeyCache))
+
+	time.Sleep(time.Millisecond * 2)
+
+	Render(cachedItem(0))
+	node.ClearExpired()
+
+	assert.Equal(t, 1, len(node.byKeyExpiration))
+	assert.Equal(t, 1, len(node.byKeyCache))
+
+	node.ClearCache()
+
+	assert.Equal(t, 0, len(node.byKeyExpiration))
+	assert.Equal(t, 0, len(node.byKeyCache))
+}
+
+func TestBackgroundCleaner(t *testing.T) {
+	t.Parallel()
+	cachedItem := CachedPerKeyT(time.Second*2, func(key int) (any, GetElementFunc) {
+		return key, func() *Element {
+			return Pf(strconv.Itoa(key))
+		}
+	})
+	for i := 0; i < 100; i++ {
+		Render(cachedItem(i))
+	}
+
+	node := cachedItem(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
+	assert.Equal(t, 100, len(node.byKeyExpiration))
+	assert.Equal(t, 100, len(node.byKeyCache))
+
+	time.Sleep(time.Second * 3)
+
+	assert.Equal(t, 0, len(node.byKeyExpiration))
+	assert.Equal(t, 0, len(node.byKeyCache))
+}
+
 func BenchmarkCacheByKey(b *testing.B) {
 	b.ReportAllocs()
-	page := CachedPerKeyT(time.Hour, func(userId string) (any, GetElementFunc) {
+	page := CachedPerKeyT(time.Second*3, func(userId string) (any, GetElementFunc) {
 		return userId, func() *Element {
 			return MailTo(userId)
 		}

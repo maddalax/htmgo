@@ -1,6 +1,7 @@
 package h
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 )
@@ -11,8 +12,8 @@ type CachedNode struct {
 	byKeyCache      map[any]*Entry
 	byKeyExpiration map[any]time.Time
 	mutex           sync.Mutex
-	expiration      time.Time
 	duration        time.Duration
+	expiration      time.Time
 	html            string
 }
 
@@ -33,15 +34,25 @@ type GetElementFuncT2WithKey[K comparable, T any, T2 any] func(T, T2) (K, GetEle
 type GetElementFuncT3WithKey[K comparable, T any, T2 any, T3 any] func(T, T2, T3) (K, GetElementFunc)
 type GetElementFuncT4WithKey[K comparable, T any, T2 any, T3 any, T4 any] func(T, T2, T3, T4) (K, GetElementFunc)
 
+func startExpiredCacheCleaner(node *CachedNode) {
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			node.ClearExpired()
+		}
+	}()
+}
+
 func Cached(duration time.Duration, cb GetElementFunc) func() *Element {
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			cb:         cb,
-			html:       "",
-			expiration: time.Now().Add(duration),
+			cb:       cb,
+			html:     "",
+			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func() *Element {
 		return element
 	}
@@ -57,6 +68,7 @@ func CachedPerKey[K comparable](duration time.Duration, cb GetElementFuncWithKey
 			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func() *Element {
 		key, componentFunc := cb()
 		return &Element{
@@ -86,6 +98,7 @@ func CachedPerKeyT[K comparable, T any](duration time.Duration, cb GetElementFun
 			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T) *Element {
 		key, componentFunc := cb(data)
 		return &Element{
@@ -109,6 +122,7 @@ func CachedPerKeyT2[K comparable, T any, T2 any](duration time.Duration, cb GetE
 			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2) *Element {
 		key, componentFunc := cb(data, data2)
 		return &Element{
@@ -132,6 +146,7 @@ func CachedPerKeyT3[K comparable, T any, T2 any, T3 any](duration time.Duration,
 			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2, data3 T3) *Element {
 		key, componentFunc := cb(data, data2, data3)
 		return &Element{
@@ -155,6 +170,7 @@ func CachedPerKeyT4[K comparable, T any, T2 any, T3 any, T4 any](duration time.D
 			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2, data3 T3, data4 T4) *Element {
 		key, componentFunc := cb(data, data2, data3, data4)
 		return &Element{
@@ -172,11 +188,12 @@ func CachedT[T any](duration time.Duration, cb GetElementFuncT[T]) func(T) *Elem
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			html:       "",
-			expiration: time.Now().Add(duration),
-			mutex:      sync.Mutex{},
+			html:     "",
+			duration: duration,
+			mutex:    sync.Mutex{},
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T) *Element {
 		element.meta.(*CachedNode).cb = func() *Element {
 			return cb(data)
@@ -189,10 +206,11 @@ func CachedT2[T any, T2 any](duration time.Duration, cb GetElementFuncT2[T, T2])
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			html:       "",
-			expiration: time.Now().Add(duration),
+			html:     "",
+			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2) *Element {
 		element.meta.(*CachedNode).cb = func() *Element {
 			return cb(data, data2)
@@ -205,10 +223,11 @@ func CachedT3[T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			html:       "",
-			expiration: time.Now().Add(duration),
+			html:     "",
+			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2, data3 T3) *Element {
 		element.meta.(*CachedNode).cb = func() *Element {
 			return cb(data, data2, data3)
@@ -221,10 +240,11 @@ func CachedT4[T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetEleme
 	element := &Element{
 		tag: CachedNodeTag,
 		meta: &CachedNode{
-			html:       "",
-			expiration: time.Now().Add(duration),
+			html:     "",
+			duration: duration,
 		},
 	}
+	startExpiredCacheCleaner(element.meta.(*CachedNode))
 	return func(data T, data2 T2, data3 T3, data4 T4) *Element {
 		element.meta.(*CachedNode).cb = func() *Element {
 			return cb(data, data2, data3, data4)
@@ -240,6 +260,40 @@ func (c *CachedNode) ClearCache() {
 			delete(c.byKeyCache, key)
 		}
 	}
+	if c.byKeyExpiration != nil {
+		for key := range c.byKeyExpiration {
+			delete(c.byKeyExpiration, key)
+		}
+	}
+}
+
+func (c *CachedNode) ClearExpired() {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	deletedCount := 0
+	if c.isByKey == true {
+		if c.byKeyCache != nil && c.byKeyExpiration != nil {
+			for key := range c.byKeyCache {
+				expir, ok := c.byKeyExpiration[key]
+				if ok && expir.Before(time.Now()) {
+					delete(c.byKeyCache, key)
+					delete(c.byKeyExpiration, key)
+					deletedCount++
+				}
+			}
+		}
+	} else {
+		now := time.Now()
+		expiration := c.expiration
+		if c.html != "" && expiration.Before(now) {
+			c.html = ""
+			deletedCount++
+		}
+	}
+
+	if deletedCount > 0 {
+		slog.Debug("Deleted expired cache entries", slog.Int("count", deletedCount))
+	}
 }
 
 func (c *CachedNode) Render(ctx *RenderContext) {
@@ -248,8 +302,13 @@ func (c *CachedNode) Render(ctx *RenderContext) {
 	} else {
 		c.mutex.Lock()
 		defer c.mutex.Unlock()
-		if c.expiration.Before(time.Now()) {
+
+		now := time.Now()
+		expiration := c.expiration
+
+		if expiration.IsZero() || expiration.Before(now) {
 			c.html = ""
+			c.expiration = now.Add(c.duration)
 		}
 
 		if c.html != "" {
@@ -308,5 +367,4 @@ func (c *ByKeyEntry) Render(ctx *RenderContext) {
 
 	// exists in cache and not expired
 	ctx.builder.WriteString(entry.html)
-
 }
