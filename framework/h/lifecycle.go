@@ -186,45 +186,55 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 	))
 }
 
-func SetClassOnChildren(selector, class string) ComplexJsCommand {
+func EvalJsOnParent(js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		var children = self.querySelectorAll('%s');
-		children.forEach(function(child) {
-			child.classList.add('%s');
+		if(!self.parentElement) { return; }
+        let element = self.parentElement;
+        %s
+	`, js))
+}
+
+func EvalJsOnChildren(selector, js string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		let children = self.querySelectorAll('%s');
+		children.forEach(function(element) {
+			%s
 		});
-	`, selector, class))
+	`, selector, js))
+}
+
+func EvalJsOnSibling(selector, js string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		if(!self.parentElement) { return; }
+		let siblings = self.parentElement.querySelectorAll('%s');
+		siblings.forEach(function(element) {
+			%s
+		});
+	`, selector, js))
+}
+
+func SetClassOnChildren(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.add('%s')", class))
 }
 
 func SetClassOnSibling(selector, class string) ComplexJsCommand {
 	// language=JavaScript
-	return EvalJs(fmt.Sprintf(`
-		var siblings = self.parentElement.querySelectorAll('%s');
-		siblings.forEach(function(sibling) {
-			sibling.classList.remove('%s');
-		});
-		self.classList.add('%s');
-	`, selector, class, class))
+	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.add('%s')", class))
 }
 
 func RemoveClassOnSibling(selector, class string) ComplexJsCommand {
 	// language=JavaScript
-	return EvalJs(fmt.Sprintf(`
-		var siblings = self.parentElement.querySelectorAll('%s');
-		siblings.forEach(function(sibling) {
-			sibling.classList.remove('%s');
-		});
-	`, selector, class))
+	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.remove('%s')", class))
+
 }
 
 func RemoveClassOnChildren(selector, class string) ComplexJsCommand {
 	// language=JavaScript
-	return EvalJs(fmt.Sprintf(`
-		var children = self.querySelectorAll('%s');
-		children.forEach(function(child) {
-			child.classList.remove('%s');
-		});
-	`, selector, class))
+	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.remove('%s')", class))
 }
 
 func Alert(text string) SimpleJsCommand {
