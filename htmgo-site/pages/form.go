@@ -42,6 +42,7 @@ func SubmitButton() *h.Element {
 		h.Button(
 			h.Class("loading hidden relative text-center", buttonClasses),
 			Spinner(),
+			h.Disabled(),
 			h.Text("Submitting..."),
 		),
 		h.Button(
