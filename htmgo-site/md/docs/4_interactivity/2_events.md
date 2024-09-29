@@ -69,7 +69,22 @@ js.GetWithQs(string, Qs)
 js.PostWithQs(string, Qs)
 js.ToggleClass(string)
 js.ToggleClassOnElement(string, string)
+
+// The following methods are used to evaluate JS on nearby elements. 
+// Use 'element' to get the element as a reference for the EvalJs methods.
+js.EvalJsOnParent(string) 
+js.EvalJsOnSibling(string, string)
+js.EvalJsOnChildren(string, string)
+js.SetClassOnParent(string)
+js.RemoveClassOnParent(string)
+js.SetClassOnChildren(string, string)
+js.RemoveClassOnChildren(string, string)
+js.SetClassOnSibling(string, string)
+js.RemoveClassOnSibling(string, string)
+
 ```
+For more usages: see https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go
+
 
 **Example:** Evaluating arbitrary JS
 

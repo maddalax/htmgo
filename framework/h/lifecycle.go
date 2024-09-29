@@ -216,6 +216,16 @@ func EvalJsOnSibling(selector, js string) ComplexJsCommand {
 	`, selector, js))
 }
 
+func SetClassOnParent(class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf("element.classList.add('%s')", class))
+}
+
+func RemoveClassOnParent(class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf("element.classList.remove('%s')", class))
+}
+
 func SetClassOnChildren(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.add('%s')", class))
