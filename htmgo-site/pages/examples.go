@@ -28,7 +28,7 @@ var examples = []Example{
 	},
 	{
 		Title:       "form with loading state",
-		Github:      "",
+		Github:      "https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go",
 		Demo:        "/form",
 		Description: "A simple form submission example with a loading state",
 	},
