@@ -6,10 +6,11 @@ import (
 )
 
 type Example struct {
-	Title  string
-	Github string
-	Demo   string
-	Image  string
+	Title       string
+	Github      string
+	Demo        string
+	Image       string
+	Description string
 }
 
 var examples = []Example{
@@ -24,6 +25,12 @@ var examples = []Example{
 		Github: "https://github.com/maddalax/htmgo/tree/master/htmgo-site",
 		Demo:   "https://htmgo.dev",
 		Image:  "public/htmgo-site.jpg",
+	},
+	{
+		Title:       "form with loading state",
+		Github:      "",
+		Demo:        "/form",
+		Description: "A simple form submission example with a loading state",
 	},
 }
 
@@ -70,7 +77,7 @@ func ExampleCards() *h.Element {
 						h.Class("text-lg text-center mb-1"), // Reduced margin at the bottom of the title
 						h.Text(example.Title),
 					),
-					h.Div(
+					h.If(example.Image != "", h.Div(
 						h.A(
 							h.Href(example.Demo),
 							h.Class("not-prose"),
@@ -79,7 +86,8 @@ func ExampleCards() *h.Element {
 								h.Class("md:w-full rounded-md mx-auto"),
 							),
 						), // Ensures image is centered within the card
-					),
+					)),
+					h.If(example.Description != "", h.Pf(example.Description)),
 					h.Div(
 						h.Div(
 							h.Class("flex gap-2 justify-center mt-2"), // Slight margin-top for spacing from the image

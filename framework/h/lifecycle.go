@@ -119,6 +119,16 @@ func SetText(text string) SimpleJsCommand {
 	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = '%s'", text)}
 }
 
+func SetTextOnChildren(selector, text string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		var children = self.querySelectorAll('%s');
+		children.forEach(function(child) {
+			child.innerText = '%s';
+		});
+	`, selector, text))
+}
+
 func Increment(amount int) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = parseInt(this.innerText) + %d", amount)}
@@ -174,6 +184,47 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 		if(el) { el.classList.toggle('%s'); }`,
 		selector, class,
 	))
+}
+
+func SetClassOnChildren(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		var children = self.querySelectorAll('%s');
+		children.forEach(function(child) {
+			child.classList.add('%s');
+		});
+	`, selector, class))
+}
+
+func SetClassOnSibling(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		var siblings = self.parentElement.querySelectorAll('%s');
+		siblings.forEach(function(sibling) {
+			sibling.classList.remove('%s');
+		});
+		self.classList.add('%s');
+	`, selector, class, class))
+}
+
+func RemoveClassOnSibling(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		var siblings = self.parentElement.querySelectorAll('%s');
+		siblings.forEach(function(sibling) {
+			sibling.classList.remove('%s');
+		});
+	`, selector, class))
+}
+
+func RemoveClassOnChildren(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		var children = self.querySelectorAll('%s');
+		children.forEach(function(child) {
+			child.classList.remove('%s');
+		});
+	`, selector, class))
 }
 
 func Alert(text string) SimpleJsCommand {
