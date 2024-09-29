@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240929020301-7a63210bdf5c
+	github.com/maddalax/htmgo/framework v0.0.0-20240929054559-c045e880a7c7
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )
