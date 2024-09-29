@@ -13,7 +13,7 @@ Usage:
 
 h.UnsafeRaw("<div>Raw HTML</div>")
 h.UnsafeRawF("<div>%s</div>", "Raw HTML")
-h.UnsafeRawScript("<script>alert('Hello World')</script>")
+h.UnsafeRawScript("alert('Hello World')")
 ```
 
 Important: Be careful when using these methods, these methods do not escape the HTML content 
