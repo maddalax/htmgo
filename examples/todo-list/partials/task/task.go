@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/js"
 	"todolist/ent"
 	"todolist/internal/tasks"
 )
@@ -50,6 +51,8 @@ func Input(list []*ent.Task) *h.Element {
 		h.Class("border border-b-slate-100 relative"),
 		h.Input(
 			"text",
+			h.Attribute("required", "true"),
+			h.Attribute("maxlength", "150"),
 			h.Attribute("autocomplete", "off"),
 			h.Attribute("autofocus", "true"),
 			h.Attribute("name", "name"),
@@ -150,6 +153,8 @@ func Task(task *ent.Task, editing bool) *h.Element {
 						"text",
 						h.PostPartial(UpdateName, hx.TriggerBlur, hx.TriggerKeyUpEnter),
 						h.Attributes(&h.AttributeMap{
+							"maxLength":    "150",
+							"required":     "true",
 							"placeholder":  "What needs to be done?",
 							"autofocus":    "true",
 							"autocomplete": "off",
@@ -200,6 +205,10 @@ func UpdateName(ctx *h.RequestContext) *h.Partial {
 	name := ctx.FormValue("name")
 	if name == "" {
 		return h.NewPartial(h.Div(h.Text("name is required")))
+	}
+
+	if len(name) > 150 {
+		return h.NewPartial(h.Div(h.Text("task must be less than 150 characters")))
 	}
 
 	service := tasks.NewService(ctx.ServiceLocator())
@@ -288,11 +297,26 @@ func ClearCompleted(ctx *h.RequestContext) *h.Partial {
 func Create(ctx *h.RequestContext) *h.Partial {
 	name := ctx.FormValue("name")
 
-	if name == "" {
-		return h.NewPartial(h.Div(h.Text("name is required")))
+	if len(name) > 150 {
+		return h.NewPartial(
+			h.Div(
+				h.HxOnLoad(js.Alert("Task must be less than 150 characters")),
+			),
+		)
 	}
 
 	service := tasks.NewService(ctx.ServiceLocator())
+
+	list, _ := service.List()
+
+	if list != nil && len(list) >= 200 {
+		return h.NewPartial(
+			h.Div(
+				h.HxOnLoad(js.Alert("There are too many tasks, please complete and clear some.")),
+			),
+		)
+	}
+
 	_, err := service.Create(tasks.CreateRequest{
 		Name: name,
 	})
@@ -301,7 +325,7 @@ func Create(ctx *h.RequestContext) *h.Partial {
 		return h.NewPartial(h.Div(h.Text("failed to create")))
 	}
 
-	list, _ := service.List()
+	list, err = service.List()
 
 	return h.SwapManyPartial(ctx,
 		CardBody(list, getActiveTab(ctx)),
