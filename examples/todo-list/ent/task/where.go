@@ -75,6 +75,11 @@ func CompletedAt(v time.Time) predicate.Task {
 	return predicate.Task(sql.FieldEQ(FieldCompletedAt, v))
 }
 
+// IPAddress applies equality check predicate on the "ip_address" field. It's identical to IPAddressEQ.
+func IPAddress(v string) predicate.Task {
+	return predicate.Task(sql.FieldEQ(FieldIPAddress, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Task {
 	return predicate.Task(sql.FieldEQ(FieldName, v))
@@ -278,6 +283,81 @@ func TagsIsNil() predicate.Task {
 // TagsNotNil applies the NotNil predicate on the "tags" field.
 func TagsNotNil() predicate.Task {
 	return predicate.Task(sql.FieldNotNull(FieldTags))
+}
+
+// IPAddressEQ applies the EQ predicate on the "ip_address" field.
+func IPAddressEQ(v string) predicate.Task {
+	return predicate.Task(sql.FieldEQ(FieldIPAddress, v))
+}
+
+// IPAddressNEQ applies the NEQ predicate on the "ip_address" field.
+func IPAddressNEQ(v string) predicate.Task {
+	return predicate.Task(sql.FieldNEQ(FieldIPAddress, v))
+}
+
+// IPAddressIn applies the In predicate on the "ip_address" field.
+func IPAddressIn(vs ...string) predicate.Task {
+	return predicate.Task(sql.FieldIn(FieldIPAddress, vs...))
+}
+
+// IPAddressNotIn applies the NotIn predicate on the "ip_address" field.
+func IPAddressNotIn(vs ...string) predicate.Task {
+	return predicate.Task(sql.FieldNotIn(FieldIPAddress, vs...))
+}
+
+// IPAddressGT applies the GT predicate on the "ip_address" field.
+func IPAddressGT(v string) predicate.Task {
+	return predicate.Task(sql.FieldGT(FieldIPAddress, v))
+}
+
+// IPAddressGTE applies the GTE predicate on the "ip_address" field.
+func IPAddressGTE(v string) predicate.Task {
+	return predicate.Task(sql.FieldGTE(FieldIPAddress, v))
+}
+
+// IPAddressLT applies the LT predicate on the "ip_address" field.
+func IPAddressLT(v string) predicate.Task {
+	return predicate.Task(sql.FieldLT(FieldIPAddress, v))
+}
+
+// IPAddressLTE applies the LTE predicate on the "ip_address" field.
+func IPAddressLTE(v string) predicate.Task {
+	return predicate.Task(sql.FieldLTE(FieldIPAddress, v))
+}
+
+// IPAddressContains applies the Contains predicate on the "ip_address" field.
+func IPAddressContains(v string) predicate.Task {
+	return predicate.Task(sql.FieldContains(FieldIPAddress, v))
+}
+
+// IPAddressHasPrefix applies the HasPrefix predicate on the "ip_address" field.
+func IPAddressHasPrefix(v string) predicate.Task {
+	return predicate.Task(sql.FieldHasPrefix(FieldIPAddress, v))
+}
+
+// IPAddressHasSuffix applies the HasSuffix predicate on the "ip_address" field.
+func IPAddressHasSuffix(v string) predicate.Task {
+	return predicate.Task(sql.FieldHasSuffix(FieldIPAddress, v))
+}
+
+// IPAddressIsNil applies the IsNil predicate on the "ip_address" field.
+func IPAddressIsNil() predicate.Task {
+	return predicate.Task(sql.FieldIsNull(FieldIPAddress))
+}
+
+// IPAddressNotNil applies the NotNil predicate on the "ip_address" field.
+func IPAddressNotNil() predicate.Task {
+	return predicate.Task(sql.FieldNotNull(FieldIPAddress))
+}
+
+// IPAddressEqualFold applies the EqualFold predicate on the "ip_address" field.
+func IPAddressEqualFold(v string) predicate.Task {
+	return predicate.Task(sql.FieldEqualFold(FieldIPAddress, v))
+}
+
+// IPAddressContainsFold applies the ContainsFold predicate on the "ip_address" field.
+func IPAddressContainsFold(v string) predicate.Task {
+	return predicate.Task(sql.FieldContainsFold(FieldIPAddress, v))
 }
 
 // And groups predicates with the AND operator between them.

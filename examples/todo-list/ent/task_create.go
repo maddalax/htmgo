@@ -83,6 +83,20 @@ func (tc *TaskCreate) SetTags(s []string) *TaskCreate {
 	return tc
 }
 
+// SetIPAddress sets the "ip_address" field.
+func (tc *TaskCreate) SetIPAddress(s string) *TaskCreate {
+	tc.mutation.SetIPAddress(s)
+	return tc
+}
+
+// SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
+func (tc *TaskCreate) SetNillableIPAddress(s *string) *TaskCreate {
+	if s != nil {
+		tc.SetIPAddress(*s)
+	}
+	return tc
+}
+
 // SetID sets the "id" field.
 func (tc *TaskCreate) SetID(u uuid.UUID) *TaskCreate {
 	tc.mutation.SetID(u)
@@ -143,6 +157,10 @@ func (tc *TaskCreate) defaults() {
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
 		v := task.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := tc.mutation.IPAddress(); !ok {
+		v := task.DefaultIPAddress
+		tc.mutation.SetIPAddress(v)
 	}
 	if _, ok := tc.mutation.ID(); !ok {
 		v := task.DefaultID()
@@ -215,6 +233,10 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.Tags(); ok {
 		_spec.SetField(task.FieldTags, field.TypeJSON, value)
 		_node.Tags = value
+	}
+	if value, ok := tc.mutation.IPAddress(); ok {
+		_spec.SetField(task.FieldIPAddress, field.TypeString, value)
+		_node.IPAddress = value
 	}
 	return _node, _spec
 }

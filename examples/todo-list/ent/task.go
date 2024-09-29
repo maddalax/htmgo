@@ -28,7 +28,9 @@ type Task struct {
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 	// Tags holds the value of the "tags" field.
-	Tags         []string `json:"tags,omitempty"`
+	Tags []string `json:"tags,omitempty"`
+	// IPAddress holds the value of the "ip_address" field.
+	IPAddress    string `json:"ip_address,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -39,7 +41,7 @@ func (*Task) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case task.FieldTags:
 			values[i] = new([]byte)
-		case task.FieldName:
+		case task.FieldName, task.FieldIPAddress:
 			values[i] = new(sql.NullString)
 		case task.FieldCreatedAt, task.FieldUpdatedAt, task.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -99,6 +101,12 @@ func (t *Task) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field tags: %w", err)
 				}
 			}
+		case task.FieldIPAddress:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ip_address", values[i])
+			} else if value.Valid {
+				t.IPAddress = value.String
+			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
 		}
@@ -151,6 +159,9 @@ func (t *Task) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", t.Tags))
+	builder.WriteString(", ")
+	builder.WriteString("ip_address=")
+	builder.WriteString(t.IPAddress)
 	builder.WriteByte(')')
 	return builder.String()
 }

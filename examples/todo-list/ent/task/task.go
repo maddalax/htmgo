@@ -24,6 +24,8 @@ const (
 	FieldCompletedAt = "completed_at"
 	// FieldTags holds the string denoting the tags field in the database.
 	FieldTags = "tags"
+	// FieldIPAddress holds the string denoting the ip_address field in the database.
+	FieldIPAddress = "ip_address"
 	// Table holds the table name of the task in the database.
 	Table = "tasks"
 )
@@ -36,6 +38,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldCompletedAt,
 	FieldTags,
+	FieldIPAddress,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -55,6 +58,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
+	// DefaultIPAddress holds the default value on creation for the "ip_address" field.
+	DefaultIPAddress string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -85,4 +90,9 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByCompletedAt orders the results by the completed_at field.
 func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
+}
+
+// ByIPAddress orders the results by the ip_address field.
+func ByIPAddress(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIPAddress, opts...).ToFunc()
 }

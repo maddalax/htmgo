@@ -16,6 +16,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "tags", Type: field.TypeJSON, Nullable: true},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Default: ""},
 	}
 	// TasksTable holds the schema information for the "tasks" table.
 	TasksTable = &schema.Table{

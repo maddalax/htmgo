@@ -17,8 +17,7 @@ func (Task) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New),
-		field.String("name").
-			Default("unknown"),
+		field.String("name").Default("unknown"),
 		field.Time("created_at").Default(time.Now).Annotations(
 			entsql.Default("CURRENT_TIMESTAMP"),
 		),
@@ -27,6 +26,7 @@ func (Task) Fields() []ent.Field {
 		),
 		field.Time("completed_at").Optional().Nillable(),
 		field.Strings("tags").Optional(),
+		field.String("ip_address").Optional().Default(""),
 	}
 }
 

@@ -31,8 +31,8 @@ const (
 // TaskMutation represents an operation that mutates the Task nodes in the graph.
 type TaskMutation struct {
 	config
-	op         Op
-	typ        string
+	op            Op
+	typ           string
 	id            *uuid.UUID
 	name          *string
 	created_at    *time.Time
@@ -40,10 +40,11 @@ type TaskMutation struct {
 	completed_at  *time.Time
 	tags          *[]string
 	appendtags    []string
+	ip_address    *string
 	clearedFields map[string]struct{}
-	done       bool
-	oldValue   func(context.Context) (*Task, error)
-	predicates []predicate.Task
+	done          bool
+	oldValue      func(context.Context) (*Task, error)
+	predicates    []predicate.Task
 }
 
 var _ ent.Mutation = (*TaskMutation)(nil)
@@ -372,6 +373,55 @@ func (m *TaskMutation) ResetTags() {
 	delete(m.clearedFields, task.FieldTags)
 }
 
+// SetIPAddress sets the "ip_address" field.
+func (m *TaskMutation) SetIPAddress(s string) {
+	m.ip_address = &s
+}
+
+// IPAddress returns the value of the "ip_address" field in the mutation.
+func (m *TaskMutation) IPAddress() (r string, exists bool) {
+	v := m.ip_address
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIPAddress returns the old "ip_address" field's value of the Task entity.
+// If the Task object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaskMutation) OldIPAddress(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIPAddress is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIPAddress requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIPAddress: %w", err)
+	}
+	return oldValue.IPAddress, nil
+}
+
+// ClearIPAddress clears the value of the "ip_address" field.
+func (m *TaskMutation) ClearIPAddress() {
+	m.ip_address = nil
+	m.clearedFields[task.FieldIPAddress] = struct{}{}
+}
+
+// IPAddressCleared returns if the "ip_address" field was cleared in this mutation.
+func (m *TaskMutation) IPAddressCleared() bool {
+	_, ok := m.clearedFields[task.FieldIPAddress]
+	return ok
+}
+
+// ResetIPAddress resets all changes to the "ip_address" field.
+func (m *TaskMutation) ResetIPAddress() {
+	m.ip_address = nil
+	delete(m.clearedFields, task.FieldIPAddress)
+}
+
 // Where appends a list predicates to the TaskMutation builder.
 func (m *TaskMutation) Where(ps ...predicate.Task) {
 	m.predicates = append(m.predicates, ps...)
@@ -406,7 +456,7 @@ func (m *TaskMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TaskMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, task.FieldName)
 	}
@@ -421,6 +471,9 @@ func (m *TaskMutation) Fields() []string {
 	}
 	if m.tags != nil {
 		fields = append(fields, task.FieldTags)
+	}
+	if m.ip_address != nil {
+		fields = append(fields, task.FieldIPAddress)
 	}
 	return fields
 }
@@ -440,6 +493,8 @@ func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 		return m.CompletedAt()
 	case task.FieldTags:
 		return m.Tags()
+	case task.FieldIPAddress:
+		return m.IPAddress()
 	}
 	return nil, false
 }
@@ -459,6 +514,8 @@ func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCompletedAt(ctx)
 	case task.FieldTags:
 		return m.OldTags(ctx)
+	case task.FieldIPAddress:
+		return m.OldIPAddress(ctx)
 	}
 	return nil, fmt.Errorf("unknown Task field %s", name)
 }
@@ -503,6 +560,13 @@ func (m *TaskMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTags(v)
 		return nil
+	case task.FieldIPAddress:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIPAddress(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)
 }
@@ -539,6 +603,9 @@ func (m *TaskMutation) ClearedFields() []string {
 	if m.FieldCleared(task.FieldTags) {
 		fields = append(fields, task.FieldTags)
 	}
+	if m.FieldCleared(task.FieldIPAddress) {
+		fields = append(fields, task.FieldIPAddress)
+	}
 	return fields
 }
 
@@ -558,6 +625,9 @@ func (m *TaskMutation) ClearField(name string) error {
 		return nil
 	case task.FieldTags:
 		m.ClearTags()
+		return nil
+	case task.FieldIPAddress:
+		m.ClearIPAddress()
 		return nil
 	}
 	return fmt.Errorf("unknown Task nullable field %s", name)
@@ -581,6 +651,9 @@ func (m *TaskMutation) ResetField(name string) error {
 		return nil
 	case task.FieldTags:
 		m.ResetTags()
+		return nil
+	case task.FieldIPAddress:
+		m.ResetIPAddress()
 		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)

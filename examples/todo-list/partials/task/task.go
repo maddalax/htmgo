@@ -26,7 +26,7 @@ func getActiveTab(ctx *h.RequestContext) Tab {
 }
 
 func Card(ctx *h.RequestContext) *h.Element {
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	list, _ := service.List()
 
 	return h.Div(
@@ -52,7 +52,6 @@ func Input(list []*ent.Task) *h.Element {
 		h.Input(
 			"text",
 			h.Required(),
-			h.Disabled(),
 			h.MaxLength(150),
 			h.AutoComplete("off"),
 			h.AutoFocus(),
@@ -212,7 +211,7 @@ func UpdateName(ctx *h.RequestContext) *h.Partial {
 		return h.NewPartial(h.Div(h.Text("task must be less than 150 characters")))
 	}
 
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
@@ -235,7 +234,7 @@ func EditNameForm(ctx *h.RequestContext) *h.Partial {
 		return h.NewPartial(h.Div(h.Text("invalid id")))
 	}
 
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
@@ -253,7 +252,7 @@ func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 		return h.NewPartial(h.Div(h.Text("invalid id")))
 	}
 
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
@@ -277,7 +276,7 @@ func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 }
 
 func CompleteAll(ctx *h.RequestContext) *h.Partial {
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 
 	service.SetAllCompleted(ctx.QueryParam("complete") == "true")
 
@@ -287,7 +286,7 @@ func CompleteAll(ctx *h.RequestContext) *h.Partial {
 }
 
 func ClearCompleted(ctx *h.RequestContext) *h.Partial {
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	_ = service.ClearCompleted()
 
 	list, _ := service.List()
@@ -306,11 +305,11 @@ func Create(ctx *h.RequestContext) *h.Partial {
 		)
 	}
 
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 
 	list, _ := service.List()
 
-	if list != nil && len(list) >= 200 {
+	if list != nil && len(list) >= 100 {
 		return h.NewPartial(
 			h.Div(
 				h.HxOnLoad(js.Alert("There are too many tasks, please complete and clear some.")),
@@ -334,7 +333,7 @@ func Create(ctx *h.RequestContext) *h.Partial {
 }
 
 func ChangeTab(ctx *h.RequestContext) *h.Partial {
-	service := tasks.NewService(ctx.ServiceLocator())
+	service := tasks.NewService(ctx)
 	list, _ := service.List()
 
 	tab := ctx.QueryParam("tab")

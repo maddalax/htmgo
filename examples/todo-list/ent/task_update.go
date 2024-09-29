@@ -109,6 +109,26 @@ func (tu *TaskUpdate) ClearTags() *TaskUpdate {
 	return tu
 }
 
+// SetIPAddress sets the "ip_address" field.
+func (tu *TaskUpdate) SetIPAddress(s string) *TaskUpdate {
+	tu.mutation.SetIPAddress(s)
+	return tu
+}
+
+// SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
+func (tu *TaskUpdate) SetNillableIPAddress(s *string) *TaskUpdate {
+	if s != nil {
+		tu.SetIPAddress(*s)
+	}
+	return tu
+}
+
+// ClearIPAddress clears the value of the "ip_address" field.
+func (tu *TaskUpdate) ClearIPAddress() *TaskUpdate {
+	tu.mutation.ClearIPAddress()
+	return tu
+}
+
 // Mutation returns the TaskMutation object of the builder.
 func (tu *TaskUpdate) Mutation() *TaskMutation {
 	return tu.mutation
@@ -175,6 +195,12 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if tu.mutation.TagsCleared() {
 		_spec.ClearField(task.FieldTags, field.TypeJSON)
+	}
+	if value, ok := tu.mutation.IPAddress(); ok {
+		_spec.SetField(task.FieldIPAddress, field.TypeString, value)
+	}
+	if tu.mutation.IPAddressCleared() {
+		_spec.ClearField(task.FieldIPAddress, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -276,6 +302,26 @@ func (tuo *TaskUpdateOne) ClearTags() *TaskUpdateOne {
 	return tuo
 }
 
+// SetIPAddress sets the "ip_address" field.
+func (tuo *TaskUpdateOne) SetIPAddress(s string) *TaskUpdateOne {
+	tuo.mutation.SetIPAddress(s)
+	return tuo
+}
+
+// SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
+func (tuo *TaskUpdateOne) SetNillableIPAddress(s *string) *TaskUpdateOne {
+	if s != nil {
+		tuo.SetIPAddress(*s)
+	}
+	return tuo
+}
+
+// ClearIPAddress clears the value of the "ip_address" field.
+func (tuo *TaskUpdateOne) ClearIPAddress() *TaskUpdateOne {
+	tuo.mutation.ClearIPAddress()
+	return tuo
+}
+
 // Mutation returns the TaskMutation object of the builder.
 func (tuo *TaskUpdateOne) Mutation() *TaskMutation {
 	return tuo.mutation
@@ -372,6 +418,12 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 	}
 	if tuo.mutation.TagsCleared() {
 		_spec.ClearField(task.FieldTags, field.TypeJSON)
+	}
+	if value, ok := tuo.mutation.IPAddress(); ok {
+		_spec.SetField(task.FieldIPAddress, field.TypeString, value)
+	}
+	if tuo.mutation.IPAddressCleared() {
+		_spec.ClearField(task.FieldIPAddress, field.TypeString)
 	}
 	_node = &Task{config: tuo.config}
 	_spec.Assign = _node.assignValues

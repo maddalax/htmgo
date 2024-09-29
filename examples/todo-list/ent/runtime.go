@@ -28,6 +28,10 @@ func init() {
 	taskDescUpdatedAt := taskFields[3].Descriptor()
 	// task.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	task.DefaultUpdatedAt = taskDescUpdatedAt.Default.(func() time.Time)
+	// taskDescIPAddress is the schema descriptor for ip_address field.
+	taskDescIPAddress := taskFields[6].Descriptor()
+	// task.DefaultIPAddress holds the default value on creation for the ip_address field.
+	task.DefaultIPAddress = taskDescIPAddress.Default.(string)
 	// taskDescID is the schema descriptor for id field.
 	taskDescID := taskFields[0].Descriptor()
 	// task.DefaultID holds the default value on creation for the id field.
