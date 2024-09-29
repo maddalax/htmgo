@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/microcosm-cc/bluemonday"
 	"todolist/ent"
 	"todolist/internal/tasks"
 )
@@ -17,8 +16,6 @@ const (
 	TabActive   Tab = "Active"
 	TabComplete Tab = "Complete"
 )
-
-var policy = bluemonday.UGCPolicy()
 
 func getActiveTab(ctx *h.RequestContext) Tab {
 	if tab := h.GetQueryParam(ctx, "tab"); tab != "" {
@@ -185,7 +182,7 @@ func CompleteIcon(task *ent.Task) *h.Element {
 				"border-green-500": task.CompletedAt != nil,
 				"border-slate-400": task.CompletedAt == nil,
 			}),
-			h.If(task.CompletedAt != nil, h.Raw(`
+			h.If(task.CompletedAt != nil, h.UnsafeRaw(`
 				<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       			<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
     			</svg>
@@ -290,7 +287,6 @@ func ClearCompleted(ctx *h.RequestContext) *h.Partial {
 
 func Create(ctx *h.RequestContext) *h.Partial {
 	name := ctx.FormValue("name")
-	name = policy.Sanitize(name)
 
 	if name == "" {
 		return h.NewPartial(h.Div(h.Text("name is required")))

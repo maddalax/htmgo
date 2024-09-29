@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/hx"
 	"golang.org/x/net/html"
+	"html/template"
 	"strings"
 )
 
@@ -167,7 +168,7 @@ func (a *AttributeR) Render(context *RenderContext) {
 }
 
 func (t *TextContent) Render(context *RenderContext) {
-	context.builder.WriteString(t.Content)
+	context.builder.WriteString(template.HTMLEscapeString(t.Content))
 }
 
 func (r *RawContent) Render(context *RenderContext) {

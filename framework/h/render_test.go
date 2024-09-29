@@ -87,7 +87,7 @@ func TestRender(t *testing.T) {
 func TestRawContent(t *testing.T) {
 	t.Parallel()
 	str := "<div>hello, world</div>"
-	raw := Raw(str)
+	raw := UnsafeRaw(str)
 	assert.Equal(t, str, Render(raw))
 }
 
@@ -524,6 +524,13 @@ func TestBackgroundCleaner(t *testing.T) {
 
 	assert.Equal(t, 0, len(node.byKeyExpiration))
 	assert.Equal(t, 0, len(node.byKeyCache))
+}
+
+func TestEscapeHtml(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "&lt;script&gt;alert(1)&lt;/script&gt;", Render(Text("<script>alert(1)</script>")))
+	assert.Equal(t, "<p >&lt;script&gt;alert(1)&lt;/script&gt;</p>", Render(Pf("<script>alert(1)</script>")))
+
 }
 
 func BenchmarkCacheByKey(b *testing.B) {

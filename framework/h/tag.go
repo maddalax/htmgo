@@ -123,7 +123,9 @@ func Script(url string) *Element {
 	}
 }
 
-func Raw(text string) *RawContent {
+// UnsafeRaw is a helper function to create a raw content with the given text
+// The text is not escaped, do not use this function with user input
+func UnsafeRaw(text string) *RawContent {
 	return NewRawContent(text)
 }
 
@@ -135,12 +137,16 @@ func MultiLineQuotes(text string) string {
 	return "`" + text + "`"
 }
 
-func RawF(text string, args any) *RawContent {
-	return Raw(fmt.Sprintf(text, args))
+// UnsafeRawF is a helper function to create a raw content with the given text
+// The text is not escaped, do not use this function with user input
+func UnsafeRawF(text string, args any) *RawContent {
+	return UnsafeRaw(fmt.Sprintf(text, args))
 }
 
-func RawScript(text string) *RawContent {
-	return Raw("<script>" + text + "</script>")
+// UnsafeRawScript is a helper function to create a script tag with the given text
+// The text is not escaped, do not use this function with user input
+func UnsafeRawScript(text string) *RawContent {
+	return UnsafeRaw("<script>" + text + "</script>")
 }
 
 func Pre(children ...Ren) *Element {
