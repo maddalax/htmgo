@@ -37,7 +37,13 @@ func NewTextContent(content string) *TextContent {
 }
 
 func NewChildList(children ...Ren) *ChildList {
-	return &ChildList{
-		Children: children,
+	cl := &ChildList{
+		Children: Filter(children, func(item Ren) bool {
+			return item != nil
+		}),
 	}
+	if len(children) == 0 || children == nil {
+		cl.Children = make([]Ren, 0)
+	}
+	return cl
 }

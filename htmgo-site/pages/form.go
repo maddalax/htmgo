@@ -57,8 +57,9 @@ func SubmitButton() *h.Element {
 	)
 }
 
-func Spinner() *h.Element {
+func Spinner(children ...h.Ren) *h.Element {
 	return h.Div(
+		h.Children(children...),
 		h.Class("absolute left-1 spinner spinner-border animate-spin inline-block w-6 h-6 border-4 rounded-full border-slate-200 border-t-transparent"),
 		h.Attribute("role", "status"),
 	)

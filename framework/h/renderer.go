@@ -90,15 +90,17 @@ func (node *Element) Render(context *RenderContext) {
 	if shouldFlatten {
 		// first pass, flatten the children
 		flatChildren := make([]Ren, totalChildren)
-		for i, child := range node.children {
+		index := 0
+		for _, child := range node.children {
 			switch c := child.(type) {
 			case *ChildList:
 				for _, ren := range c.Children {
-					flatChildren[i] = ren
-					i++
+					flatChildren[index] = ren
+					index++
 				}
 			default:
-				flatChildren[i] = child
+				flatChildren[index] = child
+				index++
 			}
 		}
 
