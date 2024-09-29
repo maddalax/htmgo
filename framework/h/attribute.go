@@ -58,7 +58,7 @@ func AttributePairs(pairs ...string) *AttributeMap {
 }
 
 func Checked() Ren {
-	return Attribute("checked", "true")
+	return Attribute("checked", "")
 }
 
 func Id(value string) Ren {
@@ -68,7 +68,7 @@ func Id(value string) Ren {
 	return Attribute("id", value)
 }
 
-func Disabled() Ren {
+func Disabled() *AttributeR {
 	return Attribute("disabled", "")
 }
 
@@ -181,4 +181,116 @@ func Boost() Ren {
 
 func IfQueryParam(key string, node *Element) Ren {
 	return Fragment(Attribute("hx-if-qp:"+key, "true"), node)
+}
+
+func ReadOnly() *AttributeR {
+	return Attribute("readonly", "")
+}
+
+func Required() *AttributeR {
+	return Attribute("required", "")
+}
+
+func Multiple() *AttributeR {
+	return Attribute("multiple", "")
+}
+
+func Selected() *AttributeR {
+	return Attribute("selected", "")
+}
+
+func MaxLength(value int) *AttributeR {
+	return Attribute("maxlength", fmt.Sprintf("%d", value))
+}
+
+func MinLength(value int) *AttributeR {
+	return Attribute("minlength", fmt.Sprintf("%d", value))
+}
+
+func Size(value int) *AttributeR {
+	return Attribute("size", fmt.Sprintf("%d", value))
+}
+
+func Width(value int) *AttributeR {
+	return Attribute("width", fmt.Sprintf("%d", value))
+}
+
+func Height(value int) *AttributeR {
+	return Attribute("height", fmt.Sprintf("%d", value))
+}
+
+func Download(value bool) *AttributeR {
+	return Attribute("download", fmt.Sprintf("%t", value))
+}
+
+func Rel(value string) *AttributeR {
+	return Attribute("rel", value)
+}
+
+func Pattern(value string) *AttributeR {
+	return Attribute("pattern", value)
+}
+
+func Action(value string) *AttributeR {
+	return Attribute("action", value)
+}
+
+func Method(value string) *AttributeR {
+	return Attribute("method", value)
+}
+
+func Enctype(value string) *AttributeR {
+	return Attribute("enctype", value)
+}
+
+func AutoComplete(value string) *AttributeR {
+	return Attribute("autocomplete", value)
+}
+
+func AutoFocus() *AttributeR {
+	return Attribute("autofocus", "")
+}
+
+func NoValidate() *AttributeR {
+	return Attribute("novalidate", "")
+}
+
+func Step(value string) *AttributeR {
+	return Attribute("step", value)
+}
+
+func Max(value string) *AttributeR {
+	return Attribute("max", value)
+}
+
+func Min(value string) *AttributeR {
+	return Attribute("min", value)
+}
+
+func Cols(value int) *AttributeR {
+	return Attribute("cols", fmt.Sprintf("%d", value))
+}
+
+func Rows(value int) *AttributeR {
+	return Attribute("rows", fmt.Sprintf("%d", value))
+}
+
+func Wrap(value string) *AttributeR {
+	return Attribute("wrap", value)
+}
+
+func Role(value string) *AttributeR {
+	return Attribute("role", value)
+}
+
+func AriaLabel(value string) *AttributeR {
+	return Attribute("aria-label", value)
+}
+
+func AriaHidden(value bool) *AttributeR {
+	return Attribute("aria-hidden", fmt.Sprintf("%t", value))
+}
+
+func TabIndex(value int) *AttributeR {
+	return Attribute("tabindex", fmt.Sprintf("%d", value))
 }

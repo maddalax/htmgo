@@ -51,11 +51,12 @@ func Input(list []*ent.Task) *h.Element {
 		h.Class("border border-b-slate-100 relative"),
 		h.Input(
 			"text",
-			h.Attribute("required", "true"),
-			h.Attribute("maxlength", "150"),
-			h.Attribute("autocomplete", "off"),
-			h.Attribute("autofocus", "true"),
-			h.Attribute("name", "name"),
+			h.Required(),
+			h.Disabled(),
+			h.MaxLength(150),
+			h.AutoComplete("off"),
+			h.AutoFocus(),
+			h.Name("name"),
 			h.Class("pl-12 text-xl p-4 w-full outline-none focus:outline-2 focus:outline-rose-400"),
 			h.Placeholder("What needs to be done?"),
 			h.Post(h.GetPartialPath(Create)),
@@ -145,8 +146,8 @@ func Task(task *ent.Task, editing bool) *h.Element {
 				h.Form(
 					h.Class("h-full"),
 					h.Input("text",
-						h.Attribute("name", "task"),
-						h.Attribute("value", task.ID.String()),
+						h.Name("task"),
+						h.Value(task.ID.String()),
 						h.Class("hidden"),
 					),
 					h.Input(

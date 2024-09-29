@@ -3,7 +3,7 @@ package h
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/hx"
-	"golang.org/x/net/html"
+	"html"
 	"html/template"
 	"strings"
 )
@@ -161,10 +161,14 @@ func renderScripts(context *RenderContext) {
 
 func (a *AttributeR) Render(context *RenderContext) {
 	context.builder.WriteString(a.Name)
-	context.builder.WriteString(`=`)
-	context.builder.WriteString(`"`)
-	context.builder.WriteString(html.EscapeString(a.Value))
-	context.builder.WriteString(`"`)
+	if a.Value != "" {
+		context.builder.WriteString(`=`)
+		context.builder.WriteString(`"`)
+		context.builder.WriteString(html.EscapeString(a.Value))
+		context.builder.WriteString(`"`)
+	} else {
+		context.builder.WriteString(" ")
+	}
 }
 
 func (t *TextContent) Render(context *RenderContext) {
