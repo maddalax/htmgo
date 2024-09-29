@@ -148,7 +148,7 @@ func MobileNav(ctx *h.RequestContext, expanded bool) *h.Element {
 						),
 
 						h.Class("text-2xl"),
-						h.Text("&#9776;"),
+						h.UnsafeRaw("&#9776;"),
 					),
 				),
 			),
