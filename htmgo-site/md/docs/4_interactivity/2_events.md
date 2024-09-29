@@ -4,7 +4,7 @@ Sometimes you need to update elements client side without having to do a network
 
 To make this work while still keeping a pure go feel, we offer a few utility methods to execute various javascript on an element.
 
-**Example:** When the form is submitted, set the button text to submitting and disable it, and vise versa after submit is done.
+**Example:** When the form is submitted, set the button text to submitting and disable it, and vice versa after submit is done.
 
 ```go
 func MyForm() *h.Element {

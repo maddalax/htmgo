@@ -22,7 +22,7 @@ func Card(ctx *h.RequestContext) *h.Element {
 ```
 
 My card component here fetches all my tasks I have on my list, and renders each task. 
-If you are familar with React, then you would likely place this fetch logic inside of a useEffect or (useQuery library) so it is not constantly refetched as the component re-renders.
+If you are familiar with React, then you would likely place this fetch logic inside of a useEffect or (useQuery library) so it is not constantly refetched as the component re-renders.
 
 With **htmgo**, the only way to update content on the page is to use htmx to swap out the content from loading a partial. Therefore you control exactly when this Card component is called, not the framework behind the scenes.
 

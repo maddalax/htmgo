@@ -2,7 +2,7 @@
 
 Partials are where things get interesting. Partials allow you to start adding interactivity to your website by swapping in content, setting headers, redirecting, etc.
 
-Partials have a similiar structure to pages. A simple partial may look like:
+Partials have a similar structure to pages. A simple partial may look like:
 
 ```go
 func CurrentTimePartial(ctx *h.RequestContext) *h.Partial {

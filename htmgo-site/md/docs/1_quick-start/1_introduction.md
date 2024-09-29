@@ -40,7 +40,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 
 3. Built in support for various libraries such as tailwindcss, htmx
 
-4. Go functions are components, no special syntax neccessary to learn
+4. Go functions are components, no special syntax necessary to learn
 
 5. Many composable utility functions to streamline development and reduce boilerplate
 
