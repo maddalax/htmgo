@@ -241,6 +241,15 @@ func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
 }
 
+func SubmitFormOnEnter() ComplexJsCommand {
+	// language=JavaScript
+	return EvalJs(`
+		if (event.code === 'Enter') { 
+			self.form.dispatchEvent(new Event('submit', { cancelable: true })); 
+		}
+	`)
+}
+
 func InjectScript(src string) ComplexJsCommand {
 	// language=JavaScript
 	return NewComplexJsCommand(fmt.Sprintf(`

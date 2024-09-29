@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/js"
 	"htmgo-site/pages/base"
 	"htmgo-site/partials"
@@ -18,9 +19,12 @@ func Form(ctx *h.RequestContext) *h.Page {
 				h.Class("flex flex-col gap-2"),
 				h.LabelFor("name", "Your Name"),
 				h.Input("text",
+					h.Required(),
 					h.Class("p-4 rounded-md border border-slate-200"),
 					h.Name("name"),
-					h.Placeholder("Name")),
+					h.Placeholder("Name"),
+					h.OnEvent(hx.KeyDownEvent, js.SubmitFormOnEnter()),
+				),
 				SubmitButton(),
 			),
 		),
@@ -46,6 +50,7 @@ func SubmitButton() *h.Element {
 			h.Text("Submitting..."),
 		),
 		h.Button(
+			h.Type("submit"),
 			h.Class("submit", buttonClasses),
 			h.Text("Submit"),
 		),
