@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/microcosm-cc/bluemonday"
 	"todolist/ent"
 	"todolist/internal/tasks"
 )
@@ -16,6 +17,8 @@ const (
 	TabActive   Tab = "Active"
 	TabComplete Tab = "Complete"
 )
+
+var policy = bluemonday.UGCPolicy()
 
 func getActiveTab(ctx *h.RequestContext) Tab {
 	if tab := h.GetQueryParam(ctx, "tab"); tab != "" {
@@ -287,6 +290,8 @@ func ClearCompleted(ctx *h.RequestContext) *h.Partial {
 
 func Create(ctx *h.RequestContext) *h.Partial {
 	name := ctx.FormValue("name")
+	name = policy.Sanitize(name)
+
 	if name == "" {
 		return h.NewPartial(h.Div(h.Text("name is required")))
 	}
