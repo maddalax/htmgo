@@ -6,7 +6,7 @@
 ### build simple and scalable systems with go + htmx
 
 -------
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/maddalax/htmgo)](https://goreportcard.com/report/github.com/maddalax/htmgo)
 
 
 **introduction:**
