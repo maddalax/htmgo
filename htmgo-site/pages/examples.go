@@ -27,7 +27,7 @@ var examples = []Example{
 		Image:  "public/htmgo-site.jpg",
 	},
 	{
-		Title:       "form with loading state",
+		Title:       "Form With Loading State",
 		Github:      "https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go",
 		Demo:        "/form",
 		Description: "A simple form submission example with a loading state",
@@ -67,10 +67,10 @@ func ExamplesPage(ctx *h.RequestContext) *h.Page {
 
 func ExampleCards() *h.Element {
 	return h.Div(
-		h.Class("prose-h2:my-1 prose-img:my-1 flex gap-2"), // Left-aligns and allows multiple cards in a row
+		h.Class("prose-h2:my-1 prose-img:my-1 flex flex-col md:flex-row gap-6 md:gap-2 text-center pb-8"), // Left-aligns and allows multiple cards in a row
 		h.List(examples, func(example Example, index int) *h.Element {
 			return h.Div(
-				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 w-full md:w-1/2"), // Reduces padding
+				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 w-full md:w-1/2 bg-neutral-100"), // Reduces padding
 				h.Div(
 					h.Class("flex flex-col gap-1 mt-4"),
 					h.H2(
