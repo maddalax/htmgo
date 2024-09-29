@@ -15,7 +15,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 	return h.NewPage(base.RootPage(
 		ctx,
 		h.Div(
-			h.Class("flex flex-col md:flex-row gap-6 justify-center"),
+			h.Class("flex flex-col md:flex-row gap-6 justify-center overflow-x-hidden"),
 			h.Aside(
 				h.Class("md:h-screen md:sticky md:top-0 md:w-42"), // Applied sticky positioning here
 				partials.DocSidebar(pages),
