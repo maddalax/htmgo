@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v0.0.0-20240929054559-c045e880a7c7
+	github.com/maddalax/htmgo/framework v0.0.0-20240929060528-fce0dfe74696
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )
@@ -13,5 +13,4 @@ require (
 	github.com/alecthomas/chroma/v2 v2.2.0 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
-	golang.org/x/net v0.29.0 // indirect
 )
