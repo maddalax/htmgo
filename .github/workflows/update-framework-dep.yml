@@ -1,10 +1,12 @@
-name: Update HTMGO Dependencies
+name: Update HTMGO Framework Dependency
 
 on:
   workflow_dispatch:  # Trigger on manual workflow_dispatch
   push:
     branches:
-      - master
+      - master         # Trigger on pushes to master
+    paths:
+      - 'framework/**'  # Trigger only if files in this directory change
 
 jobs:
   update-htmgo-dep:
@@ -30,7 +32,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Auto-update HTMGO dependencies"
+          git commit -m "Auto-update HTMGO framework version"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
