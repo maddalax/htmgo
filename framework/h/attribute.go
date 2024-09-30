@@ -17,9 +17,13 @@ func (m *AttributeMapOrdered) Set(key string, value any) {
 	switch v := value.(type) {
 	case string:
 		m.data.Set(key, v)
+	case *AttributeMap:
+		for k, v2 := range *v {
+			m.Set(k, v2)
+		}
 	case *AttributeMapOrdered:
-		v.Each(func(k string, v string) {
-			m.Set(k, v)
+		v.Each(func(k string, v2 string) {
+			m.Set(k, v2)
 		})
 	case *AttributeR:
 		m.data.Set(v.Name, v.Value)

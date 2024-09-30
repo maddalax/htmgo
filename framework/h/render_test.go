@@ -64,6 +64,39 @@ func TestRenderAttributes_1(t *testing.T) {
 	)
 }
 
+func TestRenderAttributes_2(t *testing.T) {
+	div := Div(
+		AttributePairs("class", "bg-red-500", "id", "my-div"),
+		Button(
+			AttributePairs("class", "bg-blue-500", "id", "my-button"),
+			Text("Click me"),
+			Attribute("disabled", "true"),
+			Attribute("data-attr", "value"),
+		),
+	)
+
+	assert.Equal(t,
+		`<div class="bg-red-500" id="my-div"><button class="bg-blue-500" id="my-button" disabled="true" data-attr="value">Click me</button></div>`,
+		Render(div))
+}
+
+func TestRenderEmptyDiv(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t,
+		`<div></div>`,
+		Render(Div()),
+	)
+}
+
+func TestRenderVoidElement(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t,
+		`<input type="text"/>`,
+		Render(Input("text")),
+	)
+	assert.Equal(t, `<input/>`, Render(Tag("input")))
+}
+
 func TestRawContent(t *testing.T) {
 	t.Parallel()
 	str := "<div>hello, world</div>"
