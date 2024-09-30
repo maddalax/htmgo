@@ -51,7 +51,9 @@ func (ctx *RenderContext) AddScript(funcName string, body string) {
 }
 
 func (node *Element) Render(context *RenderContext) {
-	// some elements may not have a tag, such as a Fragment
+	if node == nil {
+		return
+	}
 
 	if node.tag == CachedNodeTag {
 		meta := node.meta.(*CachedNode)
@@ -65,6 +67,7 @@ func (node *Element) Render(context *RenderContext) {
 		return
 	}
 
+	// some elements may not have a tag, such as a Fragment
 	if node.tag != "" {
 		context.builder.WriteString("<")
 		context.builder.WriteString(node.tag)

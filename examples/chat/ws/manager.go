@@ -7,14 +7,23 @@ import (
 	"github.com/puzpuzpuz/xsync/v3"
 )
 
-type MessageEvent struct {
+type EventType string
+
+const (
+	ConnectedEvent    EventType = "connected"
+	DisconnectedEvent EventType = "disconnected"
+	MessageEvent      EventType = "message"
+)
+
+type SocketEvent struct {
 	Id      string
-	Message map[string]any
+	Type    EventType
+	Payload map[string]any
 }
 
 type SocketManager struct {
 	sockets   *xsync.MapOf[string, *websocket.Conn]
-	listeners []chan MessageEvent
+	listeners []chan SocketEvent
 }
 
 func NewSocketManager() *SocketManager {
@@ -23,29 +32,49 @@ func NewSocketManager() *SocketManager {
 	}
 }
 
-func (manager *SocketManager) Listen(listener chan MessageEvent) {
+func (manager *SocketManager) Listen(listener chan SocketEvent) {
 	if manager.listeners == nil {
-		manager.listeners = make([]chan MessageEvent, 0)
+		manager.listeners = make([]chan SocketEvent, 0)
 	}
 	manager.listeners = append(manager.listeners, listener)
 }
 
-func (manager *SocketManager) OnMessage(id string, message map[string]any) {
+func (manager *SocketManager) dispatch(event SocketEvent) {
 	for _, listener := range manager.listeners {
-		listener <- MessageEvent{
-			Id:      id,
-			Message: message,
-		}
+		listener <- event
 	}
+}
+
+func (manager *SocketManager) OnMessage(id string, message map[string]any) {
+	manager.dispatch(SocketEvent{
+		Id:      id,
+		Type:    MessageEvent,
+		Payload: message,
+	})
 }
 
 func (manager *SocketManager) Add(id string, conn *websocket.Conn) {
 	manager.sockets.Store(id, conn)
+	manager.dispatch(SocketEvent{
+		Id:      id,
+		Type:    ConnectedEvent,
+		Payload: map[string]any{},
+	})
+}
+
+func (manager *SocketManager) OnClose(id string) {
+	manager.dispatch(SocketEvent{
+		Id:      id,
+		Type:    DisconnectedEvent,
+		Payload: map[string]any{},
+	})
+	manager.sockets.Delete(id)
 }
 
 func (manager *SocketManager) CloseWithError(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
+		defer manager.OnClose(id)
 		conn.Close(websocket.StatusInternalError, message)
 	}
 }
@@ -53,9 +82,9 @@ func (manager *SocketManager) CloseWithError(id string, message string) {
 func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
+		defer manager.OnClose(id)
 		_ = conn.CloseNow()
 	}
-	manager.sockets.Delete(id)
 }
 
 func (manager *SocketManager) Get(id string) *websocket.Conn {
@@ -77,4 +106,11 @@ func (manager *SocketManager) Broadcast(message []byte, messageType websocket.Me
 func (manager *SocketManager) BroadcastText(message string) {
 	fmt.Printf("Broadcasting message: \n%s\n", message)
 	manager.Broadcast([]byte(message), websocket.MessageText)
+}
+
+func (manager *SocketManager) SendText(id string, message string) {
+	conn := manager.Get(id)
+	if conn != nil {
+		_ = conn.Write(context.Background(), websocket.MessageText, []byte(message))
+	}
 }
