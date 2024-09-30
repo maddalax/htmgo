@@ -17,6 +17,12 @@ func HasFileFromRoot(file string) bool {
 	return err == nil
 }
 
+func CreateHtmgoDir() {
+	if !HasFileFromRoot("__htmgo") {
+		CreateDirFromRoot("__htmgo")
+	}
+}
+
 func CreateDirFromRoot(dir string) error {
 	cwd := process.GetWorkingDir()
 	path := filepath.Join(cwd, dir)

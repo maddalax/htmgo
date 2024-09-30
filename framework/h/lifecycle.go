@@ -24,7 +24,7 @@ func validateCommands(cmds []Command) {
 			break
 		case ComplexJsCommand:
 			break
-		case *AttributeMap:
+		case *AttributeMapOrdered:
 			break
 		case *Element:
 			panic(fmt.Sprintf("element is not allowed in lifecycle events. Got: %v", t))

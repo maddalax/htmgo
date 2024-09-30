@@ -36,6 +36,8 @@ func getModuleVersion(modulePath string) (string, error) {
 }
 
 func CopyAssets() {
+	dirutil.CreateHtmgoDir()
+
 	moduleName := "github.com/maddalax/htmgo/framework"
 	modulePath := module.GetDependencyPath(moduleName)
 
