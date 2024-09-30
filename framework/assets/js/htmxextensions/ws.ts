@@ -2,24 +2,6 @@ import htmx from 'htmx.org'
 import {removeAssociatedScripts} from "./htmgo";
 
 
-declare module 'htmx.org' {
-    interface Htmx {
-        defineExtension(name: string, extension: HtmxExtension): void;
-        createWebSocket?: (url: string) => WebSocket;
-        config: {
-            wsReconnectDelay?: 'full-jitter' | ((retryCount: number) => number);
-            wsBinaryType?: string;
-            [key: string]: any
-        };
-        [key: string]: any;
-    }
-}
-
-interface HtmxExtension {
-    init: (apiRef: HtmxInternalApi) => void;
-    onEvent: (name: string, evt: Event) => void;
-    [key: string]: any;
-}
 
 interface HtmxInternalApi {
     getInternalData(elt: Element): any;
@@ -113,7 +95,7 @@ function ensureWebSocket(socketElt: HTMLElement): void {
         }
     }
 
-    const socketWrapper = createWebsocketWrapper(socketElt, () => htmx.createWebSocket!(wssSource));
+    const socketWrapper = createWebsocketWrapper(socketElt, () => createWebSocket(wssSource));
 
     socketWrapper.addEventListener('message', (event) => {
         if (maybeCloseWebSocketSource(socketElt)) {
@@ -288,7 +270,9 @@ function ensureWebSocketSend(elt: HTMLElement): void {
         return;
     }
 
-    const webSocketParent = api.getClosestMatch(elt, hasWebSocket);
+    const webSocketParent = api.getClosestMatch(elt, (node) => {
+        return hasWebSocket(node as HTMLElement);
+    });
     if (webSocketParent) {
         processWebSocketSend(webSocketParent as HTMLElement, elt);
     }
@@ -355,16 +339,9 @@ function processWebSocketSend(socketElt: HTMLElement, sendElt: HTMLElement): voi
 }
 
 function getWebSocketReconnectDelay(retryCount: number): number {
-    const delay = htmx.config.wsReconnectDelay;
-    if (typeof delay === 'function') {
-        return delay(retryCount);
-    }
-    if (delay === 'full-jitter') {
-        const exp = Math.min(retryCount, 6);
-        const maxDelay = 1000 * Math.pow(2, exp);
-        return maxDelay * Math.random();
-    }
-    return 0;
+    const exp = Math.min(retryCount, 6);
+    const maxDelay = 1000 * Math.pow(2, exp);
+    return maxDelay * Math.random();
 }
 
 function maybeCloseWebSocketSource(elt: HTMLElement): boolean {
@@ -407,18 +384,9 @@ htmx.defineExtension('ws', {
     init: (apiRef: HtmxInternalApi) => {
         // Store reference to internal API
         api = apiRef;
-
-        // Default function for creating new WebSocket objects
-        if (!htmx.createWebSocket) {
-            htmx.createWebSocket = createWebSocket;
-        }
-
-        // Default setting for reconnect delay
-        if (!htmx.config.wsReconnectDelay) {
-            htmx.config.wsReconnectDelay = 'full-jitter';
-        }
     },
 
+    // @ts-ignore
     onEvent: (name: string, evt: Event) => {
         const parent: Element = evt.target as Element || (evt as CustomEvent).detail.elt;
 

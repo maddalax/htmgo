@@ -10,8 +10,7 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 	return h.NewPage(
 		RootPage(
 			h.Div(
-				h.JoinAttributes(
-					", ",
+				h.JoinExtensions(
 					h.TriggerChildren(),
 					h.HxExtension("ws"),
 				),
@@ -36,7 +35,6 @@ func MessageInput() *h.Element {
 		h.Class("p-4 rounded-md border border-slate-200"),
 		h.Name("message"),
 		h.Placeholder("Message"),
-		h.OnEvent("htmx:wsBeforeMessage", js.EvalJs("console.log('got message input')")),
 		h.HxBeforeWsSend(
 			js.SetValue(""),
 		),

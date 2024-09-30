@@ -141,6 +141,10 @@ func HxExtensions(value ...string) Ren {
 	return Attribute(hx.ExtAttr, strings.Join(value, ","))
 }
 
+func JoinExtensions(attrs ...*AttributeR) Ren {
+	return JoinAttributes(", ", attrs...)
+}
+
 func JoinAttributes(sep string, attrs ...*AttributeR) *AttributeR {
 	values := make([]string, 0, len(attrs))
 	for _, a := range attrs {
