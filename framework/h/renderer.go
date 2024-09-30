@@ -38,13 +38,6 @@ var voidTags = map[string]bool{
 type RenderContext struct {
 	builder *strings.Builder
 	scripts []string
-	next    any
-	prev    any
-}
-
-func (ctx *RenderContext) PrevIsAttribute() bool {
-	_, ok := ctx.prev.(*AttributeR)
-	return ok
 }
 
 func (ctx *RenderContext) AddScript(funcName string, body string) {
@@ -55,29 +48,6 @@ func (ctx *RenderContext) AddScript(funcName string, body string) {
 		}
 	</script>`, funcName, funcName, body)
 	ctx.scripts = append(ctx.scripts, script)
-}
-
-func each[T any](ctx *RenderContext, arr []T, cb func(T)) {
-	for i, r := range arr {
-		if i == len(arr)-1 {
-			ctx.next = nil
-		} else {
-			ctx.next = arr[i+1]
-		}
-		cb(r)
-	}
-}
-
-func eachAttrMap(ctx *RenderContext, m *AttributeMapOrdered, cb func(string, string)) {
-	entries := m.Entries()
-	for i, entry := range entries {
-		if i == len(entries)-1 {
-			ctx.next = nil
-		} else {
-			ctx.next = entries[i+1]
-		}
-		cb(entry.Key, entry.Value)
-	}
 }
 
 func (node *Element) Render(context *RenderContext) {
@@ -98,7 +68,7 @@ func (node *Element) Render(context *RenderContext) {
 	if node.tag != "" {
 		context.builder.WriteString("<")
 		context.builder.WriteString(node.tag)
-		eachAttrMap(context, node.attributes, func(key string, value string) {
+		node.attributes.Each(func(key string, value string) {
 			NewAttribute(key, value).Render(context)
 		})
 	}
@@ -185,7 +155,6 @@ func (node *Element) Render(context *RenderContext) {
 func renderScripts(context *RenderContext) {
 	for _, script := range context.scripts {
 		context.builder.WriteString(script)
-		context.prev = script
 	}
 	context.scripts = []string{}
 }
@@ -199,43 +168,36 @@ func (a *AttributeR) Render(context *RenderContext) {
 		context.builder.WriteString(html.EscapeString(a.Value))
 		context.builder.WriteString(`"`)
 	}
-	context.prev = a
 }
 
 func (t *TextContent) Render(context *RenderContext) {
 	context.builder.WriteString(template.HTMLEscapeString(t.Content))
-	context.prev = t
 }
 
 func (r *RawContent) Render(context *RenderContext) {
 	context.builder.WriteString(r.Content)
-	context.prev = r
 }
 
 func (c *ChildList) Render(context *RenderContext) {
 	for _, child := range c.Children {
 		child.Render(context)
-		context.prev = child
 	}
 }
 
 func (j SimpleJsCommand) Render(context *RenderContext) {
 	context.builder.WriteString(j.Command)
-	context.prev = j
 }
 
 func (j ComplexJsCommand) Render(context *RenderContext) {
 	context.builder.WriteString(j.Command)
-	context.prev = j
 }
 
 func (p *Partial) Render(context *RenderContext) {
 	p.Root.Render(context)
-	context.prev = p
 }
 
 func (m *AttributeMapOrdered) Render(context *RenderContext) {
-	eachAttrMap(context, m, func(key string, value string) {
+	m.Each(func(key string, value string) {
 		NewAttribute(key, value).Render(context)
 	})
 }
@@ -254,7 +216,8 @@ func (l *LifeCycle) Render(context *RenderContext) {
 
 	for event, commands := range l.handlers {
 		m[event] = ""
-		each(context, commands, func(command Command) {
+
+		for _, command := range commands {
 			switch c := command.(type) {
 			case SimpleJsCommand:
 				m[event] += fmt.Sprintf("%s;", c.Command)
@@ -262,13 +225,14 @@ func (l *LifeCycle) Render(context *RenderContext) {
 				context.AddScript(c.TempFuncName, c.Command)
 				m[event] += fmt.Sprintf("%s(this);", c.TempFuncName)
 			case *AttributeMapOrdered:
-				eachAttrMap(context, c, func(k string, v string) {
-					l.fromAttributeMap(event, k, v, context)
+				c.Each(func(key string, value string) {
+					l.fromAttributeMap(event, key, value, context)
 				})
 			case *AttributeR:
 				l.fromAttributeMap(event, c.Name, c.Value, context)
 			}
-		})
+		}
+
 	}
 
 	children := make([]Ren, 0)

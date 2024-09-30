@@ -23,10 +23,10 @@ func TestRender(t *testing.T) {
 	div := Div(
 		Id("my-div"),
 		Attribute("data-attr-2", "value"),
-		AttributePairs(
-			"data-attr-3", "value",
-			"data-attr-4", "value",
-		),
+		Attributes(&AttributeMap{
+			"data-attr-3": "value",
+			"data-attr-4": "value",
+		}),
 		HxBeforeRequest(
 			SetText("before request"),
 		),

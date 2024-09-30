@@ -18,7 +18,7 @@ func (m *AttributeMapOrdered) Set(key string, value any) {
 	case string:
 		m.data.Set(key, v)
 	case *AttributeMapOrdered:
-		v.Each(func(k string, v any) {
+		v.Each(func(k string, v string) {
 			m.Set(k, v)
 		})
 	case *AttributeR:
@@ -28,7 +28,7 @@ func (m *AttributeMapOrdered) Set(key string, value any) {
 	}
 }
 
-func (m *AttributeMapOrdered) Each(cb func(key string, value any)) {
+func (m *AttributeMapOrdered) Each(cb func(key string, value string)) {
 	m.data.Each(func(key string, value string) {
 		cb(key, value)
 	})
