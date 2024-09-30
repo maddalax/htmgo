@@ -116,7 +116,7 @@ func HxIndicator(tag string) *AttributeR {
 	return Attribute(hx.IndicatorAttr, tag)
 }
 
-func TriggerChildren() Ren {
+func TriggerChildren() *AttributeR {
 	return HxExtension("trigger-children")
 }
 
@@ -133,8 +133,20 @@ func HxTriggerClick(opts ...hx.Modifier) *AttributeR {
 	return HxTrigger(hx.OnClick(opts...))
 }
 
-func HxExtension(value string) Ren {
+func HxExtension(value string) *AttributeR {
 	return Attribute(hx.ExtAttr, value)
+}
+
+func HxExtensions(value ...string) Ren {
+	return Attribute(hx.ExtAttr, strings.Join(value, ","))
+}
+
+func JoinAttributes(sep string, attrs ...*AttributeR) *AttributeR {
+	values := make([]string, 0, len(attrs))
+	for _, a := range attrs {
+		values = append(values, a.Value)
+	}
+	return Attribute(attrs[0].Name, strings.Join(values, sep))
 }
 
 func Href(path string) Ren {

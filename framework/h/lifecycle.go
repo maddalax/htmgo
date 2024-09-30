@@ -60,6 +60,16 @@ func (l *LifeCycle) HxBeforeRequest(cmd ...Command) *LifeCycle {
 	return l
 }
 
+func (l *LifeCycle) HxBeforeWsSend(cmd ...Command) *LifeCycle {
+	l.OnEvent(hx.BeforeWsSendEvent, cmd...)
+	return l
+}
+
+func (l *LifeCycle) HxAfterWsSend(cmd ...Command) *LifeCycle {
+	l.OnEvent(hx.AfterWsSendEvent, cmd...)
+	return l
+}
+
 func HxOnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadEvent, cmd...)
 }
@@ -74,6 +84,14 @@ func OnClick(cmd ...Command) *LifeCycle {
 
 func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
+}
+
+func HxBeforeWsSend(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().HxBeforeWsSend(cmd...)
+}
+
+func HxAfterWsSend(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().HxAfterWsSend(cmd...)
 }
 
 func HxBeforeRequest(cmd ...Command) *LifeCycle {
@@ -259,6 +277,11 @@ func Remove() SimpleJsCommand {
 
 func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
+}
+
+func SetValue(value string) SimpleJsCommand {
+	// language=JavaScript
+	return SimpleJsCommand{Command: fmt.Sprintf("this.value = '%s'", value)}
 }
 
 func SubmitFormOnEnter() ComplexJsCommand {

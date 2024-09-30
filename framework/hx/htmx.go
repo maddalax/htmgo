@@ -108,6 +108,8 @@ const (
 	XhrLoadEndEvent            Event = "htmx:xhr:loadend"
 	XhrLoadStartEvent          Event = "htmx:xhr:loadstart"
 	XhrProgressEvent           Event = "htmx:xhr:progress"
+	BeforeWsSendEvent          Event = "htmx:wsBeforeSend"
+	AfterWsSendEvent           Event = "htmx:wsAfterSend"
 
 	// RevealedEvent Misc Events
 	RevealedEvent   Event = "revealed"

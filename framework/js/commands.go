@@ -22,6 +22,7 @@ var SetClassOnSibling = h.SetClassOnSibling
 var RemoveClassOnSibling = h.RemoveClassOnSibling
 var Remove = h.Remove
 var EvalJs = h.EvalJs
+var SetValue = h.SetValue
 var SubmitFormOnEnter = h.SubmitFormOnEnter
 var InjectScript = h.InjectScript
 var InjectScriptIfNotExist = h.InjectScriptIfNotExist

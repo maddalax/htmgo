@@ -53,7 +53,7 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 	slicedDir1 := strings.TrimPrefix(dir1, commonPrefix)
 	slicedDir2 := strings.TrimPrefix(dir2, commonPrefix)
 
-	// Remove leading slashes
+	// Disconnect leading slashes
 	slicedDir1 = strings.TrimPrefix(slicedDir1, string(filepath.Separator))
 	slicedDir2 = strings.TrimPrefix(slicedDir2, string(filepath.Separator))
 

@@ -68,10 +68,10 @@ func (om *OrderedMap[K, V]) Values() []V {
 // Delete removes a key-value pair from the OrderedMap.
 func (om *OrderedMap[K, V]) Delete(key K) {
 	if _, exists := om.values[key]; exists {
-		// Remove the key from the map
+		// Disconnect the key from the map
 		delete(om.values, key)
 
-		// Remove the key from the keys slice
+		// Disconnect the key from the keys slice
 		for i, k := range om.keys {
 			if k == key {
 				om.keys = append(om.keys[:i], om.keys[i+1:]...)
