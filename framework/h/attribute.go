@@ -3,27 +3,54 @@ package h
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/internal/datastructure"
 	"strings"
 )
 
-type AttributeMap map[string]any
+type AttributeMap = map[string]any
 
-func (m *AttributeMap) ToMap() map[string]string {
-	result := make(map[string]string)
-	for k, v := range *m {
-		switch v.(type) {
-		case AttributeMap:
-			m2 := v.(*AttributeMap).ToMap()
-			for _, a := range m2 {
-				result[k] = a
-			}
-		case string:
-			result[k] = v.(string)
-		default:
-			result[k] = fmt.Sprintf("%v", v)
+type AttributeMapOrdered struct {
+	data *datastructure.OrderedMap[string, string]
+}
+
+func (m *AttributeMapOrdered) Set(key string, value any) {
+	switch v := value.(type) {
+	case string:
+		m.data.Set(key, v)
+	case *AttributeMap:
+		for k, v2 := range *v {
+			m.Set(k, v2)
+		}
+	case *AttributeMapOrdered:
+		v.Each(func(k string, v2 string) {
+			m.Set(k, v2)
+		})
+	case *AttributeR:
+		m.data.Set(v.Name, v.Value)
+	default:
+		m.data.Set(key, fmt.Sprintf("%v", value))
+	}
+}
+
+func (m *AttributeMapOrdered) Each(cb func(key string, value string)) {
+	m.data.Each(func(key string, value string) {
+		cb(key, value)
+	})
+}
+
+func (m *AttributeMapOrdered) Entries() []datastructure.MapEntry[string, string] {
+	return m.data.Entries()
+}
+
+func NewAttributeMap(pairs ...string) *AttributeMapOrdered {
+	m := datastructure.NewOrderedMap[string, string]()
+	if len(pairs)%2 == 0 {
+		for i := 0; i < len(pairs); i++ {
+			m.Set(pairs[i], pairs[i+1])
+			i++
 		}
 	}
-	return result
+	return &AttributeMapOrdered{data: m}
 }
 
 func Attribute(key string, value string) *AttributeR {
@@ -33,28 +60,24 @@ func Attribute(key string, value string) *AttributeR {
 	}
 }
 
-func AttributeList(children ...*AttributeR) *AttributeMap {
-	m := make(AttributeMap)
-	for _, child := range children {
-		m[child.Name] = child.Value
+func AttributeList(children ...*AttributeR) *AttributeMapOrdered {
+	m := NewAttributeMap()
+	for _, c := range children {
+		m.Set(c.Name, c.Value)
 	}
-	return &m
+	return m
 }
 
-func Attributes(attrs *AttributeMap) *AttributeMap {
-	return attrs
+func Attributes(attributes *AttributeMap) *AttributeMapOrdered {
+	m := NewAttributeMap()
+	for k, v := range *attributes {
+		m.Set(k, v)
+	}
+	return m
 }
 
-func AttributePairs(pairs ...string) *AttributeMap {
-	if len(pairs)%2 != 0 {
-		return &AttributeMap{}
-	}
-	m := make(AttributeMap)
-	for i := 0; i < len(pairs); i++ {
-		m[pairs[i]] = pairs[i+1]
-		i++
-	}
-	return &m
+func AttributePairs(pairs ...string) *AttributeMapOrdered {
+	return NewAttributeMap(pairs...)
 }
 
 func Checked() Ren {

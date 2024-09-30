@@ -11,7 +11,7 @@ type PartialFunc = func(ctx *RequestContext) *Partial
 
 type Element struct {
 	tag        string
-	attributes map[string]string
+	attributes *AttributeMapOrdered
 	meta       any
 	children   []Ren
 }
@@ -50,7 +50,7 @@ func Tag(tag string, children ...Ren) *Element {
 	return &Element{
 		tag:        tag,
 		children:   children,
-		attributes: make(map[string]string),
+		attributes: NewAttributeMap(),
 	}
 }
 
@@ -69,57 +69,53 @@ func Body(children ...Ren) *Element {
 func Meta(name string, content string) *Element {
 	return &Element{
 		tag: "meta",
-		attributes: map[string]string{
-			"name":    name,
-			"content": content,
-		},
+		attributes: AttributePairs(
+			"name", name,
+			"content", content,
+		),
 		children: make([]Ren, 0),
 	}
 }
 
 func LinkWithVersion(href string, rel string, version string) *Element {
-	attributeMap := AttributeMap{
-		"href": href + "?v=" + version,
-		"rel":  rel,
-	}
 	return &Element{
-		tag:        "link",
-		attributes: attributeMap.ToMap(),
-		children:   make([]Ren, 0),
+		tag: "link",
+		attributes: AttributePairs(
+			"href", href+"?v="+version,
+			"rel", rel,
+		),
+		children: make([]Ren, 0),
 	}
 }
 
 func Link(href string, rel string) *Element {
-	attributeMap := AttributeMap{
-		"href": href,
-		"rel":  rel,
-	}
 	return &Element{
-		tag:        "link",
-		attributes: attributeMap.ToMap(),
-		children:   make([]Ren, 0),
+		tag: "link",
+		attributes: AttributePairs(
+			"href", href,
+			"rel", rel,
+		),
+		children: make([]Ren, 0),
 	}
 }
 
 func ScriptWithVersion(url string, version string) *Element {
-	attributeMap := AttributeMap{
-		"src": url + "?v=" + version,
-	}
 	return &Element{
-		tag:        "script",
-		attributes: attributeMap.ToMap(),
-		children:   make([]Ren, 0),
+		tag: "script",
+		attributes: AttributePairs(
+			"src", url+"?v="+version,
+		),
+		children: make([]Ren, 0),
 	}
 }
 
 func Script(url string) *Element {
-	attributeMap := AttributeMap{
-		"src": url,
-	}
 	return &Element{
-		tag:        "script",
-		attributes: attributeMap.ToMap(),
-		children:   make([]Ren, 0),
+		tag: "script",
+		attributes: AttributePairs(
+			"src", url,
+		),
+		children: make([]Ren, 0),
 	}
 }
 
@@ -177,13 +173,12 @@ func Value(value any) *AttributeR {
 }
 
 func Input(inputType string, children ...Ren) *Element {
-	attributeMap := AttributeMap{
-		"type": inputType,
-	}
 	return &Element{
-		tag:        "input",
-		attributes: attributeMap.ToMap(),
-		children:   children,
+		tag: "input",
+		attributes: AttributePairs(
+			"type", inputType,
+		),
+		children: children,
 	}
 }
 
@@ -257,7 +252,7 @@ func TagF(tag string, format string, args ...interface{}) *Element {
 		An invocation can look like
 		h.H3F("build simple and scalable systems with %s", "go + htmx", h.Class("-mt-4")),
 
-		where the args may be a mix of strings, *Element, *AttributeMap, *ChildList, *AttributeR
+		where the args may be a mix of strings, *Element, *AttributeMapOrdered, *ChildList, *AttributeR
 		We need to separate the children from the format arguments
 	*/
 	children := make([]Ren, 0)
@@ -266,7 +261,7 @@ func TagF(tag string, format string, args ...interface{}) *Element {
 		switch d := arg.(type) {
 		case *Element:
 			children = append(children, d)
-		case *AttributeMap:
+		case *AttributeMapOrdered:
 			children = append(children, d)
 		case *ChildList:
 			for _, child := range d.Children {

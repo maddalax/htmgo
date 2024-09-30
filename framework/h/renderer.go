@@ -68,11 +68,9 @@ func (node *Element) Render(context *RenderContext) {
 	if node.tag != "" {
 		context.builder.WriteString("<")
 		context.builder.WriteString(node.tag)
-		context.builder.WriteString(" ")
-
-		for name, value := range node.attributes {
-			NewAttribute(name, value).Render(context)
-		}
+		node.attributes.Each(func(key string, value string) {
+			NewAttribute(key, value).Render(context)
+		})
 	}
 
 	totalChildren := 0
@@ -110,7 +108,7 @@ func (node *Element) Render(context *RenderContext) {
 	// second pass, render any attributes within the tag
 	for _, child := range node.children {
 		switch child.(type) {
-		case *AttributeMap:
+		case *AttributeMapOrdered:
 			child.Render(context)
 		case *AttributeR:
 			child.Render(context)
@@ -132,7 +130,7 @@ func (node *Element) Render(context *RenderContext) {
 		// render the children elements that are not attributes
 		for _, child := range node.children {
 			switch child.(type) {
-			case *AttributeMap:
+			case *AttributeMapOrdered:
 				continue
 			case *AttributeR:
 				continue
@@ -162,14 +160,13 @@ func renderScripts(context *RenderContext) {
 }
 
 func (a *AttributeR) Render(context *RenderContext) {
+	context.builder.WriteString(" ")
 	context.builder.WriteString(a.Name)
 	if a.Value != "" {
 		context.builder.WriteString(`=`)
 		context.builder.WriteString(`"`)
 		context.builder.WriteString(html.EscapeString(a.Value))
 		context.builder.WriteString(`"`)
-	} else {
-		context.builder.WriteString(" ")
 	}
 }
 
@@ -199,13 +196,10 @@ func (p *Partial) Render(context *RenderContext) {
 	p.Root.Render(context)
 }
 
-func (m *AttributeMap) Render(context *RenderContext) {
-	m2 := m.ToMap()
-
-	for k, v := range m2 {
-		context.builder.WriteString(" ")
-		NewAttribute(k, v).Render(context)
-	}
+func (m *AttributeMapOrdered) Render(context *RenderContext) {
+	m.Each(func(key string, value string) {
+		NewAttribute(key, value).Render(context)
+	})
 }
 
 func (l *LifeCycle) fromAttributeMap(event string, key string, value string, context *RenderContext) {
@@ -222,6 +216,7 @@ func (l *LifeCycle) Render(context *RenderContext) {
 
 	for event, commands := range l.handlers {
 		m[event] = ""
+
 		for _, command := range commands {
 			switch c := command.(type) {
 			case SimpleJsCommand:
@@ -229,14 +224,15 @@ func (l *LifeCycle) Render(context *RenderContext) {
 			case ComplexJsCommand:
 				context.AddScript(c.TempFuncName, c.Command)
 				m[event] += fmt.Sprintf("%s(this);", c.TempFuncName)
-			case *AttributeMap:
-				for k, v := range c.ToMap() {
-					l.fromAttributeMap(event, k, v, context)
-				}
+			case *AttributeMapOrdered:
+				c.Each(func(key string, value string) {
+					l.fromAttributeMap(event, key, value, context)
+				})
 			case *AttributeR:
 				l.fromAttributeMap(event, c.Name, c.Value, context)
 			}
 		}
+
 	}
 
 	children := make([]Ren, 0)

@@ -5,6 +5,11 @@ type AttributeR struct {
 	Value string
 }
 
+type KeyValue[T any] struct {
+	Key   string
+	Value T
+}
+
 type TextContent struct {
 	Content string
 }

@@ -100,12 +100,12 @@ func TestIncrement(t *testing.T) {
 
 func TestSetInnerHtml(t *testing.T) {
 	htmlContent := Div(Span(UnsafeRaw("inner content")))
-	compareIgnoreSpaces(t, renderJs(t, SetInnerHtml(htmlContent)), "this.innerHTML = `<div ><span >inner content</span></div>`;")
+	compareIgnoreSpaces(t, renderJs(t, SetInnerHtml(htmlContent)), "this.innerHTML = `<div><span>inner content</span></div>`;")
 }
 
 func TestSetOuterHtml(t *testing.T) {
 	htmlContent := Div(Span(UnsafeRaw("outer content")))
-	compareIgnoreSpaces(t, renderJs(t, SetOuterHtml(htmlContent)), "this.outerHTML = `<div ><span >outer content</span></div>`;")
+	compareIgnoreSpaces(t, renderJs(t, SetOuterHtml(htmlContent)), "this.outerHTML = `<div><span>outer content</span></div>`;")
 }
 
 func TestAddAttribute(t *testing.T) {

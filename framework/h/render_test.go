@@ -1,11 +1,8 @@
 package h
 
 import (
-	"bytes"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/html"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,43 +10,12 @@ import (
 	"time"
 )
 
-// Sort attributes of a node by attribute name
-func sortAttributes(node *html.Node) {
-	if node.Type == html.ElementNode && len(node.Attr) > 1 {
-		sort.SliceStable(node.Attr, func(i, j int) bool {
-			return node.Attr[i].Key < node.Attr[j].Key
-		})
-	}
-}
-
-// Traverse and sort attributes in the entire HTML tree
-func traverseAndSortAttributes(node *html.Node) {
-	sortAttributes(node)
-	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		traverseAndSortAttributes(child)
-	}
-}
-
-// Parse HTML, sort attributes, and render back to a string
-func sortHtmlAttributes(input string) string {
-	// Parse the HTML string into a node tree
-	doc, err := html.Parse(strings.NewReader(input))
-	if err != nil {
-		return ""
-	}
-
-	// Traverse and sort attributes for each node
-	traverseAndSortAttributes(doc)
-
-	// Use a buffer to capture the rendered HTML
-	var buf bytes.Buffer
-	err = html.Render(&buf, doc)
-	if err != nil {
-		return ""
-	}
-
-	// Return the rendered HTML as a string
-	return buf.String()
+func TestSimpleRender(t *testing.T) {
+	t.Parallel()
+	result := Render(
+		Div(Attribute("id", "my-div"), Attribute("class", "my-class")),
+	)
+	assert.Equal(t, `<div id="my-div" class="my-class"></div>`, result)
 }
 
 func TestRender(t *testing.T) {
@@ -73,15 +39,62 @@ func TestRender(t *testing.T) {
 		Text("hello, child"),
 	)
 
-	div.attributes["data-attr-1"] = "value"
+	div.attributes.Set("data-attr-1", "value")
 
-	expectedRaw := `<div data-attr-1="value" id="my-div" data-attr-2="value" data-attr-3="value" data-attr-4="value" hx-on::before-request="this.innerText = 'before request';" hx-on::after-request="this.innerText = 'after request';"><div >hello, world</div>hello, child</div>`
-	expected := sortHtmlAttributes(expectedRaw)
-	result := sortHtmlAttributes(Render(div))
+	expected := `<div data-attr-1="value" id="my-div" data-attr-2="value" data-attr-3="value" data-attr-4="value" hx-on::before-request="this.innerText = &#39;before request&#39;;" hx-on::after-request="this.innerText = &#39;after request&#39;;"><div>hello, world</div>hello, child</div>`
+	result := Render(div)
 
 	assert.Equal(t,
 		expected,
 		result)
+}
+
+func TestRenderAttributes_1(t *testing.T) {
+	t.Parallel()
+	div := Div(
+		AttributePairs("class", "bg-red-500"),
+		Attributes(&AttributeMap{
+			"id": Id("my-div"),
+		}),
+		Attribute("disabled", "true"),
+	)
+	assert.Equal(t,
+		`<div class="bg-red-500" id="my-div" disabled="true"></div>`,
+		Render(div),
+	)
+}
+
+func TestRenderAttributes_2(t *testing.T) {
+	div := Div(
+		AttributePairs("class", "bg-red-500", "id", "my-div"),
+		Button(
+			AttributePairs("class", "bg-blue-500", "id", "my-button"),
+			Text("Click me"),
+			Attribute("disabled", "true"),
+			Attribute("data-attr", "value"),
+		),
+	)
+
+	assert.Equal(t,
+		`<div class="bg-red-500" id="my-div"><button class="bg-blue-500" id="my-button" disabled="true" data-attr="value">Click me</button></div>`,
+		Render(div))
+}
+
+func TestRenderEmptyDiv(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t,
+		`<div></div>`,
+		Render(Div()),
+	)
+}
+
+func TestRenderVoidElement(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t,
+		`<input type="text"/>`,
+		Render(Input("text")),
+	)
+	assert.Equal(t, `<input/>`, Render(Tag("input")))
 }
 
 func TestRawContent(t *testing.T) {
@@ -98,14 +111,14 @@ func TestConditional(t *testing.T) {
 			Ternary(true, Text("true"), Text("false")),
 		),
 	)
-	assert.Equal(t, "<div >true</div>", result)
+	assert.Equal(t, "<div>true</div>", result)
 
 	result = Render(
 		Div(
 			If(false, Text("true")),
 		),
 	)
-	assert.Equal(t, "<div ></div>", result)
+	assert.Equal(t, "<div></div>", result)
 }
 
 func TestTagSelfClosing(t *testing.T) {
@@ -121,7 +134,7 @@ func TestTagSelfClosing(t *testing.T) {
 	assert.Equal(t, `<div id="test"></div>`, Render(
 		Div(Id("test")),
 	))
-	assert.Equal(t, `<div id="test"><div ></div></div>`, Render(
+	assert.Equal(t, `<div id="test"><div></div></div>`, Render(
 		Div(Id("test"), Div()),
 	))
 }
@@ -134,12 +147,12 @@ func TestCached(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page()))
-	secondRender := sortHtmlAttributes(Render(page()))
+	firstRender := Render(page())
+	secondRender := Render(page())
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
-	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+	assert.Equal(t, firstRender, Render(ComplexPage()))
 }
 
 func TestCachedT(t *testing.T) {
@@ -150,12 +163,12 @@ func TestCachedT(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page("a")))
-	secondRender := sortHtmlAttributes(Render(page("a")))
+	firstRender := Render(page("a"))
+	secondRender := Render(page("a"))
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
-	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+	assert.Equal(t, firstRender, Render(ComplexPage()))
 }
 
 func TestCachedT2(t *testing.T) {
@@ -166,12 +179,12 @@ func TestCachedT2(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page("a", "b")))
-	secondRender := sortHtmlAttributes(Render(page("a", "b")))
+	firstRender := Render(page("a", "b"))
+	secondRender := Render(page("a", "b"))
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
-	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+	assert.Equal(t, firstRender, Render(ComplexPage()))
 }
 
 func TestCachedT3(t *testing.T) {
@@ -182,12 +195,12 @@ func TestCachedT3(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page("a", "b", "c")))
-	secondRender := sortHtmlAttributes(Render(page("a", "b", "c")))
+	firstRender := Render(page("a", "b", "c"))
+	secondRender := Render(page("a", "b", "c"))
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
-	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+	assert.Equal(t, firstRender, Render(ComplexPage()))
 }
 
 func TestCachedT4(t *testing.T) {
@@ -198,12 +211,12 @@ func TestCachedT4(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page("a", "b", "c", "d")))
-	secondRender := sortHtmlAttributes(Render(page("a", "b", "c", "d")))
+	firstRender := Render(page("a", "b", "c", "d"))
+	secondRender := Render(page("a", "b", "c", "d"))
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 1, count)
-	assert.Equal(t, firstRender, sortHtmlAttributes(Render(ComplexPage())))
+	assert.Equal(t, firstRender, Render(ComplexPage()))
 }
 
 func TestCachedExpired(t *testing.T) {
@@ -214,9 +227,9 @@ func TestCachedExpired(t *testing.T) {
 		return ComplexPage()
 	})
 
-	firstRender := sortHtmlAttributes(Render(page()))
+	firstRender := Render(page())
 	time.Sleep(time.Millisecond * 5)
-	secondRender := sortHtmlAttributes(Render(page()))
+	secondRender := Render(page())
 
 	assert.Equal(t, firstRender, secondRender)
 	assert.Equal(t, 2, count)
@@ -409,9 +422,9 @@ func TestCacheByKeyT1_2(t *testing.T) {
 		}
 	})
 
-	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
 	assert.Equal(t, 2, renderCount)
 }
 
@@ -425,10 +438,10 @@ func TestCacheByKeyT1Expired(t *testing.T) {
 		}
 	})
 
-	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
 	time.Sleep(time.Millisecond * 2)
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
 	assert.Equal(t, 3, renderCount)
 }
 
@@ -442,14 +455,14 @@ func TestCacheByKeyT1Expired_2(t *testing.T) {
 		}
 	})
 
-	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p>one</p>", Render(cachedItem("one")))
 	time.Sleep(time.Millisecond * 3)
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
 	time.Sleep(time.Millisecond * 3)
-	assert.Equal(t, "<p >one</p>", Render(cachedItem("one")))
-	assert.Equal(t, "<p >two</p>", Render(cachedItem("two")))
+	assert.Equal(t, "<p>one</p>", Render(cachedItem("one")))
+	assert.Equal(t, "<p>two</p>", Render(cachedItem("two")))
 	assert.Equal(t, 3, renderCount)
 }
 
@@ -529,7 +542,7 @@ func TestBackgroundCleaner(t *testing.T) {
 func TestEscapeHtml(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "&lt;script&gt;alert(1)&lt;/script&gt;", Render(Text("<script>alert(1)</script>")))
-	assert.Equal(t, "<p >&lt;script&gt;alert(1)&lt;/script&gt;</p>", Render(Pf("<script>alert(1)</script>")))
+	assert.Equal(t, "<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>", Render(Pf("<script>alert(1)</script>")))
 
 }
 
