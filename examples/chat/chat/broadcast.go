@@ -33,15 +33,46 @@ func (m *Manager) StartListener() {
 		case event := <-c:
 			switch event.Type {
 			case ws.ConnectedEvent:
-				fmt.Printf("User %s connected\n", event.Id)
-				m.backFill(event.Id, event.RoomId)
+				m.OnConnected(event)
 			case ws.DisconnectedEvent:
-				fmt.Printf("User %s disconnected\n", event.Id)
+				m.OnDisconnected(event)
 			case ws.MessageEvent:
 				m.onMessage(event)
 			}
 		}
 	}
+}
+
+func (m *Manager) OnConnected(e ws.SocketEvent) {
+	fmt.Printf("User %s connected to room %s\n", e.Id, e.RoomId)
+	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
+
+	if err != nil {
+		return
+	}
+
+	m.socketManager.BroadcastText(h.Render(ConnectedUsers(user.Name)))
+	m.socketManager.ForEachSocket(e.RoomId, func(conn ws.SocketConnection) {
+		if conn.Id == e.Id {
+			return
+		}
+		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
+		if err != nil {
+			return
+		}
+		m.socketManager.SendText(e.Id, h.Render(ConnectedUsers(user.Name)))
+	})
+
+	go m.backFill(e.Id, e.RoomId)
+}
+
+func (m *Manager) OnDisconnected(e ws.SocketEvent) {
+	fmt.Printf("User %s disconnected\n", e.Id)
+	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
+	if err != nil {
+		return
+	}
+	m.socketManager.BroadcastText(h.Render(ConnectedUser(user.Name, true)))
 }
 
 func (m *Manager) backFill(socketId string, roomId string) {

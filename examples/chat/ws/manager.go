@@ -39,6 +39,15 @@ func NewSocketManager() *SocketManager {
 	}
 }
 
+func (manager *SocketManager) ForEachSocket(roomId string, cb func(conn SocketConnection)) {
+	manager.sockets.Range(func(id string, conn SocketConnection) bool {
+		if conn.RoomId == roomId {
+			cb(conn)
+		}
+		return true
+	})
+}
+
 func (manager *SocketManager) Listen(listener chan SocketEvent) {
 	if manager.listeners == nil {
 		manager.listeners = make([]chan SocketEvent, 0)
@@ -71,10 +80,14 @@ func (manager *SocketManager) Add(roomId string, id string, conn *websocket.Conn
 		Conn:   conn,
 		RoomId: roomId,
 	})
+	s, ok := manager.sockets.Load(id)
+	if !ok {
+		return
+	}
 	manager.dispatch(SocketEvent{
-		Id:      id,
+		Id:      s.Id,
 		Type:    ConnectedEvent,
-		RoomId:  roomId,
+		RoomId:  s.RoomId,
 		Payload: map[string]any{},
 	})
 }

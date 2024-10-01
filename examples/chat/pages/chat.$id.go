@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"chat/chat"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/h"
@@ -18,14 +19,14 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					h.HxExtension("ws"),
 				),
 				h.Attribute("ws-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
-				h.Class("flex flex-row gap-4 min-h-screen bg-neutral-100"),
+				h.Class("flex flex-row min-h-screen bg-neutral-100"),
 
 				// Sidebar for connected users
 				UserSidebar(),
 
 				// Chat Area
 				h.Div(
-					h.Class("flex flex-col flex-grow gap-4 bg-white shadow-md rounded-lg p-4"),
+					h.Class("flex flex-col flex-grow gap-4 bg-white rounded p-4"),
 
 					h.OnEvent("hx-on::ws-after-message",
 						// language=JavaScript
@@ -52,15 +53,9 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 
 func UserSidebar() *h.Element {
 	return h.Div(
-		h.Class("w-64 bg-slate-200 p-4 flex flex-col gap-4 rounded-l-lg"),
+		h.Class("w-48 bg-slate-200 p-4 flex flex-col gap-3 rounded-l-lg"),
 		h.H2F("Connected Users", h.Class("text-lg font-bold")),
-		h.Ul(
-			h.Class("flex flex-col gap-2"),
-			// This would be populated dynamically with connected users
-			h.Li(h.Text("User 1"), h.Class("text-slate-700")),
-			h.Li(h.Text("User 2"), h.Class("text-slate-700")),
-			h.Li(h.Text("User 3"), h.Class("text-slate-700")),
-		),
+		chat.ConnectedUsers(""),
 	)
 }
 
