@@ -20,6 +20,7 @@ type Message struct {
 	ID         int64
 	ChatRoomID string
 	UserID     int64
+	Username   string
 	Message    string
 	CreatedAt  string
 	UpdatedAt  string
@@ -30,4 +31,5 @@ type User struct {
 	Name      string
 	CreatedAt string
 	UpdatedAt string
+	SessionID string
 }

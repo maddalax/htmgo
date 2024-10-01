@@ -4,26 +4,59 @@ import (
 	"chat/chat"
 	"chat/components"
 	"github.com/maddalax/htmgo/framework/h"
+	"net/http"
 )
 
 func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
 	locator := ctx.ServiceLocator()
 	service := chat.NewService(locator)
 
-	chatRoomId := ctx.FormValue("join-chat-room")
+	chatRoomId := ctx.Request.FormValue("join-chat-room")
+	username := ctx.Request.FormValue("username")
+
+	if username == "" {
+		return h.SwapPartial(ctx, components.FormError("Username is required"))
+	}
+
+	user, err := service.CreateUser(username)
+
+	if err != nil {
+		return h.SwapPartial(ctx, components.FormError("Failed to create user"))
+	}
+
+	var redirect = func(path string) *h.Partial {
+		cookie := &http.Cookie{
+			Name:  "session_id",
+			Value: user.SessionID,
+			Path:  "/",
+		}
+		return h.SwapManyPartialWithHeaders(
+			ctx,
+			h.NewHeaders(
+				"Set-Cookie", cookie.String(),
+				"HX-Redirect", path,
+			),
+			h.Fragment(),
+		)
+	}
 
 	if chatRoomId != "" {
 		room, _ := service.GetRoom(chatRoomId)
 		if room == nil {
 			return h.SwapPartial(ctx, components.FormError("Room not found"))
 		} else {
-			return h.RedirectPartial("/chat/" + chatRoomId)
+			return redirect("/chat/" + chatRoomId)
 		}
 	}
 
-	chatRoomName := ctx.FormValue("chat-room-name")
+	chatRoomName := ctx.Request.FormValue("new-chat-room")
 	if chatRoomName != "" {
-		// create room
+		room, _ := service.CreateRoom(chatRoomName)
+		if room == nil {
+			return h.SwapPartial(ctx, components.FormError("Failed to create room"))
+		} else {
+			return redirect("/chat/" + room.ID)
+		}
 	}
 
 	return h.SwapPartial(ctx, components.FormError("Create a new room or join an existing one"))

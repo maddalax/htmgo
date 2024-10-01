@@ -39,7 +39,7 @@ func main() {
 			http.FileServerFS(sub)
 
 			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
-			app.Router.Handle("/chat", ws.Handle())
+			app.Router.Handle("/ws/chat/{id}", ws.Handle())
 
 			__htmgo.Register(app.Router)
 		},

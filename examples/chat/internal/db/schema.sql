@@ -3,12 +3,13 @@ CREATE TABLE IF NOT EXISTS users
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT     NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    session_id TEXT NOT NULL
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS chat_rooms
 (
-    id                   TEXT PRIMARY KEY  DEFAULT (lower(hex(randomblob(16)))), -- Generates a UUID
+    id                   TEXT PRIMARY KEY,
     name                 TEXT     NOT NULL,
     last_message_sent_at TEXT,
     created_at           TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS messages
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     chat_room_id TEXT     NOT NULL,
     user_id      INTEGER  NOT NULL,
+    username     TEXT     NOT NULL,
     message      TEXT     NOT NULL,
     created_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

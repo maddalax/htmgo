@@ -1,12 +1,12 @@
 -- name: CreateChatRoom :one
-INSERT INTO chat_rooms (name, created_at, updated_at)
-VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO chat_rooms (id, name, created_at, updated_at)
+VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 RETURNING id, name, created_at, updated_at, last_message_sent_at;
 
 -- name: InsertMessage :exec
-INSERT INTO messages (chat_room_id, user_id, message, created_at, updated_at)
-VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-RETURNING id, chat_room_id, user_id, message, created_at, updated_at;
+INSERT INTO messages (chat_room_id, user_id, username, message, created_at, updated_at)
+VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+RETURNING id, chat_room_id, user_id, username, message, created_at, updated_at;
 
 -- name: UpdateChatRoomLastMessageSentAt :exec
 UPDATE chat_rooms
@@ -24,9 +24,9 @@ FROM chat_rooms
 WHERE chat_rooms.id = ?;
 
 -- name: CreateUser :one
-INSERT INTO users (name, created_at, updated_at)
-VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-RETURNING id, name, created_at, updated_at;
+INSERT INTO users (name, session_id, created_at, updated_at)
+VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+RETURNING id, name, session_id, created_at, updated_at;
 
 -- name: GetLastMessages :many
 SELECT
@@ -42,3 +42,6 @@ FROM messages
 WHERE messages.chat_room_id = ?
 ORDER BY messages.created_at
 LIMIT ?;
+
+-- name: GetUserBySessionId :one
+SELECT * FROM users WHERE session_id = ?;

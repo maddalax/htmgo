@@ -17,18 +17,25 @@ const (
 
 type SocketEvent struct {
 	Id      string
+	RoomId  string
 	Type    EventType
 	Payload map[string]any
 }
 
+type SocketConnection struct {
+	Id     string
+	Conn   *websocket.Conn
+	RoomId string
+}
+
 type SocketManager struct {
-	sockets   *xsync.MapOf[string, *websocket.Conn]
+	sockets   *xsync.MapOf[string, SocketConnection]
 	listeners []chan SocketEvent
 }
 
 func NewSocketManager() *SocketManager {
 	return &SocketManager{
-		sockets: xsync.NewMapOf[string, *websocket.Conn](),
+		sockets: xsync.NewMapOf[string, SocketConnection](),
 	}
 }
 
@@ -46,26 +53,41 @@ func (manager *SocketManager) dispatch(event SocketEvent) {
 }
 
 func (manager *SocketManager) OnMessage(id string, message map[string]any) {
+	socket := manager.Get(id)
+	if socket == nil {
+		return
+	}
 	manager.dispatch(SocketEvent{
 		Id:      id,
 		Type:    MessageEvent,
 		Payload: message,
+		RoomId:  socket.RoomId,
 	})
 }
 
-func (manager *SocketManager) Add(id string, conn *websocket.Conn) {
-	manager.sockets.Store(id, conn)
+func (manager *SocketManager) Add(roomId string, id string, conn *websocket.Conn) {
+	manager.sockets.Store(id, SocketConnection{
+		Id:     id,
+		Conn:   conn,
+		RoomId: roomId,
+	})
 	manager.dispatch(SocketEvent{
 		Id:      id,
 		Type:    ConnectedEvent,
+		RoomId:  roomId,
 		Payload: map[string]any{},
 	})
 }
 
 func (manager *SocketManager) OnClose(id string) {
+	socket := manager.Get(id)
+	if socket == nil {
+		return
+	}
 	manager.dispatch(SocketEvent{
 		Id:      id,
 		Type:    DisconnectedEvent,
+		RoomId:  socket.RoomId,
 		Payload: map[string]any{},
 	})
 	manager.sockets.Delete(id)
@@ -75,7 +97,7 @@ func (manager *SocketManager) CloseWithError(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		defer manager.OnClose(id)
-		conn.Close(websocket.StatusInternalError, message)
+		conn.Conn.Close(websocket.StatusInternalError, message)
 	}
 }
 
@@ -83,19 +105,22 @@ func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		defer manager.OnClose(id)
-		_ = conn.CloseNow()
+		_ = conn.Conn.CloseNow()
 	}
 }
 
-func (manager *SocketManager) Get(id string) *websocket.Conn {
-	conn, _ := manager.sockets.Load(id)
-	return conn
+func (manager *SocketManager) Get(id string) *SocketConnection {
+	conn, ok := manager.sockets.Load(id)
+	if !ok {
+		return nil
+	}
+	return &conn
 }
 
 func (manager *SocketManager) Broadcast(message []byte, messageType websocket.MessageType) {
 	ctx := context.Background()
-	manager.sockets.Range(func(id string, conn *websocket.Conn) bool {
-		err := conn.Write(ctx, messageType, message)
+	manager.sockets.Range(func(id string, conn SocketConnection) bool {
+		err := conn.Conn.Write(ctx, messageType, message)
 		if err != nil {
 			manager.Disconnect(id)
 		}
@@ -111,6 +136,6 @@ func (manager *SocketManager) BroadcastText(message string) {
 func (manager *SocketManager) SendText(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		_ = conn.Write(context.Background(), websocket.MessageText, []byte(message))
+		_ = conn.Conn.Write(context.Background(), websocket.MessageText, []byte(message))
 	}
 }

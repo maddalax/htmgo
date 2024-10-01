@@ -5,20 +5,22 @@ import (
 	"chat/ws"
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
+	"time"
 )
 
 type Manager struct {
 	socketManager *ws.SocketManager
 	queries       *db.Queries
+	service       *Service
 }
 
-func NewManager(loader *service.Locator) *Manager {
+func NewManager(locator *service.Locator) *Manager {
 	return &Manager{
-		socketManager: service.Get[ws.SocketManager](loader),
-		queries:       service.Get[db.Queries](loader),
+		socketManager: service.Get[ws.SocketManager](locator),
+		queries:       service.Get[db.Queries](locator),
+		service:       NewService(locator),
 	}
 }
 
@@ -32,61 +34,58 @@ func (m *Manager) StartListener() {
 			switch event.Type {
 			case ws.ConnectedEvent:
 				fmt.Printf("User %s connected\n", event.Id)
-				m.backFill(event.Id)
+				m.backFill(event.Id, event.RoomId)
 			case ws.DisconnectedEvent:
 				fmt.Printf("User %s disconnected\n", event.Id)
 			case ws.MessageEvent:
-				m.onMessage(event.Id, event.Payload)
+				m.onMessage(event)
 			}
 		}
 	}
 }
 
-func (m *Manager) backFill(socketId string) {
+func (m *Manager) backFill(socketId string, roomId string) {
 	messages, _ := m.queries.GetLastMessages(context.Background(), db.GetLastMessagesParams{
-		ChatRoomID: "4ccc3f90a27c9375c98477571034b2e1",
-		Limit:      50,
+		ChatRoomID: roomId,
+		Limit:      200,
 	})
 	for _, message := range messages {
+		parsed, _ := time.Parse("2006-01-02 15:04:05", message.CreatedAt)
 		m.socketManager.SendText(socketId,
-			h.Render(MessageRow(message.Message)),
+			h.Render(MessageRow(&Message{
+				UserId:    message.UserID,
+				UserName:  message.UserName,
+				Message:   message.Message,
+				CreatedAt: parsed,
+			})),
 		)
 	}
 }
 
-func (m *Manager) onMessage(socketId string, payload map[string]any) {
-	fmt.Printf("Received message from %s: %v\n", socketId, payload)
-	message := payload["message"].(string)
+func (m *Manager) onMessage(e ws.SocketEvent) {
+	fmt.Printf("Received message from %s: %v\n", e.Id, e.Payload)
+	message := e.Payload["message"].(string)
 
 	if message == "" {
 		return
 	}
 
-	ctx := context.Background()
-
-	user, err := m.queries.CreateUser(ctx, uuid.NewString())
+	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 
 	if err != nil {
-		fmt.Printf("Error creating user: %v\n", err)
-		return
-	}
-	//chat, _ := m.queries.CreateChatRoom(ctx, "General")
-
-	err = m.queries.InsertMessage(
-		context.Background(),
-		db.InsertMessageParams{
-			ChatRoomID: "4ccc3f90a27c9375c98477571034b2e1",
-			UserID:     user.ID,
-			Message:    message,
-		},
-	)
-
-	if err != nil {
-		fmt.Printf("Error inserting message: %v\n", err)
+		fmt.Printf("Error getting user: %v\n", err)
 		return
 	}
 
-	m.socketManager.BroadcastText(
-		h.Render(MessageRow(message)),
+	saved := m.service.InsertMessage(
+		&user,
+		e.RoomId,
+		message,
 	)
+
+	if saved != nil {
+		m.socketManager.BroadcastText(
+			h.Render(MessageRow(saved)),
+		)
+	}
 }

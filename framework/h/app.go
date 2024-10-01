@@ -16,7 +16,8 @@ import (
 )
 
 type RequestContext struct {
-	*http.Request
+	Request           *http.Request
+	Response          http.ResponseWriter
 	locator           *service.Locator
 	isBoosted         bool
 	currentBrowserUrl string
@@ -118,9 +119,10 @@ func (app *App) start() {
 	app.Router.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cc := &RequestContext{
-				locator: app.Opts.ServiceLocator,
-				Request: r,
-				kv:      make(map[string]interface{}),
+				locator:  app.Opts.ServiceLocator,
+				Request:  r,
+				Response: w,
+				kv:       make(map[string]interface{}),
 			}
 			populateHxFields(cc)
 			ctx := context.WithValue(r.Context(), RequestContextKey, cc)
