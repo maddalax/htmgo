@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"fmt"
 	"github.com/coder/websocket"
 	"github.com/puzpuzpuz/xsync/v3"
 )
@@ -142,7 +141,6 @@ func (manager *SocketManager) Broadcast(message []byte, messageType websocket.Me
 }
 
 func (manager *SocketManager) BroadcastText(message string) {
-	fmt.Printf("Broadcasting message: \n%s\n", message)
 	manager.Broadcast([]byte(message), websocket.MessageText)
 }
 

@@ -24,6 +24,10 @@ func ChatAppFirstScreen(ctx *h.RequestContext) *h.Page {
 							Name:     "username",
 							Label:    "Username",
 							Required: true,
+							Children: []h.Ren{
+								h.Attribute("autocomplete", "off"),
+								h.MaxLength(15),
+							},
 						}),
 
 						h.Div(
@@ -33,6 +37,10 @@ func ChatAppFirstScreen(ctx *h.RequestContext) *h.Page {
 								Name:        "new-chat-room",
 								Label:       "Create a New Chat Room",
 								Placeholder: "Chat Room Name",
+								Children: []h.Ren{
+									h.Attribute("autocomplete", "off"),
+									h.MaxLength(20),
+								},
 							}),
 
 							h.Div(
@@ -47,6 +55,10 @@ func ChatAppFirstScreen(ctx *h.RequestContext) *h.Page {
 								Name:        "join-chat-room",
 								Label:       "Join a Chat Room",
 								Placeholder: "Chat Room Id",
+								Children: []h.Ren{
+									h.Attribute("autocomplete", "off"),
+									h.MaxLength(100),
+								},
 							}),
 						),
 

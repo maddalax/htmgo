@@ -19,6 +19,9 @@ func Handle() http.HandlerFunc {
 
 		c, err := websocket.Accept(w, r, nil)
 
+		// 2 mb
+		c.SetReadLimit(2 * 1024 * 1024)
+
 		if err != nil {
 			return
 		}

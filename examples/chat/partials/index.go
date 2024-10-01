@@ -19,6 +19,10 @@ func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
 		return h.SwapPartial(ctx, components.FormError("Username is required"))
 	}
 
+	if len(username) > 15 {
+		return h.SwapPartial(ctx, components.FormError("Username is too long"))
+	}
+
 	user, err := service.CreateUser(username)
 
 	if err != nil {
@@ -52,6 +56,11 @@ func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
 	}
 
 	chatRoomName := ctx.Request.FormValue("new-chat-room")
+
+	if len(chatRoomName) > 20 {
+		return h.SwapPartial(ctx, components.FormError("Chat room name is too long"))
+	}
+
 	if chatRoomName != "" {
 		room, _ := service.CreateRoom(chatRoomName)
 		if room == nil {
