@@ -106,18 +106,18 @@ func (manager *SocketManager) OnClose(id string) {
 	manager.sockets.Delete(id)
 }
 
-func (manager *SocketManager) CloseWithError(id string, message string) {
+func (manager *SocketManager) CloseWithError(id string, code websocket.StatusCode, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		defer manager.OnClose(id)
-		conn.Conn.Close(websocket.StatusInternalError, message)
+		go manager.OnClose(id)
+		conn.Conn.Close(code, message)
 	}
 }
 
 func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		defer manager.OnClose(id)
+		go manager.OnClose(id)
 		_ = conn.Conn.CloseNow()
 	}
 }

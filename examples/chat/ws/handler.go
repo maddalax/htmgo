@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
+	"log/slog"
 	"net/http"
 )
 
@@ -14,31 +15,30 @@ func Handle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 
-		sessionCookie, err := r.Cookie("session_id")
-
-		cookies := r.Cookies()
-
-		println(cookies)
-		// no session
-		if err != nil {
-			return
-		}
+		sessionCookie, _ := r.Cookie("session_id")
 
 		c, err := websocket.Accept(w, r, nil)
 
-		locator := cc.ServiceLocator()
-		manager := service.Get[SocketManager](locator)
-
 		if err != nil {
 			return
 		}
+
+		if sessionCookie == nil {
+			slog.Error("session cookie not found")
+			c.Close(websocket.StatusPolicyViolation, "no session")
+			return
+		}
+
+		locator := cc.ServiceLocator()
+		manager := service.Get[SocketManager](locator)
 
 		sessionId := sessionCookie.Value
 
 		roomId := chi.URLParam(r, "id")
 
 		if roomId == "" {
-			manager.CloseWithError(sessionId, "invalid room")
+			slog.Error("invalid room", slog.String("room_id", roomId))
+			manager.CloseWithError(sessionId, websocket.StatusPolicyViolation, "invalid room")
 			return
 		}
 
@@ -52,7 +52,8 @@ func Handle() http.HandlerFunc {
 			var v map[string]any
 			err = wsjson.Read(context.Background(), c, &v)
 			if err != nil {
-				manager.CloseWithError(sessionId, "failed to read message")
+				slog.Error("failed to read message", slog.String("room_id", roomId))
+				manager.CloseWithError(sessionId, websocket.StatusInternalError, "failed to read message")
 				return
 			}
 			if v != nil {

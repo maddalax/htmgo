@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/js"
 )
 
@@ -18,7 +17,24 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					h.TriggerChildren(),
 					h.HxExtension("ws"),
 				),
+
 				h.Attribute("ws-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
+
+				h.HxOnWsOpen(
+					js.ConsoleLog("Connected to chat room"),
+				),
+
+				h.HxOnWsClose(
+					js.EvalJs(`
+						const reason = e.detail.event.reason
+						if(['invalid room', 'no session'].includes(reason)) {
+							window.location.href = '/';
+						} else {
+                            console.error('Connection closed:', e.detail.event)
+						}
+					`),
+				),
+
 				h.Class("flex flex-row min-h-screen bg-neutral-100"),
 
 				// Sidebar for connected users
@@ -28,11 +44,11 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 				h.Div(
 					h.Class("flex flex-col flex-grow gap-4 bg-white rounded p-4"),
 
-					h.OnEvent("hx-on::ws-after-message",
-						// language=JavaScript
-						js.EvalJsOnSibling("#messages", `
-							element.scrollTop = element.scrollHeight;
-						`)),
+					h.HxAfterWsMessage(
+						js.EvalJsOnSibling("#messages",
+							// language=JavaScript
+							`element.scrollTop = element.scrollHeight;`),
+					),
 
 					// Chat Messages
 					h.Div(
@@ -66,10 +82,9 @@ func MessageInput() *h.Element {
 		h.Class("p-4 rounded-md border border-slate-200 w-full"),
 		h.Name("message"),
 		h.Placeholder("Type a message..."),
-		h.HxBeforeWsSend(
+		h.HxAfterWsSend(
 			js.SetValue(""),
 		),
-		h.OnEvent(hx.KeyDownEvent, js.SubmitFormOnEnter()),
 	)
 }
 

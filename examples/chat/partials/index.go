@@ -5,6 +5,7 @@ import (
 	"chat/components"
 	"github.com/maddalax/htmgo/framework/h"
 	"net/http"
+	"time"
 )
 
 func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
@@ -26,9 +27,10 @@ func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
 
 	var redirect = func(path string) *h.Partial {
 		cookie := &http.Cookie{
-			Name:  "session_id",
-			Value: user.SessionID,
-			Path:  "/",
+			Name:    "session_id",
+			Value:   user.SessionID,
+			Path:    "/",
+			Expires: time.Now().Add(24 * 30 * time.Hour),
 		}
 		return h.SwapManyPartialWithHeaders(
 			ctx,

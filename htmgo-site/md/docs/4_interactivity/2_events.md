@@ -42,6 +42,8 @@ OnClick(cmd ...Command) *LifeCycle
 HxOnAfterSwap(cmd ...Command) *LifeCycle
 HxOnLoad(cmd ...Command) *LifeCycle
 ```
+**Note:** Each command you attach to the event handler will be passed 'self' and 'event' (if applicable) as arguments.
+'self' is the current element, and 'event' is the event object.
 
 If you use the OnEvent directly, event names may be any [HTML DOM](https://www.w3schools.com/jsref/dom_obj_event.asp) events, or any [HTMX events](https://htmx.org/events/).
 

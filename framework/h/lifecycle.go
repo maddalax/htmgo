@@ -86,6 +86,34 @@ func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
 }
 
+func HxBeforeWsMessage(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsBeforeMessageEvent, cmd...)
+}
+
+func HxAfterWsMessage(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsAfterMessageEvent, cmd...)
+}
+
+func OnSubmit(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SubmitEvent, cmd...)
+}
+
+func HxOnWsError(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsErrorEvent, cmd...)
+}
+
+func HxOnWsClose(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsClosedEvent, cmd...)
+}
+
+func HxOnWsConnecting(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsConnectingEvent, cmd...)
+}
+
+func HxOnWsOpen(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.WsConnectedEvent, cmd...)
+}
+
 func HxBeforeWsSend(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().HxBeforeWsSend(cmd...)
 }
@@ -279,6 +307,16 @@ func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
 }
 
+func PreventDefault() SimpleJsCommand {
+	// language=JavaScript
+	return SimpleJsCommand{Command: "event.preventDefault()"}
+}
+
+func ConsoleLog(text string) SimpleJsCommand {
+	// language=JavaScript
+	return SimpleJsCommand{Command: fmt.Sprintf("console.log('%s')", text)}
+}
+
 func SetValue(value string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.value = '%s'", value)}
@@ -288,7 +326,10 @@ func SubmitFormOnEnter() ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(`
 		if (event.code === 'Enter') { 
-			self.form.dispatchEvent(new Event('submit', { cancelable: true })); 
+            console.log('submitting form');
+			setTimeout(() => {
+                self.form.dispatchEvent(new Event('submit', { cancelable: true })); 
+			}, 250)
 		}
 	`)
 }

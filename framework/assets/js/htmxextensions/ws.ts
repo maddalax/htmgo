@@ -406,12 +406,13 @@ htmx.defineExtension('ws', {
 
             // Try to create websockets when elements are processed
             case 'htmx:beforeProcessNode':
-                forEach(queryAttributeOnThisOrChildren(parent, 'ws-connect'), (child) => {
-                    ensureWebSocket(child);
-                });
-                forEach(queryAttributeOnThisOrChildren(parent, 'ws-send'), (child) => {
-                    ensureWebSocketSend(child);
-                });
+                if(parent.hasAttribute("ws-connect")) {
+                    ensureWebSocket(parent as HTMLElement);
+                }
+
+                if(parent.hasAttribute("ws-send")) {
+                    ensureWebSocketSend(parent as HTMLElement);
+                }
         }
     },
 });

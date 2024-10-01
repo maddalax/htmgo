@@ -110,6 +110,12 @@ const (
 	XhrProgressEvent           Event = "htmx:xhr:progress"
 	BeforeWsSendEvent          Event = "htmx:wsBeforeSend"
 	AfterWsSendEvent           Event = "htmx:wsAfterSend"
+	WsConnectedEvent           Event = "htmx:wsOpen"
+	WsConnectingEvent          Event = "htmx:wsConnecting"
+	WsClosedEvent              Event = "htmx:wsClose"
+	WsErrorEvent               Event = "htmx:wsError"
+	WsBeforeMessageEvent       Event = "htmx:wsBeforeMessage"
+	WsAfterMessageEvent        Event = "htmx:wsAfterMessage"
 
 	// RevealedEvent Misc Events
 	RevealedEvent   Event = "revealed"
