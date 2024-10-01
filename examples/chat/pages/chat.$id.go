@@ -28,14 +28,16 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 				h.HxOnWsClose(
 					js.EvalJs(fmt.Sprintf(`
 						const reason = e.detail.event.reason
-						if(['invalid room', 'no session'].includes(reason)) {
+						if(['invalid room', 'no session', 'invalid user'].includes(reason)) {
 							window.location.href = '/?roomId=%s';
 						} else if(e.detail.event.code === 1011) { 
 							window.location.reload()
+						} else if (e.detail.event.code === 1008 || e.detail.event.code === 1006) {
+                            window.location.href = '/?roomId=%s';
 						} else {
 							console.error('Connection closed:', e.detail.event)
 						}
-					`, roomId)),
+					`, roomId, roomId)),
 				),
 
 				h.Class("flex flex-row min-h-screen bg-neutral-100"),
@@ -105,7 +107,7 @@ func UserSidebar() *h.Element {
 		h.Class("pt-[67px] min-w-48 w-48 bg-neutral-200 p-4 flex flex-col justify-between gap-3 rounded-l-lg"),
 		h.Div(
 			h.H3F("Connected Users", h.Class("text-lg font-bold")),
-			chat.ConnectedUsers(""),
+			chat.ConnectedUsers("", false),
 		),
 		h.A(
 			h.Class("cursor-pointer"),

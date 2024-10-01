@@ -24,25 +24,27 @@ func MessageRow(message *Message) *h.Element {
 	)
 }
 
-func ConnectedUsers(username string) *h.Element {
+func ConnectedUsers(username string, isMe bool) *h.Element {
 	return h.Ul(
 		h.Attribute("hx-swap", "none"),
 		h.Attribute("hx-swap-oob", "beforeend"),
 		h.Id("connected-users"),
 		h.Class("flex flex-col"),
 		// This would be populated dynamically with connected users
-		ConnectedUser(username, false),
+		ConnectedUser(username, false, isMe),
 	)
 }
 
-func ConnectedUser(username string, remove bool) *h.Element {
+func ConnectedUser(username string, remove bool, isMe bool) *h.Element {
 	id := fmt.Sprintf("connected-user-%s", strings.ReplaceAll(username, "#", "-"))
 	if remove {
 		return h.Div(h.Id(id), h.Attribute("hx-swap-oob", "delete"))
 	}
 	return h.Li(
 		h.Id(id),
-		h.Class("truncate text-slate-700"),
+		h.ClassX("truncate text-slate-700", h.ClassMap{
+			"font-bold": isMe,
+		}),
 		h.Text(username),
 	)
 }

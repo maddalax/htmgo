@@ -28,21 +28,25 @@ type SocketConnection struct {
 }
 
 type SocketManager struct {
-	sockets   *xsync.MapOf[string, SocketConnection]
+	sockets   *xsync.MapOf[string, *xsync.MapOf[string, SocketConnection]]
+	idToRoom  *xsync.MapOf[string, string]
 	listeners []chan SocketEvent
 }
 
 func NewSocketManager() *SocketManager {
 	return &SocketManager{
-		sockets: xsync.NewMapOf[string, SocketConnection](),
+		sockets:  xsync.NewMapOf[string, *xsync.MapOf[string, SocketConnection]](),
+		idToRoom: xsync.NewMapOf[string, string](),
 	}
 }
 
 func (manager *SocketManager) ForEachSocket(roomId string, cb func(conn SocketConnection)) {
-	manager.sockets.Range(func(id string, conn SocketConnection) bool {
-		if conn.RoomId == roomId {
-			cb(conn)
-		}
+	sockets, ok := manager.sockets.Load(roomId)
+	if !ok {
+		return
+	}
+	sockets.Range(func(id string, conn SocketConnection) bool {
+		cb(conn)
 		return true
 	})
 }
@@ -74,15 +78,23 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 }
 
 func (manager *SocketManager) Add(roomId string, id string, conn *websocket.Conn) {
-	manager.sockets.Store(id, SocketConnection{
+	manager.idToRoom.Store(id, roomId)
+
+	sockets, ok := manager.sockets.LoadOrCompute(roomId, func() *xsync.MapOf[string, SocketConnection] {
+		return xsync.NewMapOf[string, SocketConnection]()
+	})
+
+	sockets.Store(id, SocketConnection{
 		Id:     id,
 		Conn:   conn,
 		RoomId: roomId,
 	})
-	s, ok := manager.sockets.Load(id)
+
+	s, ok := sockets.Load(id)
 	if !ok {
 		return
 	}
+
 	manager.dispatch(SocketEvent{
 		Id:      s.Id,
 		Type:    ConnectedEvent,
@@ -122,26 +134,36 @@ func (manager *SocketManager) Disconnect(id string) {
 }
 
 func (manager *SocketManager) Get(id string) *SocketConnection {
-	conn, ok := manager.sockets.Load(id)
+	roomId, ok := manager.idToRoom.Load(id)
 	if !ok {
 		return nil
 	}
+	sockets, ok := manager.sockets.Load(roomId)
+	if !ok {
+		return nil
+	}
+	conn, ok := sockets.Load(id)
 	return &conn
 }
 
-func (manager *SocketManager) Broadcast(message []byte, messageType websocket.MessageType) {
+func (manager *SocketManager) Broadcast(roomId string, message []byte, messageType websocket.MessageType, predicate func(conn SocketConnection) bool) {
 	ctx := context.Background()
-	manager.sockets.Range(func(id string, conn SocketConnection) bool {
-		err := conn.Conn.Write(ctx, messageType, message)
-		if err != nil {
-			manager.Disconnect(id)
+	sockets, ok := manager.sockets.Load(roomId)
+
+	if !ok {
+		return
+	}
+
+	sockets.Range(func(id string, conn SocketConnection) bool {
+		if predicate(conn) {
+			conn.Conn.Write(ctx, messageType, message)
 		}
 		return true
 	})
 }
 
-func (manager *SocketManager) BroadcastText(message string) {
-	manager.Broadcast([]byte(message), websocket.MessageText)
+func (manager *SocketManager) BroadcastText(roomId string, message string, predicate func(conn SocketConnection) bool) {
+	manager.Broadcast(roomId, []byte(message), websocket.MessageText, predicate)
 }
 
 func (manager *SocketManager) SendText(id string, message string) {

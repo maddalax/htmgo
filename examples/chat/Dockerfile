@@ -1,9 +1,5 @@
 # Stage 1: Build the Go binary
-FROM golang:1.23-alpine AS builder
-
-RUN apk update
-RUN apk add git
-RUN apk add curl
+FROM golang:1.23 AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -18,7 +14,9 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary for Linux
-RUN GOPRIVATE=github.com/maddalax GOPROXY=direct go run github.com/maddalax/htmgo/cli/htmgo@latest build
+RUN CGO_ENABLED=0 GOPRIVATE=github.com/maddalax LOG_LEVEL=debug go run github.com/maddalax/htmgo/cli/htmgo@latest build
+
+RUN CGO_ENABLED=1 GOOS=linux go build -o ./dist -a -ldflags '-linkmode external -extldflags "-static"' .
 
 
 # Stage 2: Create the smallest possible image
@@ -35,4 +33,4 @@ EXPOSE 3000
 
 
 # Command to run the binary
-CMD ["./starter-template"]
+CMD ["./chat"]

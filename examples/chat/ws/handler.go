@@ -55,7 +55,6 @@ func Handle() http.HandlerFunc {
 			var v map[string]any
 			err = wsjson.Read(context.Background(), c, &v)
 			if err != nil {
-				slog.Error("failed to read message", slog.String("room_id", roomId))
 				manager.CloseWithError(sessionId, websocket.StatusInternalError, "failed to read message")
 				return
 			}

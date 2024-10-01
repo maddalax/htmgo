@@ -52,36 +52,51 @@ func (m *Manager) OnConnected(e ws.SocketEvent) {
 		return
 	}
 
-	fmt.Printf("User %s connected to room %s\n", e.Id, e.RoomId)
-
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 
 	if err != nil {
+		m.socketManager.CloseWithError(e.Id, websocket.StatusPolicyViolation, "invalid user")
 		return
 	}
 
-	m.socketManager.BroadcastText(h.Render(ConnectedUsers(user.Name)))
+	fmt.Printf("User %s connected to %s\n", user.Name, e.RoomId)
+
+	// backfill all existing clients to the connected client
 	m.socketManager.ForEachSocket(e.RoomId, func(conn ws.SocketConnection) {
-		if conn.Id == e.Id {
-			return
-		}
 		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
 		if err != nil {
 			return
 		}
-		m.socketManager.SendText(e.Id, h.Render(ConnectedUsers(user.Name)))
+		isMe := conn.Id == e.Id
+		fmt.Printf("Sending connected user %s to %s\n", user.Name, e.Id)
+		m.socketManager.SendText(e.Id, h.Render(ConnectedUsers(user.Name, isMe)))
 	})
+
+	// send the connected user to all existing clients
+	m.socketManager.BroadcastText(
+		e.RoomId,
+		h.Render(ConnectedUsers(user.Name, false)),
+		func(conn ws.SocketConnection) bool {
+			return conn.Id != e.Id
+		},
+	)
 
 	go m.backFill(e.Id, e.RoomId)
 }
 
 func (m *Manager) OnDisconnected(e ws.SocketEvent) {
-	fmt.Printf("User %s disconnected\n", e.Id)
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 	if err != nil {
 		return
 	}
-	m.socketManager.BroadcastText(h.Render(ConnectedUser(user.Name, true)))
+	room, err := m.service.GetRoom(e.RoomId)
+	if err != nil {
+		return
+	}
+	fmt.Printf("User %s disconnected from %s\n", user.Name, room.ID)
+	m.socketManager.BroadcastText(room.ID, h.Render(ConnectedUser(user.Name, true, false)), func(conn ws.SocketConnection) bool {
+		return conn.Id != e.Id
+	})
 }
 
 func (m *Manager) backFill(socketId string, roomId string) {
@@ -103,7 +118,6 @@ func (m *Manager) backFill(socketId string, roomId string) {
 }
 
 func (m *Manager) onMessage(e ws.SocketEvent) {
-	fmt.Printf("Received message from %s: %v\n", e.Id, e.Payload)
 	message := e.Payload["message"].(string)
 
 	if message == "" {
@@ -125,7 +139,11 @@ func (m *Manager) onMessage(e ws.SocketEvent) {
 
 	if saved != nil {
 		m.socketManager.BroadcastText(
+			e.RoomId,
 			h.Render(MessageRow(saved)),
+			func(conn ws.SocketConnection) bool {
+				return true
+			},
 		)
 	}
 }
