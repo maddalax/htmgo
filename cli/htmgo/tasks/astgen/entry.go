@@ -293,6 +293,17 @@ func formatRoute(path string) string {
 	path = strings.ReplaceAll(path, "_", "/")
 	path = strings.ReplaceAll(path, ".", "/")
 	path = strings.ReplaceAll(path, "\\", "/")
+
+	parts := strings.Split(path, "/")
+
+	for i, part := range parts {
+		if strings.HasPrefix(part, ":") {
+			parts[i] = fmt.Sprintf("{%s}", part[1:])
+		}
+	}
+
+	path = strings.Join(parts, "/")
+
 	if path == "" {
 		return "/"
 	}
