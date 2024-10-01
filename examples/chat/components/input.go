@@ -35,6 +35,7 @@ func Input(props InputProps) *h.Element {
 		h.If(props.Name != "", h.Name(props.Name)),
 		h.If(props.Children != nil, h.Children(props.Children...)),
 		h.If(props.Required, h.Required()),
+		h.If(props.Placeholder != "", h.Placeholder(props.Placeholder)),
 		h.If(props.DefaultValue != "", h.Attribute("value", props.DefaultValue)),
 		validation,
 	)

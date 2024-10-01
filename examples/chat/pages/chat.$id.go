@@ -26,16 +26,16 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 				),
 
 				h.HxOnWsClose(
-					js.EvalJs(`
+					js.EvalJs(fmt.Sprintf(`
 						const reason = e.detail.event.reason
 						if(['invalid room', 'no session'].includes(reason)) {
-							window.location.href = '/';
+							window.location.href = '/?roomId=%s';
 						} else if(e.detail.event.code === 1011) { 
 							window.location.reload()
 						} else {
 							console.error('Connection closed:', e.detail.event)
 						}
-					`),
+					`, roomId)),
 				),
 
 				h.Class("flex flex-row min-h-screen bg-neutral-100"),
@@ -88,6 +88,15 @@ func roomNameHeader(ctx *h.RequestContext) *h.Element {
 	return h.Div(
 		h.Class("bg-neutral-700 text-white p-3 shadow-sm w-full fixed top-0 left-0 flex justify-center z-10"),
 		h.H2F(room.Name, h.Class("text-lg font-bold")),
+		h.Div(
+			h.Class("absolute right-5 top-3 cursor-pointer"),
+			h.Text("Share"),
+			h.OnClick(
+				js.EvalJs(`
+						alert("Share this url with your friends:\n " + window.location.href)
+					`),
+			),
+		),
 	)
 }
 
