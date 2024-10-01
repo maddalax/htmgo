@@ -1,6 +1,7 @@
 package h
 
 import (
+	"github.com/maddalax/htmgo/framework/hx"
 	"html"
 	"net/http"
 	"reflect"
@@ -54,6 +55,10 @@ func SwapManyPartialWithHeaders(ctx *RequestContext, headers *Headers, swaps ...
 func SwapPartial(ctx *RequestContext, swap *Element) *Partial {
 	return NewPartial(
 		SwapMany(ctx, swap))
+}
+
+func RedirectPartial(url string) *Partial {
+	return NewPartialWithHeaders(NewHeaders(hx.RedirectHeader, url), Fragment())
 }
 
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {
