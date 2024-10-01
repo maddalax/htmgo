@@ -36,13 +36,12 @@ func CreateOrJoinRoom(ctx *h.RequestContext) *h.Partial {
 			Path:    "/",
 			Expires: time.Now().Add(24 * 30 * time.Hour),
 		}
-		return h.SwapManyPartialWithHeaders(
-			ctx,
+
+		return h.RedirectPartialWithHeaders(
+			path,
 			h.NewHeaders(
 				"Set-Cookie", cookie.String(),
-				"HX-Redirect", path,
 			),
-			h.Fragment(),
 		)
 	}
 
