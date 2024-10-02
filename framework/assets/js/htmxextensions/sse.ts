@@ -1,4 +1,5 @@
 import htmx from 'htmx.org'
+import {removeAssociatedScripts} from "./htmgo";
 
 let api : any = null;
 let processed = new Set<string>()
@@ -12,6 +13,10 @@ htmx.defineExtension("sse", {
         const target = evt.target;
         if(!(target instanceof HTMLElement)) {
             return
+        }
+
+        if(name === 'htmx:beforeCleanupElement') {
+            removeAssociatedScripts(target);
         }
 
         if(name === 'htmx:beforeProcessNode') {
