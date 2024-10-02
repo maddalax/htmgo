@@ -126,12 +126,13 @@ func (manager *SocketManager) OnClose(id string) {
 	manager.sockets.Delete(id)
 }
 
-func (manager *SocketManager) CloseWithError(id string, code int, message string) {
+func (manager *SocketManager) CloseWithMessage(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		go manager.OnClose(id)
+		defer manager.OnClose(id)
+		manager.writeText(*conn, "close", message)
 		conn.Done <- CloseEvent{
-			Code:   code,
+			Code:   -1,
 			Reason: message,
 		}
 	}
@@ -168,18 +169,33 @@ func (manager *SocketManager) Ping(id string) {
 	}
 }
 
+func (manager *SocketManager) writeCloseRaw(writer http.ResponseWriter, flusher http.Flusher, message string) {
+	err := manager.writeTextRaw(writer, "close", message)
+	if err == nil {
+		flusher.Flush()
+	}
+}
+
+func (manager *SocketManager) writeTextRaw(writer http.ResponseWriter, event string, message string) error {
+	if writer == nil {
+		return nil
+	}
+	var err error
+	if event != "" {
+		_, err = fmt.Fprintf(writer, "event: %s\ndata: %s\n\n", event, message)
+	} else {
+		_, err = fmt.Fprintf(writer, "data: %s\n\n", message)
+	}
+	return err
+}
+
 func (manager *SocketManager) writeText(socket SocketConnection, event string, message string) {
 	if socket.Writer == nil {
 		return
 	}
-	var err error
-	if event != "" {
-		_, err = fmt.Fprintf(socket.Writer, "event: %s\ndata: %s\n\n", event, message)
-	} else {
-		_, err = fmt.Fprintf(socket.Writer, "data: %s\n\n", message)
-	}
-	if err != nil {
-		manager.CloseWithError(socket.Id, 1008, "failed to write message")
+	err := manager.writeTextRaw(socket.Writer, event, message)
+	if err != nil && event != "close" {
+		manager.CloseWithMessage(socket.Id, "failed to write message")
 	}
 	socket.Flush <- true
 }

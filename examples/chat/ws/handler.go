@@ -12,17 +12,24 @@ import (
 
 func Handle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Set the necessary headers
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Optional for CORS
+
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
+		locator := cc.ServiceLocator()
+		manager := service.Get[SocketManager](locator)
+		// Flush the headers immediately
+		flusher, ok := w.(http.Flusher)
 
 		sessionCookie, _ := r.Cookie("session_id")
 
 		if sessionCookie == nil {
-			slog.Error("session cookie not found")
+			manager.writeCloseRaw(w, flusher, "no session")
 			return
 		}
-
-		locator := cc.ServiceLocator()
-		manager := service.Get[SocketManager](locator)
 
 		sessionId := sessionCookie.Value
 
@@ -30,7 +37,7 @@ func Handle() http.HandlerFunc {
 
 		if roomId == "" {
 			slog.Error("invalid room", slog.String("room_id", roomId))
-			manager.CloseWithError(sessionId, 1008, "invalid room")
+			manager.writeCloseRaw(w, flusher, "invalid room")
 			return
 		}
 
@@ -42,15 +49,6 @@ func Handle() http.HandlerFunc {
 		defer func() {
 			manager.Disconnect(sessionId)
 		}()
-
-		// Set the necessary headers
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Optional for CORS
-
-		// Flush the headers immediately
-		flusher, ok := w.(http.Flusher)
 
 		if !ok {
 			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)

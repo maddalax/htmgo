@@ -39,8 +39,11 @@ function connectEventSource(ele: Element, url: string) {
     console.info('Connecting to EventSource', url)
     const eventSource = new EventSource(url);
 
+    eventSource.addEventListener("close", function(event) {
+        htmx.trigger(ele, "htmx:sseClose", {event: event});
+    })
+
     eventSource.onopen = function(event) {
-        console.log('EventSource open:', event);
         htmx.trigger(ele, "htmx:sseOpen", {event: event});
     }
 
@@ -52,7 +55,6 @@ function connectEventSource(ele: Element, url: string) {
     }
 
     eventSource.onmessage = function(event) {
-        console.log('EventSource message:', event.data);
         htmx.trigger(ele, "htmx:sseBeforeMessage", {event: event});
         const response = event.data
         const fragment = api.makeFragment(response) as DocumentFragment;

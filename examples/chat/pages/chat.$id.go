@@ -28,7 +28,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 
 				h.HxOnSseClose(
 					js.EvalJs(fmt.Sprintf(`
-						const reason = e.detail.event.reason
+						const reason = e.detail.event.data
 						if(['invalid room', 'no session', 'invalid user'].includes(reason)) {
 							window.location.href = '/?roomId=%s';
 						} else if(e.detail.event.code === 1011) { 

@@ -47,14 +47,14 @@ func (m *Manager) OnConnected(e ws.SocketEvent) {
 	room, _ := m.service.GetRoom(e.RoomId)
 
 	if room == nil {
-		m.socketManager.CloseWithError(e.Id, 1008, "invalid room")
+		m.socketManager.CloseWithMessage(e.Id, "invalid room")
 		return
 	}
 
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 
 	if err != nil {
-		m.socketManager.CloseWithError(e.Id, 1008, "invalid user")
+		m.socketManager.CloseWithMessage(e.Id, "invalid user")
 		return
 	}
 
