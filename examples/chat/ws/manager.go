@@ -188,10 +188,19 @@ func (manager *SocketManager) writeCloseRaw(writer WriterChan, message string) {
 
 func (manager *SocketManager) writeTextRaw(writer WriterChan, event string, message string) {
 	routine.DebugLongRunning("writeTextRaw", func() {
+		timeout := 3 * time.Second
+		data := ""
 		if event != "" {
-			writer <- fmt.Sprintf("event: %s\ndata: %s\n\n", event, message)
+			data = fmt.Sprintf("event: %s\ndata: %s\n\n", event, message)
 		} else {
-			writer <- fmt.Sprintf("data: %s\n\n", message)
+			data = fmt.Sprintf("data: %s\n\n", message)
+		}
+		fmt.Printf("writing to channel:\n")
+		select {
+		case writer <- data:
+			fmt.Println("Sent to the channel")
+		case <-time.After(timeout):
+			fmt.Printf("could not send %s to channel after %s\n", data, timeout)
 		}
 	})
 }
