@@ -25,7 +25,7 @@ func NewManager(locator *service.Locator) *Manager {
 }
 
 func (m *Manager) StartListener() {
-	c := make(chan ws.SocketEvent)
+	c := make(chan ws.SocketEvent, 1)
 	m.socketManager.Listen(c)
 
 	for {
@@ -33,11 +33,13 @@ func (m *Manager) StartListener() {
 		case event := <-c:
 			switch event.Type {
 			case ws.ConnectedEvent:
-				m.OnConnected(event)
+				go m.OnConnected(event)
 			case ws.DisconnectedEvent:
-				m.OnDisconnected(event)
+				go m.OnDisconnected(event)
 			case ws.MessageEvent:
-				m.onMessage(event)
+				go m.onMessage(event)
+			default:
+				fmt.Printf("Unknown event type: %s\n", event.Type)
 			}
 		}
 	}
@@ -80,7 +82,7 @@ func (m *Manager) OnConnected(e ws.SocketEvent) {
 		},
 	)
 
-	go m.backFill(e.Id, e.RoomId)
+	m.backFill(e.Id, e.RoomId)
 }
 
 func (m *Manager) OnDisconnected(e ws.SocketEvent) {

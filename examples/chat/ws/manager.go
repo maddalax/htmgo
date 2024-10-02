@@ -3,10 +3,12 @@ package ws
 import (
 	"fmt"
 	"github.com/puzpuzpuz/xsync/v3"
-	"net/http"
+	"time"
 )
 
 type EventType string
+type WriterChan chan string
+type DoneChan chan CloseEvent
 
 const (
 	ConnectedEvent    EventType = "connected"
@@ -28,10 +30,9 @@ type CloseEvent struct {
 
 type SocketConnection struct {
 	Id     string
-	Writer http.ResponseWriter
 	RoomId string
-	Done   chan CloseEvent
-	Flush  chan bool
+	Done   DoneChan
+	Writer WriterChan
 }
 
 type SocketManager struct {
@@ -62,13 +63,29 @@ func (manager *SocketManager) Listen(listener chan SocketEvent) {
 	if manager.listeners == nil {
 		manager.listeners = make([]chan SocketEvent, 0)
 	}
-	manager.listeners = append(manager.listeners, listener)
+	if listener != nil {
+		manager.listeners = append(manager.listeners, listener)
+	}
 }
 
 func (manager *SocketManager) dispatch(event SocketEvent) {
+	fmt.Printf("dispatching event: %s\n", event.Type)
+	done := make(chan struct{}, 1)
+	go func() {
+		for {
+			select {
+			case <-done:
+				fmt.Printf("dispatched event: %s\n", event.Type)
+				return
+			case <-time.After(5 * time.Second):
+				fmt.Printf("havent dispatched event after 5s, chan blocked: %s\n", event.Type)
+			}
+		}
+	}()
 	for _, listener := range manager.listeners {
 		listener <- event
 	}
+	done <- struct{}{}
 }
 
 func (manager *SocketManager) OnMessage(id string, message map[string]any) {
@@ -84,7 +101,7 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 	})
 }
 
-func (manager *SocketManager) Add(roomId string, id string, writer http.ResponseWriter, done chan CloseEvent, flush chan bool) {
+func (manager *SocketManager) Add(roomId string, id string, writer chan string, done chan CloseEvent) {
 	manager.idToRoom.Store(id, roomId)
 
 	sockets, ok := manager.sockets.LoadOrCompute(roomId, func() *xsync.MapOf[string, SocketConnection] {
@@ -96,7 +113,6 @@ func (manager *SocketManager) Add(roomId string, id string, writer http.Response
 		Writer: writer,
 		RoomId: roomId,
 		Done:   done,
-		Flush:  flush,
 	})
 
 	s, ok := sockets.Load(id)
@@ -110,6 +126,8 @@ func (manager *SocketManager) Add(roomId string, id string, writer http.Response
 		RoomId:  s.RoomId,
 		Payload: map[string]any{},
 	})
+
+	fmt.Printf("User %s connected to %s\n", id, roomId)
 }
 
 func (manager *SocketManager) OnClose(id string) {
@@ -141,7 +159,7 @@ func (manager *SocketManager) CloseWithMessage(id string, message string) {
 func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		go manager.OnClose(id)
+		manager.OnClose(id)
 		conn.Done <- CloseEvent{
 			Code:   -1,
 			Reason: "",
@@ -169,35 +187,23 @@ func (manager *SocketManager) Ping(id string) {
 	}
 }
 
-func (manager *SocketManager) writeCloseRaw(writer http.ResponseWriter, flusher http.Flusher, message string) {
-	err := manager.writeTextRaw(writer, "close", message)
-	if err == nil {
-		flusher.Flush()
-	}
+func (manager *SocketManager) writeCloseRaw(writer WriterChan, message string) {
+	manager.writeTextRaw(writer, "close", message)
 }
 
-func (manager *SocketManager) writeTextRaw(writer http.ResponseWriter, event string, message string) error {
-	if writer == nil {
-		return nil
-	}
-	var err error
+func (manager *SocketManager) writeTextRaw(writer WriterChan, event string, message string) {
 	if event != "" {
-		_, err = fmt.Fprintf(writer, "event: %s\ndata: %s\n\n", event, message)
+		writer <- fmt.Sprintf("event: %s\ndata: %s\n\n", event, message)
 	} else {
-		_, err = fmt.Fprintf(writer, "data: %s\n\n", message)
+		writer <- fmt.Sprintf("data: %s\n\n", message)
 	}
-	return err
 }
 
 func (manager *SocketManager) writeText(socket SocketConnection, event string, message string) {
 	if socket.Writer == nil {
 		return
 	}
-	err := manager.writeTextRaw(socket.Writer, event, message)
-	if err != nil && event != "close" {
-		manager.CloseWithMessage(socket.Id, "failed to write message")
-	}
-	socket.Flush <- true
+	manager.writeTextRaw(socket.Writer, event, message)
 }
 
 func (manager *SocketManager) BroadcastText(roomId string, message string, predicate func(conn SocketConnection) bool) {

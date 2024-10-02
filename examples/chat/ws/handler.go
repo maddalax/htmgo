@@ -7,6 +7,7 @@ import (
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -21,55 +22,79 @@ func Handle() http.HandlerFunc {
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 		locator := cc.ServiceLocator()
 		manager := service.Get[SocketManager](locator)
-		// Flush the headers immediately
-		flusher, ok := w.(http.Flusher)
 
 		sessionCookie, _ := r.Cookie("session_id")
+		sessionId := ""
 
-		if sessionCookie == nil {
-			manager.writeCloseRaw(w, flusher, "no session")
-			return
+		if sessionCookie != nil {
+			sessionId = sessionCookie.Value
 		}
 
-		sessionId := sessionCookie.Value
+		ctx := r.Context()
+		done := make(chan CloseEvent, 1)
+		writer := make(WriterChan, 1)
 
-		roomId := chi.URLParam(r, "id")
+		wg := sync.WaitGroup{}
+		wg.Add(1)
 
-		if roomId == "" {
-			slog.Error("invalid room", slog.String("room_id", roomId))
-			manager.writeCloseRaw(w, flusher, "invalid room")
-			return
-		}
+		/*
+		 * This goroutine is responsible for writing messages to the client
+		 */
+		go func() {
+			defer wg.Done()
+			defer manager.Disconnect(sessionId)
 
-		done := make(chan CloseEvent, 50)
-		flush := make(chan bool, 50)
+			ticker := time.NewTicker(5 * time.Second)
+			defer ticker.Stop()
 
-		manager.Add(roomId, sessionId, w, done, flush)
-
-		defer func() {
-			manager.Disconnect(sessionId)
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case reason := <-done:
+					fmt.Printf("closing connection: %s\n", reason.Reason)
+					return
+				case <-ticker.C:
+					manager.Ping(sessionId)
+				case message := <-writer:
+					_, err := fmt.Fprintf(w, message)
+					if err != nil {
+						done <- CloseEvent{
+							Code:   -1,
+							Reason: err.Error(),
+						}
+					} else {
+						flusher, ok := w.(http.Flusher)
+						if ok {
+							flusher.Flush()
+						}
+					}
+				}
+			}
 		}()
 
-		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
-			return
-		}
-
-		ticker := time.NewTicker(5 * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ticker.C:
-				manager.Ping(sessionId)
-			case <-flush:
-				if flusher != nil {
-					flusher.Flush()
-				}
-			case <-done: // Client closed the connection
-				fmt.Println("Client disconnected")
+		/**
+		 * This goroutine is responsible for adding the client to the room
+		 */
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if sessionId == "" {
+				manager.writeCloseRaw(writer, "no session")
 				return
 			}
-		}
+
+			roomId := chi.URLParam(r, "id")
+
+			if roomId == "" {
+				slog.Error("invalid room", slog.String("room_id", roomId))
+				manager.writeCloseRaw(writer, "invalid room")
+				return
+			}
+
+			manager.Add(roomId, sessionId, writer, done)
+		}()
+
+		wg.Wait()
 	}
 }
