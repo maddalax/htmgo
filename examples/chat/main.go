@@ -5,15 +5,11 @@ import (
 	"chat/chat"
 	"chat/internal/db"
 	"chat/ws"
-	"embed"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"io/fs"
 	"net/http"
 )
-
-//go:embed assets/dist/*
-var StaticAssets embed.FS
 
 func main() {
 	locator := service.NewLocator()
@@ -30,7 +26,7 @@ func main() {
 		ServiceLocator: locator,
 		LiveReload:     true,
 		Register: func(app *h.App) {
-			sub, err := fs.Sub(StaticAssets, "assets/dist")
+			sub, err := fs.Sub(GetStaticAssets(), "assets/dist")
 
 			if err != nil {
 				panic(err)

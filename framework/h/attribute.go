@@ -53,6 +53,10 @@ func NewAttributeMap(pairs ...string) *AttributeMapOrdered {
 	return &AttributeMapOrdered{data: m}
 }
 
+func NoSwap() *AttributeR {
+	return Attribute("hx-swap", "none")
+}
+
 func Attribute(key string, value string) *AttributeR {
 	return &AttributeR{
 		Name:  key,

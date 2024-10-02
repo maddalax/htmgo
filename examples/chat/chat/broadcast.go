@@ -5,7 +5,6 @@ import (
 	"chat/ws"
 	"context"
 	"fmt"
-	"github.com/coder/websocket"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"time"
@@ -48,14 +47,14 @@ func (m *Manager) OnConnected(e ws.SocketEvent) {
 	room, _ := m.service.GetRoom(e.RoomId)
 
 	if room == nil {
-		m.socketManager.CloseWithError(e.Id, websocket.StatusPolicyViolation, "invalid room")
+		m.socketManager.CloseWithError(e.Id, 1008, "invalid room")
 		return
 	}
 
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 
 	if err != nil {
-		m.socketManager.CloseWithError(e.Id, websocket.StatusPolicyViolation, "invalid user")
+		m.socketManager.CloseWithError(e.Id, 1008, "invalid user")
 		return
 	}
 

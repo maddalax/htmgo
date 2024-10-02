@@ -68,6 +68,10 @@ func SwapPartial(ctx *RequestContext, swap *Element) *Partial {
 		SwapMany(ctx, swap))
 }
 
+func EmptyPartial() *Partial {
+	return NewPartial(Fragment())
+}
+
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {
 	return NewPartial(
 		SwapMany(ctx, swaps...),

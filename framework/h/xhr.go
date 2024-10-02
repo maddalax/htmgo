@@ -1,6 +1,9 @@
 package h
 
-import "github.com/maddalax/htmgo/framework/hx"
+import (
+	"github.com/maddalax/htmgo/framework/hx"
+	"strings"
+)
 
 func Get(path string, trigger ...string) *AttributeMapOrdered {
 	return AttributeList(Attribute(hx.GetAttr, path), HxTriggerString(trigger...))
@@ -19,10 +22,18 @@ func GetWithQs(path string, qs *Qs, trigger string) *AttributeMapOrdered {
 }
 
 func PostPartial(partial PartialFunc, triggers ...string) *AttributeMapOrdered {
-	return Post(GetPartialPath(partial), triggers...)
+	path := GetPartialPath(partial)
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return Post(path, triggers...)
 }
 
 func PostPartialWithQs(partial PartialFunc, qs *Qs, trigger ...string) *AttributeMapOrdered {
+	path := GetPartialPathWithQs(partial, qs)
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
 	return Post(GetPartialPathWithQs(partial, qs), trigger...)
 }
 

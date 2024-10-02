@@ -2,6 +2,7 @@ package pages
 
 import (
 	"chat/chat"
+	"chat/partials"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/h"
@@ -19,13 +20,13 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					h.HxExtension("ws"),
 				),
 
-				h.Attribute("ws-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
+				h.Attribute("sse-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
 
-				h.HxOnWsOpen(
+				h.HxOnSseOpen(
 					js.ConsoleLog("Connected to chat room"),
 				),
 
-				h.HxOnWsClose(
+				h.HxOnSseClose(
 					js.EvalJs(fmt.Sprintf(`
 						const reason = e.detail.event.reason
 						if(['invalid room', 'no session', 'invalid user'].includes(reason)) {
@@ -54,7 +55,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					// Padding to push chat content below the fixed room name
 					h.Div(h.Class("pt-[50px]")),
 
-					h.HxAfterWsMessage(
+					h.HxAfterSseMessage(
 						js.EvalJsOnSibling("#messages",
 							`element.scrollTop = element.scrollHeight;`),
 					),
@@ -62,7 +63,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					// Chat Messages
 					h.Div(
 						h.Id("messages"),
-						h.Class("flex flex-col gap-4 overflow-auto grow w-full"),
+						h.Class("flex flex-col gap-4 overflow-auto grow w-full mb-4 max-w-[calc(100%-215px)]"),
 					),
 
 					// Chat Input at the bottom
@@ -128,7 +129,7 @@ func MessageInput() *h.Element {
 		h.Name("message"),
 		h.MaxLength(1000),
 		h.Placeholder("Type a message..."),
-		h.HxAfterWsSend(
+		h.HxAfterSseMessage(
 			js.SetValue(""),
 		),
 	)
@@ -138,6 +139,8 @@ func Form() *h.Element {
 	return h.Div(
 		h.Class("flex gap-4 items-center"),
 		h.Form(
+			h.NoSwap(),
+			h.PostPartial(partials.SendMessage),
 			h.Attribute("ws-send", ""),
 			h.Class("flex flex-grow"),
 			MessageInput(),

@@ -60,16 +60,6 @@ func (l *LifeCycle) HxBeforeRequest(cmd ...Command) *LifeCycle {
 	return l
 }
 
-func (l *LifeCycle) HxBeforeWsSend(cmd ...Command) *LifeCycle {
-	l.OnEvent(hx.BeforeWsSendEvent, cmd...)
-	return l
-}
-
-func (l *LifeCycle) HxAfterWsSend(cmd ...Command) *LifeCycle {
-	l.OnEvent(hx.AfterWsSendEvent, cmd...)
-	return l
-}
-
 func HxOnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadEvent, cmd...)
 }
@@ -86,40 +76,32 @@ func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
 }
 
-func HxBeforeWsMessage(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsBeforeMessageEvent, cmd...)
+func HxBeforeSseMessage(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseBeforeMessageEvent, cmd...)
 }
 
-func HxAfterWsMessage(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsAfterMessageEvent, cmd...)
+func HxAfterSseMessage(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseAfterMessageEvent, cmd...)
 }
 
 func OnSubmit(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SubmitEvent, cmd...)
 }
 
-func HxOnWsError(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsErrorEvent, cmd...)
+func HxOnSseError(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseErrorEvent, cmd...)
 }
 
-func HxOnWsClose(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsClosedEvent, cmd...)
+func HxOnSseClose(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseClosedEvent, cmd...)
 }
 
-func HxOnWsConnecting(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsConnectingEvent, cmd...)
+func HxOnSseConnecting(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseConnectingEvent, cmd...)
 }
 
-func HxOnWsOpen(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().OnEvent(hx.WsConnectedEvent, cmd...)
-}
-
-func HxBeforeWsSend(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().HxBeforeWsSend(cmd...)
-}
-
-func HxAfterWsSend(cmd ...Command) *LifeCycle {
-	return NewLifeCycle().HxAfterWsSend(cmd...)
+func HxOnSseOpen(cmd ...Command) *LifeCycle {
+	return NewLifeCycle().OnEvent(hx.SseConnectedEvent, cmd...)
 }
 
 func HxBeforeRequest(cmd ...Command) *LifeCycle {

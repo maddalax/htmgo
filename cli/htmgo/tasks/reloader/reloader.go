@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/astgen"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/util"
@@ -99,6 +100,12 @@ func OnFileChange(version string, events []*fsnotify.Event) {
 		if c.HasAnyPrefix("ent/schema") {
 			tasks.Ent = true
 			hasTask = true
+		}
+
+		// framework assets changed
+		if c.HasAnySuffix("assets/dist/htmgo.js") {
+			copyassets.CopyAssets()
+			//tasks.Run = true
 		}
 
 		if hasTask {

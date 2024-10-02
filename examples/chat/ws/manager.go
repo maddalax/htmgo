@@ -1,9 +1,9 @@
 package ws
 
 import (
-	"context"
-	"github.com/coder/websocket"
+	"fmt"
 	"github.com/puzpuzpuz/xsync/v3"
+	"net/http"
 )
 
 type EventType string
@@ -21,10 +21,17 @@ type SocketEvent struct {
 	Payload map[string]any
 }
 
+type CloseEvent struct {
+	Code   int
+	Reason string
+}
+
 type SocketConnection struct {
 	Id     string
-	Conn   *websocket.Conn
+	Writer http.ResponseWriter
 	RoomId string
+	Done   chan CloseEvent
+	Flush  chan bool
 }
 
 type SocketManager struct {
@@ -77,7 +84,7 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 	})
 }
 
-func (manager *SocketManager) Add(roomId string, id string, conn *websocket.Conn) {
+func (manager *SocketManager) Add(roomId string, id string, writer http.ResponseWriter, done chan CloseEvent, flush chan bool) {
 	manager.idToRoom.Store(id, roomId)
 
 	sockets, ok := manager.sockets.LoadOrCompute(roomId, func() *xsync.MapOf[string, SocketConnection] {
@@ -86,8 +93,10 @@ func (manager *SocketManager) Add(roomId string, id string, conn *websocket.Conn
 
 	sockets.Store(id, SocketConnection{
 		Id:     id,
-		Conn:   conn,
+		Writer: writer,
 		RoomId: roomId,
+		Done:   done,
+		Flush:  flush,
 	})
 
 	s, ok := sockets.Load(id)
@@ -117,11 +126,14 @@ func (manager *SocketManager) OnClose(id string) {
 	manager.sockets.Delete(id)
 }
 
-func (manager *SocketManager) CloseWithError(id string, code websocket.StatusCode, message string) {
+func (manager *SocketManager) CloseWithError(id string, code int, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		go manager.OnClose(id)
-		conn.Conn.Close(code, message)
+		conn.Done <- CloseEvent{
+			Code:   code,
+			Reason: message,
+		}
 	}
 }
 
@@ -129,7 +141,10 @@ func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		go manager.OnClose(id)
-		_ = conn.Conn.CloseNow()
+		conn.Done <- CloseEvent{
+			Code:   -1,
+			Reason: "",
+		}
 	}
 }
 
@@ -146,8 +161,30 @@ func (manager *SocketManager) Get(id string) *SocketConnection {
 	return &conn
 }
 
-func (manager *SocketManager) Broadcast(roomId string, message []byte, messageType websocket.MessageType, predicate func(conn SocketConnection) bool) {
-	ctx := context.Background()
+func (manager *SocketManager) Ping(id string) {
+	conn := manager.Get(id)
+	if conn != nil {
+		manager.writeText(*conn, "ping", "")
+	}
+}
+
+func (manager *SocketManager) writeText(socket SocketConnection, event string, message string) {
+	if socket.Writer == nil {
+		return
+	}
+	var err error
+	if event != "" {
+		_, err = fmt.Fprintf(socket.Writer, "event: %s\ndata: %s\n\n", event, message)
+	} else {
+		_, err = fmt.Fprintf(socket.Writer, "data: %s\n\n", message)
+	}
+	if err != nil {
+		manager.CloseWithError(socket.Id, 1008, "failed to write message")
+	}
+	socket.Flush <- true
+}
+
+func (manager *SocketManager) BroadcastText(roomId string, message string, predicate func(conn SocketConnection) bool) {
 	sockets, ok := manager.sockets.Load(roomId)
 
 	if !ok {
@@ -156,19 +193,15 @@ func (manager *SocketManager) Broadcast(roomId string, message []byte, messageTy
 
 	sockets.Range(func(id string, conn SocketConnection) bool {
 		if predicate(conn) {
-			conn.Conn.Write(ctx, messageType, message)
+			manager.writeText(conn, "", message)
 		}
 		return true
 	})
 }
 
-func (manager *SocketManager) BroadcastText(roomId string, message string, predicate func(conn SocketConnection) bool) {
-	manager.Broadcast(roomId, []byte(message), websocket.MessageText, predicate)
-}
-
 func (manager *SocketManager) SendText(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
-		_ = conn.Conn.Write(context.Background(), websocket.MessageText, []byte(message))
+		manager.writeText(*conn, "", message)
 	}
 }

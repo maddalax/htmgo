@@ -1,14 +1,13 @@
 package ws
 
 import (
-	"context"
-	"github.com/coder/websocket"
-	"github.com/coder/websocket/wsjson"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 func Handle() http.HandlerFunc {
@@ -17,18 +16,8 @@ func Handle() http.HandlerFunc {
 
 		sessionCookie, _ := r.Cookie("session_id")
 
-		c, err := websocket.Accept(w, r, nil)
-
-		// 2 mb
-		c.SetReadLimit(2 * 1024 * 1024)
-
-		if err != nil {
-			return
-		}
-
 		if sessionCookie == nil {
 			slog.Error("session cookie not found")
-			c.Close(websocket.StatusPolicyViolation, "no session")
 			return
 		}
 
@@ -41,27 +30,48 @@ func Handle() http.HandlerFunc {
 
 		if roomId == "" {
 			slog.Error("invalid room", slog.String("room_id", roomId))
-			manager.CloseWithError(sessionId, websocket.StatusPolicyViolation, "invalid room")
+			manager.CloseWithError(sessionId, 1008, "invalid room")
 			return
 		}
 
-		manager.Add(roomId, sessionId, c)
+		done := make(chan CloseEvent, 50)
+		flush := make(chan bool, 50)
+
+		manager.Add(roomId, sessionId, w, done, flush)
 
 		defer func() {
 			manager.Disconnect(sessionId)
 		}()
 
+		// Set the necessary headers
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Optional for CORS
+
+		// Flush the headers immediately
+		flusher, ok := w.(http.Flusher)
+
+		if !ok {
+			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			return
+		}
+
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+
 		for {
-			var v map[string]any
-			err = wsjson.Read(context.Background(), c, &v)
-			if err != nil {
-				manager.CloseWithError(sessionId, websocket.StatusInternalError, "failed to read message")
+			select {
+			case <-ticker.C:
+				manager.Ping(sessionId)
+			case <-flush:
+				if flusher != nil {
+					flusher.Flush()
+				}
+			case <-done: // Client closed the connection
+				fmt.Println("Client disconnected")
 				return
 			}
-			if v != nil {
-				manager.OnMessage(sessionId, v)
-			}
-
 		}
 	}
 }
