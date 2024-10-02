@@ -31,7 +31,7 @@ func Handle() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		done := make(chan CloseEvent, 1)
+		done := make(chan bool, 1)
 		writer := make(WriterChan, 1)
 
 		wg := sync.WaitGroup{}
@@ -51,18 +51,15 @@ func Handle() http.HandlerFunc {
 				select {
 				case <-ctx.Done():
 					return
-				case reason := <-done:
-					fmt.Printf("closing connection: %s\n", reason.Reason)
+				case <-done:
+					fmt.Printf("closing connection: \n")
 					return
 				case <-ticker.C:
 					manager.Ping(sessionId)
 				case message := <-writer:
 					_, err := fmt.Fprintf(w, message)
 					if err != nil {
-						done <- CloseEvent{
-							Code:   -1,
-							Reason: err.Error(),
-						}
+						done <- true
 					} else {
 						flusher, ok := w.(http.Flusher)
 						if ok {

@@ -26,7 +26,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					js.ConsoleLog("Connected to chat room"),
 				),
 
-				h.HxOnSseClose(
+				h.HxOnSseError(
 					js.EvalJs(fmt.Sprintf(`
 						const reason = e.detail.event.data
 						if(['invalid room', 'no session', 'invalid user'].includes(reason)) {

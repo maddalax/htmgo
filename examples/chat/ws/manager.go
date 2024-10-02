@@ -8,7 +8,7 @@ import (
 
 type EventType string
 type WriterChan chan string
-type DoneChan chan CloseEvent
+type DoneChan chan bool
 
 const (
 	ConnectedEvent    EventType = "connected"
@@ -101,7 +101,7 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 	})
 }
 
-func (manager *SocketManager) Add(roomId string, id string, writer chan string, done chan CloseEvent) {
+func (manager *SocketManager) Add(roomId string, id string, writer WriterChan, done DoneChan) {
 	manager.idToRoom.Store(id, roomId)
 
 	sockets, ok := manager.sockets.LoadOrCompute(roomId, func() *xsync.MapOf[string, SocketConnection] {
@@ -148,11 +148,8 @@ func (manager *SocketManager) CloseWithMessage(id string, message string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		defer manager.OnClose(id)
-		manager.writeText(*conn, "close", message)
-		conn.Done <- CloseEvent{
-			Code:   -1,
-			Reason: message,
-		}
+		manager.writeText(*conn, "error", message)
+		conn.Done <- true
 	}
 }
 
@@ -160,10 +157,7 @@ func (manager *SocketManager) Disconnect(id string) {
 	conn := manager.Get(id)
 	if conn != nil {
 		manager.OnClose(id)
-		conn.Done <- CloseEvent{
-			Code:   -1,
-			Reason: "",
-		}
+		conn.Done <- true
 	}
 }
 
