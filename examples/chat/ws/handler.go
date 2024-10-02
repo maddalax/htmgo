@@ -31,8 +31,13 @@ func Handle() http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		done := make(chan bool, 1)
-		writer := make(WriterChan, 1)
+
+		/*
+			Large buffer in case the client disconnects while we are writing
+			we don't want to block the writer
+		*/
+		done := make(chan bool, 1000)
+		writer := make(WriterChan, 1000)
 
 		wg := sync.WaitGroup{}
 		wg.Add(1)
@@ -43,6 +48,16 @@ func Handle() http.HandlerFunc {
 		go func() {
 			defer wg.Done()
 			defer manager.Disconnect(sessionId)
+
+			defer func() {
+				fmt.Printf("empting channels\n")
+				for len(writer) > 0 {
+					<-writer
+				}
+				for len(done) > 0 {
+					<-done
+				}
+			}()
 
 			ticker := time.NewTicker(5 * time.Second)
 			defer ticker.Stop()

@@ -33,11 +33,11 @@ func (m *Manager) StartListener() {
 		case event := <-c:
 			switch event.Type {
 			case ws.ConnectedEvent:
-				go m.OnConnected(event)
+				m.OnConnected(event)
 			case ws.DisconnectedEvent:
-				go m.OnDisconnected(event)
+				m.OnDisconnected(event)
 			case ws.MessageEvent:
-				go m.onMessage(event)
+				m.onMessage(event)
 			default:
 				fmt.Printf("Unknown event type: %s\n", event.Type)
 			}

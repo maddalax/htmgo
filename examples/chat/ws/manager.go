@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"chat/internal/routine"
 	"fmt"
 	"github.com/puzpuzpuz/xsync/v3"
 	"time"
@@ -186,11 +187,13 @@ func (manager *SocketManager) writeCloseRaw(writer WriterChan, message string) {
 }
 
 func (manager *SocketManager) writeTextRaw(writer WriterChan, event string, message string) {
-	if event != "" {
-		writer <- fmt.Sprintf("event: %s\ndata: %s\n\n", event, message)
-	} else {
-		writer <- fmt.Sprintf("data: %s\n\n", message)
-	}
+	routine.DebugLongRunning("writeTextRaw", func() {
+		if event != "" {
+			writer <- fmt.Sprintf("event: %s\ndata: %s\n\n", event, message)
+		} else {
+			writer <- fmt.Sprintf("data: %s\n\n", message)
+		}
+	})
 }
 
 func (manager *SocketManager) writeText(socket SocketConnection, event string, message string) {
