@@ -35,26 +35,28 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 						} else if(e.detail.event.code === 1011) { 
 							window.location.reload()
 						} else if (e.detail.event.code === 1008 || e.detail.event.code === 1006) {
-                            window.location.href = '/?roomId=%s';
+								window.location.href = '/?roomId=%s';
 						} else {
 							console.error('Connection closed:', e.detail.event)
 						}
 					`, roomId, roomId)),
 				),
 
-				h.Class("flex flex-row min-h-screen bg-neutral-100"),
+				// Adjusted flex properties for responsive layout
+				h.Class("flex flex-row h-screen bg-neutral-100"),
+
+				// Collapse Button for mobile
+				CollapseButton(),
 
 				// Sidebar for connected users
 				UserSidebar(),
 
 				h.Div(
-					h.Class("flex flex-col flex-grow bg-white rounded p-4"),
+					// Adjusted to fill height and width
+					h.Class("flex flex-col h-full w-full bg-white p-4 overflow-hidden"),
 
 					// Room name at the top, fixed
 					CachedRoomHeader(ctx),
-
-					// Padding to push chat content below the fixed room name
-					h.Div(h.Class("pt-[50px]")),
 
 					h.HxAfterSseMessage(
 						js.EvalJsOnSibling("#messages",
@@ -64,14 +66,12 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 					// Chat Messages
 					h.Div(
 						h.Id("messages"),
-						h.Class("flex flex-col gap-4 overflow-auto grow w-full mb-4 max-w-[calc(100%-215px)]"),
+						// Adjusted flex properties and removed max-width
+						h.Class("flex flex-col gap-4 mb-4 overflow-auto flex-grow w-full pt-[50px]"),
 					),
 
 					// Chat Input at the bottom
-					h.Div(
-						h.Class("mt-auto"),
-						Form(),
-					),
+					Form(),
 				),
 			),
 		),
@@ -109,7 +109,7 @@ func roomNameHeader(ctx *h.RequestContext) *h.Element {
 
 func UserSidebar() *h.Element {
 	return h.Div(
-		h.Class("pt-[67px] min-w-48 w-48 bg-neutral-200 p-4 flex flex-col justify-between gap-3 rounded-l-lg"),
+		h.Class("sidebar h-full pt-[67px] min-w-48 w-48 bg-neutral-200 p-4 flex-col justify-between gap-3 rounded-l-lg hidden md:flex"),
 		h.Div(
 			h.H3F("Connected Users", h.Class("text-lg font-bold")),
 			chat.ConnectedUsers(make([]db.User, 0), ""),
@@ -118,6 +118,23 @@ func UserSidebar() *h.Element {
 			h.Class("cursor-pointer"),
 			h.Href("/"),
 			h.Text("Leave Room"),
+		),
+	)
+}
+
+func CollapseButton() *h.Element {
+	return h.Div(
+		h.Class("fixed top-0 left-4 md:hidden z-50"), // Always visible on mobile
+		h.Button(
+			h.Class("p-2 text-2xl bg-neutral-700 text-white rounded-md"), // Styling the button
+			h.OnClick(
+				js.EvalJs(`
+					const sidebar = document.querySelector('.sidebar');
+					sidebar.classList.toggle('hidden');
+					sidebar.classList.toggle('flex');
+				`),
+			),
+			h.UnsafeRaw("&#9776;"), // The icon for collapsing the sidebar
 		),
 	)
 }
