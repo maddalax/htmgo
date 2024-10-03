@@ -46,7 +46,7 @@ func TestRender(t *testing.T) {
 
 	assert.Equal(t,
 		expected,
-		result)
+		strings.ReplaceAll(result, "var self=this;var e=event;", ""))
 }
 
 func TestRenderAttributes_1(t *testing.T) {

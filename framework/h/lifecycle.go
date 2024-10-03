@@ -307,12 +307,7 @@ func SetValue(value string) SimpleJsCommand {
 func SubmitFormOnEnter() ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(`
-		if (event.code === 'Enter') { 
-            console.log('submitting form');
-			setTimeout(() => {
-                self.form.dispatchEvent(new Event('submit', { cancelable: true })); 
-			}, 250)
-		}
+		if (event.code === 'Enter') { self.form.dispatchEvent(new Event('submit', { cancelable: true })); }
 	`)
 }
 

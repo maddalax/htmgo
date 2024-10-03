@@ -32,17 +32,20 @@ func renderJs(t *testing.T, command Command) string {
 	value := parsed.FirstChild.FirstChild.NextSibling.LastChild.Attr[0].Val
 	isComplex := strings.HasPrefix(value, "__eval_")
 	if !isComplex {
-		return value
+		value = strings.ReplaceAll(value, "var e=event;", "")
+		return strings.ReplaceAll(value, "var self=this;", "")
 	} else {
-		id := strings.TrimSuffix(value, "(this);")
+		id := strings.TrimSuffix(value, "(this, event);")
 		script := findScriptById(parsed, id)
 		assert.NotNil(t, script)
 		funcCall := script.LastChild.Data
 		funcCall = strings.ReplaceAll(funcCall, "\n", "")
 		funcCall = strings.ReplaceAll(funcCall, "\t", "")
-		start := fmt.Sprintf("function %s(self) {", id)
+		start := fmt.Sprintf("function %s(self, event) {", id)
 		funcCall = strings.TrimPrefix(funcCall, start)
 		funcCall = strings.TrimSuffix(funcCall, "}")
+		funcCall = strings.ReplaceAll(funcCall, "let e = event;", "")
+		funcCall = strings.ReplaceAll(funcCall, "var self=this;", "")
 		return funcCall
 	}
 }
