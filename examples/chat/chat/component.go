@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"chat/internal/db"
 	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"strings"
@@ -27,22 +28,19 @@ func MessageRow(message *Message) *h.Element {
 	)
 }
 
-func ConnectedUsers(username string, isMe bool) *h.Element {
+func ConnectedUsers(users []db.User, myId string) *h.Element {
 	return h.Ul(
-		h.Attribute("hx-swap", "none"),
-		h.Attribute("hx-swap-oob", "beforeend"),
+		h.Attribute("hx-swap-oob", "outerHTML"),
 		h.Id("connected-users"),
 		h.Class("flex flex-col"),
-		// This would be populated dynamically with connected users
-		ConnectedUser(username, false, isMe),
+		h.List(users, func(user db.User, index int) *h.Element {
+			return connectedUser(user.Name, user.SessionID == myId)
+		}),
 	)
 }
 
-func ConnectedUser(username string, remove bool, isMe bool) *h.Element {
+func connectedUser(username string, isMe bool) *h.Element {
 	id := fmt.Sprintf("connected-user-%s", strings.ReplaceAll(username, "#", "-"))
-	if remove {
-		return h.Div(h.Id(id), h.Attribute("hx-swap-oob", "delete"))
-	}
 	return h.Li(
 		h.Id(id),
 		h.ClassX("truncate text-slate-700", h.ClassMap{

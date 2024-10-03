@@ -55,12 +55,13 @@ function connectEventSource(ele: Element, url: string) {
     }
 
     eventSource.onmessage = function(event) {
+        const settleInfo = api.makeSettleInfo(ele);
         htmx.trigger(ele, "htmx:sseBeforeMessage", {event: event});
         const response = event.data
         const fragment = api.makeFragment(response) as DocumentFragment;
         const children = Array.from(fragment.children);
         for (let child of children) {
-            api.oobSwap(api.getAttributeValue(child, 'hx-swap-oob') || 'true', child, {tasks: []});
+            api.oobSwap(api.getAttributeValue(child, 'hx-swap-oob') || 'true', child, settleInfo);
             // support htmgo eval__ scripts
             if(child.tagName === 'SCRIPT' && child.id.startsWith("__eval")) {
                 document.body.appendChild(child);

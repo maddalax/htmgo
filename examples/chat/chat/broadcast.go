@@ -45,6 +45,27 @@ func (m *Manager) StartListener() {
 	}
 }
 
+func (m *Manager) dispatchConnectedUsers(roomId string, predicate func(conn ws.SocketConnection) bool) {
+
+	connectedUsers := make([]db.User, 0)
+
+	// backfill all existing clients to the connected client
+	m.socketManager.ForEachSocket(roomId, func(conn ws.SocketConnection) {
+		if !predicate(conn) {
+			return
+		}
+		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
+		if err != nil {
+			return
+		}
+		connectedUsers = append(connectedUsers, user)
+	})
+
+	m.socketManager.ForEachSocket(roomId, func(conn ws.SocketConnection) {
+		m.socketManager.SendText(conn.Id, h.Render(ConnectedUsers(connectedUsers, conn.Id)))
+	})
+}
+
 func (m *Manager) OnConnected(e ws.SocketEvent) {
 	room, _ := m.service.GetRoom(e.RoomId)
 
@@ -62,25 +83,9 @@ func (m *Manager) OnConnected(e ws.SocketEvent) {
 
 	fmt.Printf("User %s connected to %s\n", user.Name, e.RoomId)
 
-	// backfill all existing clients to the connected client
-	m.socketManager.ForEachSocket(e.RoomId, func(conn ws.SocketConnection) {
-		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
-		if err != nil {
-			return
-		}
-		isMe := conn.Id == e.Id
-		fmt.Printf("Sending connected user %s to %s\n", user.Name, e.Id)
-		m.socketManager.SendText(e.Id, h.Render(ConnectedUsers(user.Name, isMe)))
+	m.dispatchConnectedUsers(e.RoomId, func(conn ws.SocketConnection) bool {
+		return true
 	})
-
-	// send the connected user to all existing clients
-	m.socketManager.BroadcastText(
-		e.RoomId,
-		h.Render(ConnectedUsers(user.Name, false)),
-		func(conn ws.SocketConnection) bool {
-			return conn.Id != e.Id
-		},
-	)
 
 	m.backFill(e.Id, e.RoomId)
 }
@@ -95,7 +100,7 @@ func (m *Manager) OnDisconnected(e ws.SocketEvent) {
 		return
 	}
 	fmt.Printf("User %s disconnected from %s\n", user.Name, room.ID)
-	m.socketManager.BroadcastText(room.ID, h.Render(ConnectedUser(user.Name, true, false)), func(conn ws.SocketConnection) bool {
+	m.dispatchConnectedUsers(e.RoomId, func(conn ws.SocketConnection) bool {
 		return conn.Id != e.Id
 	})
 }

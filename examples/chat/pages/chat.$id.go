@@ -2,6 +2,7 @@ package pages
 
 import (
 	"chat/chat"
+	"chat/internal/db"
 	"chat/partials"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -111,7 +112,7 @@ func UserSidebar() *h.Element {
 		h.Class("pt-[67px] min-w-48 w-48 bg-neutral-200 p-4 flex flex-col justify-between gap-3 rounded-l-lg"),
 		h.Div(
 			h.H3F("Connected Users", h.Class("text-lg font-bold")),
-			chat.ConnectedUsers("", false),
+			chat.ConnectedUsers(make([]db.User, 0), ""),
 		),
 		h.A(
 			h.Class("cursor-pointer"),

@@ -195,10 +195,8 @@ func (manager *SocketManager) writeTextRaw(writer WriterChan, event string, mess
 		} else {
 			data = fmt.Sprintf("data: %s\n\n", message)
 		}
-		fmt.Printf("writing to channel:\n")
 		select {
 		case writer <- data:
-			fmt.Println("Sent to the channel")
 		case <-time.After(timeout):
 			fmt.Printf("could not send %s to channel after %s\n", data, timeout)
 		}
