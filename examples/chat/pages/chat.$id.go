@@ -40,7 +40,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 				),
 
 				// Adjusted flex properties for responsive layout
-				h.Class("flex flex-row h-screen bg-neutral-100"),
+				h.Class("flex flex-row h-screen bg-neutral-100 overflow-x-hidden"),
 
 				// Collapse Button for mobile
 				CollapseButton(),
