@@ -2,7 +2,7 @@ module starter-template
 
 go 1.23.0
 
-require github.com/maddalax/htmgo/framework v0.0.0-20241004153314-caad5633d0fc
+require github.com/maddalax/htmgo/framework v0.0.0-20241004161557-1e51b6b8e85f
 
 require (
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
