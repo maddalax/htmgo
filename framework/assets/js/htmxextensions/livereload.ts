@@ -1,5 +1,4 @@
 import htmx from "htmx.org";
-import {createWebSocketClient} from "../util/ws";
 
 let lastVersion = "";
 

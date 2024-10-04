@@ -2,14 +2,14 @@ package partials
 
 import (
 	"chat/components"
-	"chat/ws"
+	"chat/sse"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 )
 
 func SendMessage(ctx *h.RequestContext) *h.Partial {
 	locator := ctx.ServiceLocator()
-	socketManager := service.Get[ws.SocketManager](locator)
+	socketManager := service.Get[sse.SocketManager](locator)
 
 	sessionCookie, err := ctx.Request.Cookie("session_id")
 
