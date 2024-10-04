@@ -15,6 +15,12 @@ type Example struct {
 
 var examples = []Example{
 	{
+		Title:  "Chat App Example",
+		Github: "https://github.com/maddalax/htmgo/tree/master/examples/chat",
+		Demo:   "https://chat-example.htmgo.dev",
+		Image:  "public/chat-example.jpg",
+	},
+	{
 		Title:  "Todo List MVC",
 		Github: "https://github.com/maddalax/htmgo/tree/master/examples/todo-list",
 		Demo:   "https://todo-example.htmgo.dev",
@@ -67,10 +73,10 @@ func ExamplesPage(ctx *h.RequestContext) *h.Page {
 
 func ExampleCards() *h.Element {
 	return h.Div(
-		h.Class("prose-h2:my-1 prose-img:my-1 flex flex-col md:flex-row gap-6 md:gap-2 text-center pb-8"), // Left-aligns and allows multiple cards in a row
+		h.Class("prose-h2:my-1 prose-img:my-1 grid grid-cols-1 md:grid-cols-3 gap-6 text-center pb-8"), // Using grid for 3-column layout
 		h.List(examples, func(example Example, index int) *h.Element {
 			return h.Div(
-				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 w-full md:w-1/2 bg-neutral-100"), // Reduces padding
+				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 bg-neutral-100"), // Removed specific width, handled by grid
 				h.Div(
 					h.Class("flex flex-col gap-1 mt-4"),
 					h.H2(
