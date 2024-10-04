@@ -51,9 +51,25 @@ func SwapManyPartialWithHeaders(ctx *RequestContext, headers *Headers, swaps ...
 	)
 }
 
+func RedirectPartial(path string) *Partial {
+	return RedirectPartialWithHeaders(path, NewHeaders())
+}
+
+func RedirectPartialWithHeaders(path string, headers *Headers) *Partial {
+	h := *NewHeaders("HX-Redirect", path)
+	for k, v := range *headers {
+		h[k] = v
+	}
+	return NewPartialWithHeaders(&h, Fragment())
+}
+
 func SwapPartial(ctx *RequestContext, swap *Element) *Partial {
 	return NewPartial(
 		SwapMany(ctx, swap))
+}
+
+func EmptyPartial() *Partial {
+	return NewPartial(Fragment())
 }
 
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {

@@ -6,6 +6,7 @@ import "./htmxextensions/response-targets";
 import "./htmxextensions/mutation-error";
 import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
+import "./htmxextensions/sse"
 
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;

@@ -49,7 +49,7 @@ func (q *Qs) ToString() string {
 }
 
 func GetQueryParam(ctx *RequestContext, key string) string {
-	value, ok := ctx.URL.Query()[key]
+	value, ok := ctx.Request.URL.Query()[key]
 	if value == nil || !ok {
 		current := ctx.currentBrowserUrl
 		if current != "" {

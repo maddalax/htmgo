@@ -11,6 +11,8 @@ type InputProps struct {
 	Name           string
 	Type           string
 	DefaultValue   string
+	Placeholder    string
+	Required       bool
 	ValidationPath string
 	Children       []h.Ren
 }
@@ -22,19 +24,24 @@ func Input(props InputProps) h.Ren {
 		h.Attribute("hx-target", "next div"),
 	))
 
+	if props.Type == "" {
+		props.Type = "text"
+	}
+
 	input := h.Input(
 		props.Type,
 		h.Class("border p-2 rounded"),
 		h.If(props.Id != "", h.Id(props.Id)),
 		h.If(props.Name != "", h.Name(props.Name)),
 		h.If(props.Children != nil, h.Children(props.Children...)),
+		h.If(props.Required, h.Required()),
 		h.If(props.DefaultValue != "", h.Attribute("value", props.DefaultValue)),
 		validation,
 	)
 
 	wrapped := h.Div(
 		h.Class("flex flex-col gap-1"),
-		h.If(props.Label != "", h.Label(props.Label)),
+		h.If(props.Label != "", h.Label(h.Text(props.Label))),
 		input,
 		h.Div(h.Class("text-red-500")),
 	)

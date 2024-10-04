@@ -108,6 +108,12 @@ const (
 	XhrLoadEndEvent            Event = "htmx:xhr:loadend"
 	XhrLoadStartEvent          Event = "htmx:xhr:loadstart"
 	XhrProgressEvent           Event = "htmx:xhr:progress"
+	SseConnectedEvent          Event = "htmx:sseOpen"
+	SseConnectingEvent         Event = "htmx:sseConnecting"
+	SseClosedEvent             Event = "htmx:sseClose"
+	SseErrorEvent              Event = "htmx:sseError"
+	SseBeforeMessageEvent      Event = "htmx:sseBeforeMessage"
+	SseAfterMessageEvent       Event = "htmx:sseAfterMessage"
 
 	// RevealedEvent Misc Events
 	RevealedEvent   Event = "revealed"

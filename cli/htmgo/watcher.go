@@ -4,10 +4,12 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/cli/htmgo/internal"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
 	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -36,6 +38,7 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 				if !ok {
 					return
 				}
+				slog.Debug("event:", slog.String("name", event.Name), slog.String("op", event.Op.String()))
 				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
 					debouncer.Do(func() {
@@ -61,6 +64,15 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 	}()
 
 	rootDir := "."
+
+	frameworkPath := module.GetDependencyPath("github.com/maddalax/htmgo/framework")
+
+	if !strings.HasPrefix(frameworkPath, "github.com/") {
+		assetPath := filepath.Join(frameworkPath, "assets", "dist")
+		slog.Debug("Watching directory:", slog.String("path", assetPath))
+		watcher.Add(assetPath)
+	}
+
 	// Walk through the root directory and add all subdirectories to the watcher
 	err = filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

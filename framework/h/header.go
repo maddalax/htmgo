@@ -34,7 +34,7 @@ func CombineHeaders(headers ...*Headers) *Headers {
 }
 
 func CurrentPath(ctx *RequestContext) string {
-	current := ctx.Header.Get(hx.CurrentUrlHeader)
+	current := ctx.Request.Header.Get(hx.CurrentUrlHeader)
 	parsed, err := url.Parse(current)
 	if err != nil {
 		return ""
