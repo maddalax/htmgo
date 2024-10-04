@@ -29,6 +29,10 @@ type RequestContext struct {
 	kv                map[string]interface{}
 }
 
+func (c *RequestContext) FormValue(key string) string {
+	return c.Request.FormValue(key)
+}
+
 func (c *RequestContext) QueryParam(key string) string {
 	return c.Request.URL.Query().Get(key)
 }
