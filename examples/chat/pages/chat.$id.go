@@ -18,7 +18,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 			h.Div(
 				h.TriggerChildren(),
 
-				h.Attribute("sse-connect", fmt.Sprintf("/sse/chat/%s", roomId)),
+				h.Attribute("sse-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
 
 				h.HxOnSseOpen(
 					js.ConsoleLog("Connected to chat room"),
@@ -140,6 +140,10 @@ func MessageInput() *h.Element {
 	return h.Input("text",
 		h.Id("message-input"),
 		h.Required(),
+		h.Class("p-4 rounded-md border border-slate-200 w-full focus:outline-none focus:ring focus:ring-slate-200"),
+		h.Name("message"),
+		h.MaxLength(1000),
+		h.Placeholder("Type a message..."),
 		h.HxAfterSseMessage(
 			js.SetValue(""),
 		),
@@ -152,6 +156,7 @@ func Form() *h.Element {
 		h.Form(
 			h.NoSwap(),
 			h.PostPartial(partials.SendMessage),
+			h.Attribute("ws-send", ""),
 			h.Class("flex flex-grow"),
 			MessageInput(),
 		),
