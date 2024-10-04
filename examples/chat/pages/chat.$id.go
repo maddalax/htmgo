@@ -18,7 +18,7 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 			h.Div(
 				h.TriggerChildren(),
 
-				h.Attribute("sse-connect", fmt.Sprintf("/ws/chat/%s", roomId)),
+				h.Attribute("sse-connect", fmt.Sprintf("/sse/chat/%s", roomId)),
 
 				h.HxOnSseOpen(
 					js.ConsoleLog("Connected to chat room"),
