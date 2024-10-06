@@ -1,4 +1,4 @@
-import htmx, {HtmxSettleInfo, HtmxSwapStyle} from "htmx.org";
+import htmx from "htmx.org";
 
 function kebabEventName(str: string) {
     return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
@@ -28,7 +28,10 @@ function triggerChildren(target: HTMLElement, name: string, event: CustomEvent, 
             const eventName = kehab.replace("htmx:", "hx-on::")
             if (!triggered.has(e as HTMLElement)) {
                 if(e.hasAttribute(eventName)) {
-                    const newEvent = makeEvent(eventName.replace("hx-on::", "htmx:"), event.detail)
+                    const newEvent = makeEvent(eventName.replace("hx-on::", "htmx:"), {
+                        ...event.detail,
+                        target: e,
+                    })
                     newEvent.detail.meta = 'trigger-children'
                     e.dispatchEvent(newEvent)
                     triggered.add(e as HTMLElement);
@@ -42,6 +45,7 @@ function triggerChildren(target: HTMLElement, name: string, event: CustomEvent, 
 }
 
 
+// @ts-ignore
 htmx.defineExtension("trigger-children", {
     onEvent: (name, evt: Event | CustomEvent) => {
         if (!(evt instanceof CustomEvent)) {
@@ -54,34 +58,5 @@ htmx.defineExtension("trigger-children", {
         const target = evt.target as HTMLElement || evt.detail.target as HTMLElement;
         triggerChildren(target, name, evt, triggered);
         return true;
-    },
-    init: function (api: any): void {
-    },
-    transformResponse: function (
-        text: string,
-        xhr: XMLHttpRequest,
-        elt: Element,
-    ): string {
-        return text;
-    },
-    isInlineSwap: function (swapStyle: HtmxSwapStyle): boolean {
-        return false;
-    },
-    handleSwap: function (
-        swapStyle: HtmxSwapStyle,
-        target: Node,
-        fragment: Node,
-        settleInfo: HtmxSettleInfo,
-    ): boolean | Node[] {
-        return false;
-    },
-    encodeParameters: function (
-        xhr: XMLHttpRequest,
-        parameters: FormData,
-        elt: Node,
-    ) {
-    },
-    getSelectors: function (): string[] | null {
-        return null;
     },
 });
