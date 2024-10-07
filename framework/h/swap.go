@@ -63,11 +63,14 @@ func SwapMany(ctx *RequestContext, elements ...*Element) *Element {
 		return Empty()
 	}
 	for _, element := range elements {
-		element.AppendChild(outOfBandSwap(""))
+		if element.tag != "" {
+			element.AppendChild(outOfBandSwap(""))
+		}
 	}
-	return Fragment(Map(elements, func(arg *Element) Ren {
+	res := Fragment(Map(elements, func(arg *Element) Ren {
 		return arg
 	})...)
+	return res
 }
 
 func SwapManyX(ctx *RequestContext, args ...SwapArg) *Element {

@@ -108,6 +108,11 @@ func OnFileChange(version string, events []*fsnotify.Event) {
 			//tasks.Run = true
 		}
 
+		// something in public folder changed
+		if c.HasAnyPrefix("assets/public/") {
+			copyassets.CopyAssets()
+		}
+
 		if hasTask {
 			slog.Info("file changed", slog.String("version", version), slog.String("file", c.Name()))
 		}

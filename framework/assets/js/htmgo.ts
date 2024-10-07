@@ -8,6 +8,9 @@ import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
 import "./htmxextensions/sse"
 
+// @ts-ignore
+window.htmx = htmx;
+
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;
   setInterval(() => {
