@@ -20,7 +20,7 @@ type RequestContext struct {
 	Response          http.ResponseWriter
 	locator           *service.Locator
 	isBoosted         bool
-	currentBrowserUrl string
+	CurrentBrowserUrl string
 	hxPromptResponse  string
 	isHxRequest       bool
 	hxTargetId        string
@@ -80,7 +80,7 @@ const RequestContextKey = "htmgo.request.context"
 func populateHxFields(cc *RequestContext) {
 	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
 	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
-	cc.currentBrowserUrl = cc.Request.Header.Get(hx.CurrentUrlHeader)
+	cc.CurrentBrowserUrl = cc.Request.Header.Get(hx.CurrentUrlHeader)
 	cc.hxPromptResponse = cc.Request.Header.Get(hx.PromptResponseHeader)
 	cc.isHxRequest = cc.Request.Header.Get(hx.RequestHeader) == "true"
 	cc.hxTargetId = cc.Request.Header.Get(hx.TargetIdHeader)

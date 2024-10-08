@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/framework/internal/util"
 	"strconv"
 )
 
@@ -151,6 +152,10 @@ func Pre(children ...Ren) *Element {
 
 func Div(children ...Ren) *Element {
 	return Tag("div", children...)
+}
+
+func GenId() string {
+	return util.RandSeq(6)
 }
 
 func Article(children ...Ren) *Element {
