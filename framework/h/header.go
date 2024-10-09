@@ -16,7 +16,7 @@ func PushUrlHeader(url string) *Headers {
 }
 
 func PushQsHeader(ctx *RequestContext, qs *Qs) *Headers {
-	parsed, err := url.Parse(ctx.CurrentBrowserUrl)
+	parsed, err := url.Parse(ctx.currentBrowserUrl)
 	if err != nil {
 		return NewHeaders()
 	}
