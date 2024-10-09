@@ -85,7 +85,7 @@ func SwapManyXPartial(ctx *RequestContext, swaps ...SwapArg) *Partial {
 }
 
 func GetPartialPath(partial PartialFunc) string {
-	return runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
+	return "/" + runtime.FuncForPC(reflect.ValueOf(partial).Pointer()).Name()
 }
 
 func GetPartialPathWithQs(partial func(ctx *RequestContext) *Partial, qs *Qs) string {

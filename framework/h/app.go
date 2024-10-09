@@ -29,12 +29,52 @@ type RequestContext struct {
 	kv                map[string]interface{}
 }
 
+func GetRequestContext(r *http.Request) *RequestContext {
+	return r.Context().Value(RequestContextKey).(*RequestContext)
+}
+
 func (c *RequestContext) FormValue(key string) string {
 	return c.Request.FormValue(key)
 }
 
+func (c *RequestContext) Header(key string) string {
+	return c.Request.Header.Get(key)
+}
+
+func (c *RequestContext) UrlParam(key string) string {
+	return chi.URLParam(c.Request, key)
+}
+
 func (c *RequestContext) QueryParam(key string) string {
 	return c.Request.URL.Query().Get(key)
+}
+
+func (c *RequestContext) IsBoosted() bool {
+	return c.isBoosted
+}
+
+func (c *RequestContext) IsHxRequest() bool {
+	return c.isHxRequest
+}
+
+func (c *RequestContext) HxPromptResponse() string {
+	return c.hxPromptResponse
+}
+
+func (c *RequestContext) HxTargetId() string {
+	return c.hxTargetId
+}
+
+func (c *RequestContext) HxTriggerName() string {
+	return c.hxTriggerName
+}
+
+func (c *RequestContext) HxTriggerId() string {
+	return c.hxTriggerId
+}
+
+func (c *RequestContext) HxCurrentBrowserUrl() string {
+	return c.currentBrowserUrl
 }
 
 func (c *RequestContext) Set(key string, value interface{}) {
@@ -78,7 +118,6 @@ func Start(opts AppOpts) {
 const RequestContextKey = "htmgo.request.context"
 
 func populateHxFields(cc *RequestContext) {
-	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
 	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
 	cc.currentBrowserUrl = cc.Request.Header.Get(hx.CurrentUrlHeader)
 	cc.hxPromptResponse = cc.Request.Header.Get(hx.PromptResponseHeader)

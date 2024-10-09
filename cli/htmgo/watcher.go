@@ -35,10 +35,37 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		for {
 			select {
 			case event, ok := <-watcher.Events:
+				slog.Debug("event:", slog.String("name", event.Name), slog.String("op", event.Op.String()))
+
 				if !ok {
 					return
 				}
-				slog.Debug("event:", slog.String("name", event.Name), slog.String("op", event.Op.String()))
+
+				if event.Has(fsnotify.Remove) {
+					err = watcher.Remove(event.Name)
+					if err != nil {
+						slog.Error("Error removing directory from watcher:", slog.String("path", event.Name), slog.String("error", err.Error()))
+					} else {
+						slog.Debug("Stopped watching directory:", slog.String("path", event.Name))
+					}
+				}
+
+				if event.Has(fsnotify.Create) {
+					info, err := os.Stat(event.Name)
+					if err != nil {
+						slog.Error("Error getting file info:", slog.String("path", event.Name), slog.String("error", err.Error()))
+						continue
+					}
+					if info.IsDir() {
+						err = watcher.Add(event.Name)
+						if err != nil {
+							slog.Error("Error adding directory to watcher:", slog.String("path", event.Name), slog.String("error", err.Error()))
+						} else {
+							slog.Debug("Watching directory:", slog.String("path", event.Name))
+						}
+					}
+				}
+
 				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
 					events = append(events, &event)
 					debouncer.Do(func() {
