@@ -49,6 +49,7 @@ function connectWs(ele: Element, url: string, attempt: number = 0) {
         url = (isSecure ? 'wss://' : 'ws://') + window.location.host + url
     }
     console.info('connecting to ws', url)
+
     ws = new WebSocket(url);
 
     ws.addEventListener("close", function(event) {

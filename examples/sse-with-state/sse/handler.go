@@ -19,12 +19,7 @@ func HandleWs() http.HandlerFunc {
 		locator := cc.ServiceLocator()
 		manager := service.Get[SocketManager](locator)
 
-		sessionCookie, _ := r.Cookie("state")
-		sessionId := ""
-
-		if sessionCookie != nil {
-			sessionId = sessionCookie.Value
-		}
+		sessionId := r.URL.Query().Get("sessionId")
 
 		if sessionId == "" {
 			w.WriteHeader(http.StatusUnauthorized)

@@ -18,10 +18,10 @@ const (
 )
 
 type SocketEvent struct {
-	SocketId string
-	RoomId   string
-	Type     EventType
-	Payload  map[string]any
+	SessionId string
+	RoomId    string
+	Type      EventType
+	Payload   map[string]any
 }
 
 type CloseEvent struct {
@@ -95,10 +95,10 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 		return
 	}
 	manager.dispatch(SocketEvent{
-		SocketId: id,
-		Type:     MessageEvent,
-		Payload:  message,
-		RoomId:   socket.RoomId,
+		SessionId: id,
+		Type:      MessageEvent,
+		Payload:   message,
+		RoomId:    socket.RoomId,
 	})
 }
 
@@ -122,10 +122,10 @@ func (manager *SocketManager) Add(roomId string, id string, writer WriterChan, d
 	}
 
 	manager.dispatch(SocketEvent{
-		SocketId: s.Id,
-		Type:     ConnectedEvent,
-		RoomId:   s.RoomId,
-		Payload:  map[string]any{},
+		SessionId: s.Id,
+		Type:      ConnectedEvent,
+		RoomId:    s.RoomId,
+		Payload:   map[string]any{},
 	})
 
 	fmt.Printf("User %s connected to %s\n", id, roomId)
@@ -137,10 +137,10 @@ func (manager *SocketManager) OnClose(id string) {
 		return
 	}
 	manager.dispatch(SocketEvent{
-		SocketId: id,
-		Type:     DisconnectedEvent,
-		RoomId:   socket.RoomId,
-		Payload:  map[string]any{},
+		SessionId: id,
+		Type:      DisconnectedEvent,
+		RoomId:    socket.RoomId,
+		Payload:   map[string]any{},
 	})
 	manager.sockets.Delete(id)
 }

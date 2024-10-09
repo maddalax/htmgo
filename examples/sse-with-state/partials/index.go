@@ -61,7 +61,7 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 			h.Class("bg-rose-400 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded"),
 			h.Type("submit"),
 			h.Text("Increment"),
-			OnServerSideEvent(ctx, props.Id, "increment", func(data event.HandlerData) {
+			OnServerSideEvent(ctx, "increment", func(data event.HandlerData) {
 				counter.Increment()
 				event.PushElement(data, CounterForm(ctx, props))
 			}),

@@ -8,11 +8,12 @@ import (
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
-	state.NewState(ctx)
+	sessionId := state.GetSessionId(ctx)
 	return h.NewPage(
 		RootPage(
+			ctx,
 			h.Div(
-				h.Attribute("ws-connect", fmt.Sprintf("/ws/test")),
+				h.Attribute("ws-connect", fmt.Sprintf("/ws/test?sessionId=%s", sessionId)),
 				h.Class("flex flex-col gap-4 items-center pt-24 min-h-screen bg-neutral-100"),
 				h.H3(h.Id("intro-text"), h.Text("Repeater Example"), h.Class("text-2xl")),
 

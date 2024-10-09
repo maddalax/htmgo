@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"io/fs"
@@ -33,6 +34,13 @@ func main() {
 
 			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
 			app.Router.Handle("/ws/test", sse.HandleWs())
+			app.Router.Get("/metrics", func(writer http.ResponseWriter, request *http.Request) {
+				writer.Header().Set("Content-Type", "application/json")
+				writer.WriteHeader(http.StatusOK)
+				metrics := event.GetMetrics()
+				serialized, _ := json.Marshal(metrics)
+				_, _ = writer.Write(serialized)
+			})
 			__htmgo.Register(app.Router)
 		},
 	})

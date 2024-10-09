@@ -1,10 +1,10 @@
 package state
 
 import (
-	"github.com/google/uuid"
+	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
-	"net/http"
+	"sse-with-state/internal"
 )
 
 type SessionId string
@@ -24,19 +24,15 @@ func NewState(ctx *h.RequestContext) *State {
 }
 
 func GetSessionId(ctx *h.RequestContext) SessionId {
-	stateCookie, err := ctx.Request.Cookie("state")
+	sessionIdRaw := ctx.Get("session-id")
 	sessionId := ""
-	if err == nil {
-		sessionId = stateCookie.Value
-	} else {
-		sessionId = uuid.NewString()
-	}
 
-	c := http.Cookie{
-		Name:  "state",
-		Value: sessionId,
+	if sessionIdRaw == "" || sessionIdRaw == nil {
+		sessionId = fmt.Sprintf("session-id-%s", internal.RandSeq(30))
+		ctx.Set("session-id", sessionId)
+	} else {
+		sessionId = sessionIdRaw.(string)
 	}
-	ctx.Response.Header().Set("Set-Cookie", c.String())
 
 	return SessionId(sessionId)
 }

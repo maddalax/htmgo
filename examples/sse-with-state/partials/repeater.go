@@ -37,9 +37,7 @@ func repeaterItem(ctx *h.RequestContext, item *h.Element, index int, props *Repe
 				event.PushElement(data,
 					h.Div(
 						h.Attribute("hx-swap-oob", fmt.Sprintf("delete:#%s", id)),
-						repeaterItem(
-							ctx, item, index, props,
-						),
+						h.Div(),
 					),
 				)
 			}),
