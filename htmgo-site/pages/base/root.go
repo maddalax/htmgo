@@ -17,6 +17,8 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
 			h.Meta("title", title),
+			h.Link("/public/favicon.ico", "icon"),
+			h.Link("/public/apple-touch-icon.png", "apple-touch-icon"),
 			h.Meta("charset", "utf-8"),
 			h.Meta("author", "htmgo"),
 			h.Meta("description", description),
