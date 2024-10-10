@@ -12,10 +12,14 @@ import (
 
 func StoryComments(ctx *h.RequestContext) *h.Partial {
 	return h.NewPartial(
-		h.Div(
-			h.Class("flex flex-col gap-3 prose max-w-none"),
-			CachedStoryComments(news.MustItemId(ctx)),
-		))
+		h.Fragment(
+			h.OobSwap(ctx, h.Div(h.Id("comments-loader"))),
+			h.Div(
+				h.Class("flex flex-col gap-3 prose max-w-none"),
+				CachedStoryComments(news.MustItemId(ctx)),
+			),
+		),
+	)
 }
 
 var CachedStoryComments = h.CachedPerKeyT[string, int](time.Minute*3, func(itemId int) (string, h.GetElementFunc) {

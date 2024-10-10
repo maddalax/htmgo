@@ -5,13 +5,12 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"hackernews/internal/news"
 	"hackernews/internal/timeformat"
-	"strconv"
+	"time"
 )
 
 func Story(ctx *h.RequestContext) *h.Partial {
-	storyId, err := strconv.ParseInt(ctx.QueryParam("item"), 10, 64)
-
-	if storyId == 0 || err != nil {
+	storyId := news.MustItemId(ctx)
+	if storyId == 0 {
 		return h.NewPartial(
 			h.Div(
 				h.Class("flex justify-center bg-neutral-300"),
@@ -20,29 +19,42 @@ func Story(ctx *h.RequestContext) *h.Partial {
 		)
 	}
 
-	story, err := news.GetStory(int(storyId))
-
 	if ctx.IsHxRequest() {
 		return h.SwapManyPartialWithHeaders(
 			ctx,
 			h.PushUrlHeader(fmt.Sprintf("/?item=%d", storyId)),
-			StoryBody(story),
+			h.Div(
+				h.Id("story-body"),
+				CachedStoryBody(storyId),
+			),
 		)
 	}
 
 	return h.NewPartial(
-		StoryBody(story),
+		CachedStoryBody(storyId),
 	)
 }
 
+var CachedStoryBody = h.CachedPerKeyT[string, int](time.Minute*3, func(itemId int) (string, h.GetElementFunc) {
+	return fmt.Sprintf("story-%d", itemId), func() *h.Element {
+		story, err := news.GetStory(itemId)
+		if err != nil {
+			return h.Div(
+				h.Id("story-body"),
+				h.Text("Failed to load story"),
+			)
+		}
+		return StoryBody(story)
+	}
+})
+
 func StoryBody(story *news.Story) *h.Element {
 	return h.Div(
-		h.Class("min-w-3xl"),
 		h.Id("story-body"),
 		h.Div(
 			h.Class("prose prose-2xl bg-white border-b border-gray-200 pb-3 min-w-3xl max-w-3xl"),
 			h.H5(
-				h.Class("flex gap-2 items-center font-bold"),
+				h.Class("flex gap-2 items-left font-bold"),
 				h.UnsafeRaw(story.Title),
 			),
 			h.A(
@@ -61,6 +73,14 @@ func StoryBody(story *news.Story) *h.Element {
 				h.TextF(" %s ", story.By),
 				h.UnsafeRaw("&bull;"),
 				h.TextF(" %s", timeformat.RelativeTime(story.Time)),
+			),
+		),
+		h.TriggerChildren(),
+		h.Div(
+			h.Id("comments-loader"),
+			h.Class("flex justify-center items-center h-24"),
+			h.Div(
+				h.Class("animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-rose-500"),
 			),
 		),
 		h.Div(
