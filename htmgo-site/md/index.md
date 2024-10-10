@@ -23,4 +23,4 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 3. automatic page and partial registration based on file path
 4. built in tailwindcss support, no need to configure anything by default
 5. plugin architecture to include optional plugins to streamline development, such as http://entgo.io
-6. custom [htmx extensions](https://github.com/maddalax/htmgo/tree/b610aefa36e648b98a13823a6f8d87566120cfcc/framework/assets/js/htmxextensions) to reduce boilerplate with common tasks
+6. custom [htmx extensions](https://github.com/maddalax/htmgo/tree/master/framework/assets/js/htmxextensions) to reduce boilerplate with common tasks
