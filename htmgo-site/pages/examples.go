@@ -15,6 +15,13 @@ type Example struct {
 
 var examples = []Example{
 	{
+		Title:       "Hacker News Clone",
+		Github:      "https://github.com/maddalax/htmgo/tree/master/examples/hackernews",
+		Description: "A hacker news reader clone built with htmgo",
+		Demo:        "https://hn.htmgo.dev",
+		Image:       "public/hn-example.jpg",
+	},
+	{
 		Title:       "Chat App Example",
 		Github:      "https://github.com/maddalax/htmgo/tree/master/examples/chat",
 		Description: "A simple chat application built with htmgo using SSE for real-time updates",
@@ -74,7 +81,7 @@ func ExamplesPage(ctx *h.RequestContext) *h.Page {
 
 func ExampleCards() *h.Element {
 	return h.Div(
-		h.Class("prose-h2:my-1 prose-img:my-1 grid grid-cols-1 md:grid-cols-2 gap-6 text-center pb-8"), // Using grid for 3-column layout
+		h.Class("prose-h2:my-1 prose-img:my-1 grid grid-cols-1 gap-6 text-center pb-8"),
 		h.List(examples, func(example Example, index int) *h.Element {
 			return h.Div(
 				h.Class("border border-gray-200 shadow-sm rounded-md px-4 pb-4 bg-neutral-100"), // Removed specific width, handled by grid
@@ -90,22 +97,24 @@ func ExampleCards() *h.Element {
 							h.Class("not-prose"),
 							h.Img(
 								h.Src(example.Image),
-								h.Class("md:w-full rounded-md mx-auto"),
+								h.Class("w-[75%] rounded-md mx-auto"),
 							),
 						), // Ensures image is centered within the card
 					)),
-					h.If(example.Description != "", h.Pf(example.Description)),
+					h.If(example.Description != "", h.Div(
+						h.Pf(example.Description),
+					)),
 					h.Div(
 						h.Div(
-							h.Class("flex gap-2 justify-center mt-2"), // Slight margin-top for spacing from the image
+							h.Class("flex gap-2 justify-center mt-2"),
 							h.A(
 								h.Href(example.Github),
-								h.Class("not-prose p-2 bg-slate-900 text-white rounded-md"), // Reduced padding for the buttons
+								h.Class("not-prose p-2 bg-slate-900 text-white rounded-md"),
 								h.Text("Github"),
 							),
 							h.A(
 								h.Href(example.Demo),
-								h.Class("not-prose p-2 bg-slate-900 text-white rounded-md"), // Reduced padding for the buttons
+								h.Class("not-prose p-2 bg-slate-900 text-white rounded-md"),
 								h.Text("Demo"),
 							),
 						),

@@ -6,7 +6,7 @@ on:
     branches:
       - master         # Trigger on pushes to master
     paths:
-      - 'hackernews/**'  # Trigger only if files in this directory change
+      - 'examples/hackernews/**'  # Trigger only if files in this directory change
       - "framework/**"
       - "framework-ui/**"
       - "cli/**"
