@@ -8,6 +8,22 @@ import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
 import "./htmxextensions/sse"
 
+/**
+ * Browser doesn't support onload for all elements, so we need to manually trigger it
+ * this is useful for locality of behavior
+ */
+window.onload = function() {
+  const ignored = ['SCRIPT', 'LINK', 'STYLE', 'META', 'BASE', 'TITLE', 'HEAD', 'HTML', 'BODY'];
+  for (let element of Array.from(document.querySelectorAll(`[onload]`))) {
+    if(element != null && element instanceof HTMLElement) {
+      if(ignored.includes(element.tagName)) {
+         continue
+      }
+      element.onload!(new Event("load"));
+    }
+  }
+}
+
 // @ts-ignore
 window.htmx = htmx;
 

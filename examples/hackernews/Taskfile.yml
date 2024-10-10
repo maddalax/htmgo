@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  run:
+    cmds:
+      - htmgo run
+    silent: true
+
+  build:
+    cmds:
+      - htmgo build
+
+  docker:
+    cmds:
+      - docker build .
+
+  watch:
+    cmds:
+      - htmgo watch
+    silent: true

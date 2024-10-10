@@ -21,10 +21,10 @@ func RootPage(children ...h.Ren) h.Ren {
 			h.Meta("og:description", "this is a template"),
 			h.Link("/public/main.css", "stylesheet"),
 			h.Script("/public/htmgo.js"),
+			h.Script("/public/custom.js"),
 		),
 		h.Body(
 			h.Div(
-				h.Class("flex flex-col gap-2 bg-white h-full"),
 				h.Fragment(children...),
 			),
 		),

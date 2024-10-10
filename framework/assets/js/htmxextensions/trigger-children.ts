@@ -4,7 +4,7 @@ function kebabEventName(str: string) {
     return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
-const ignoredEvents = ['htmx:beforeProcessNode', 'htmx:afterProcessNode', 'htmx:beforeSwap', 'htmx:afterSwap', 'htmx:beforeOnLoad', 'htmx:afterOnLoad', 'htmx:configRequest', 'htmx:configResponse', 'htmx:responseError'];
+const ignoredEvents = ['htmx:beforeProcessNode', 'htmx:afterProcessNode', 'htmx:configRequest', 'htmx:configResponse', 'htmx:responseError'];
 
 function makeEvent(eventName: string, detail: any) {
     let evt
@@ -28,13 +28,15 @@ function triggerChildren(target: HTMLElement, name: string, event: CustomEvent, 
             const eventName = kehab.replace("htmx:", "hx-on::")
             if (!triggered.has(e as HTMLElement)) {
                 if(e.hasAttribute(eventName)) {
-                    const newEvent = makeEvent(eventName.replace("hx-on::", "htmx:"), {
-                        ...event.detail,
-                        target: e,
-                    })
-                    newEvent.detail.meta = 'trigger-children'
-                    e.dispatchEvent(newEvent)
-                    triggered.add(e as HTMLElement);
+                    setTimeout(() => {
+                        const newEvent = makeEvent(eventName.replace("hx-on::", "htmx:"), {
+                            ...event.detail,
+                            target: e,
+                        })
+                        newEvent.detail.meta = 'trigger-children'
+                        e.dispatchEvent(newEvent)
+                        triggered.add(e as HTMLElement);
+                    }, 1)
                 }
                 if (e.children) {
                     triggerChildren(e as HTMLElement, name, event, triggered);
