@@ -11,25 +11,16 @@ import (
 func Story(ctx *h.RequestContext) *h.Partial {
 	storyId, err := strconv.ParseInt(ctx.QueryParam("item"), 10, 64)
 
-	if err != nil {
-		return h.SwapManyPartial(
-			ctx,
+	if storyId == 0 || err != nil {
+		return h.NewPartial(
 			h.Div(
-				h.Text("Invalid story id"),
+				h.Class("flex justify-center bg-neutral-300"),
+				h.Id("story-body"),
 			),
 		)
 	}
 
 	story, err := news.GetStory(int(storyId))
-
-	if err != nil {
-		return h.SwapManyPartial(
-			ctx,
-			h.Div(
-				h.Text("Failed to load story"),
-			),
-		)
-	}
 
 	if ctx.IsHxRequest() {
 		return h.SwapManyPartialWithHeaders(
@@ -46,9 +37,10 @@ func Story(ctx *h.RequestContext) *h.Partial {
 
 func StoryBody(story *news.Story) *h.Element {
 	return h.Div(
+		h.Class("min-w-3xl"),
 		h.Id("story-body"),
 		h.Div(
-			h.Class("prose prose-2xl bg-white border-b border-gray-200 pb-3 max-w-3xl"),
+			h.Class("prose prose-2xl bg-white border-b border-gray-200 pb-3 min-w-3xl max-w-3xl"),
 			h.H5(
 				h.Class("flex gap-2 items-center font-bold"),
 				h.UnsafeRaw(story.Title),
@@ -72,7 +64,7 @@ func StoryBody(story *news.Story) *h.Element {
 			),
 		),
 		h.Div(
-			h.Class("mt-2 max-w-3xl"),
+			h.Class("mt-2 min-w-3xl max-w-3xl"),
 			h.GetPartial(StoryComments, "load"),
 		),
 	)
