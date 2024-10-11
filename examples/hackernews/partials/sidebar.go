@@ -3,7 +3,6 @@ package partials
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/hx"
 	"hackernews/components"
 	"hackernews/internal/news"
 	"hackernews/internal/parse"
@@ -11,7 +10,6 @@ import (
 	"time"
 )
 
-// @lang js
 var ScrollJs = `
 	const scrollContainer = self;
     let isDown = false;
@@ -101,8 +99,7 @@ func SidebarTitle(defaultCategory string) *h.Element {
 			h.Text("Hacker News"),
 		),
 		h.Div(
-			h.OnEvent(hx.LoadDomEvent, h.EvalJs(ScrollJs)),
-			h.OnEvent(hx.LoadEvent, h.EvalJs(ScrollJs)),
+			h.OnLoad(h.EvalJs(ScrollJs)),
 			h.Class("scroll-container mt-2 flex gap-1 no-scrollbar overflow-y-hidden whitespace-nowrap overflow-x-auto"),
 			h.List(news.Categories, func(item news.Category, index int) *h.Element {
 				return CategoryBadge(defaultCategory, item)

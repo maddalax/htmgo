@@ -42,11 +42,12 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 				}
 
 				if event.Has(fsnotify.Remove) {
-					err = watcher.Remove(event.Name)
+					info, err := os.Stat(event.Name)
 					if err != nil {
-						slog.Error("Error removing directory from watcher:", slog.String("path", event.Name), slog.String("error", err.Error()))
-					} else {
-						slog.Debug("Stopped watching directory:", slog.String("path", event.Name))
+						continue
+					}
+					if info.IsDir() {
+						_ = watcher.Remove(event.Name)
 					}
 				}
 
