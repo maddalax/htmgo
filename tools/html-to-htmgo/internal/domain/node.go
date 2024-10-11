@@ -103,6 +103,17 @@ func (n *CustomNode) String() string {
 		}
 	}
 
+	if str == "h.Script(" {
+		if len(n.Attrs) > 0 {
+			for _, attr := range n.Attrs {
+				if attr.key == "h.Src" {
+					str = str + fmt.Sprintf(`"%s"`, attr.value) + ","
+					n.Attrs = make([]Attr, 0)
+				}
+			}
+		}
+	}
+
 	booleanAttributes := []string{
 		"h.AllowFullscreen",
 		"h.Async",
