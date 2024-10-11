@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"hackernews/__htmgo"
@@ -23,6 +24,11 @@ func main() {
 
 			http.FileServerFS(sub)
 
+			app.Router.Handle("/item", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				id := r.URL.Query().Get("id")
+				w.Header().Set("Location", fmt.Sprintf("/?item=%s", id))
+				w.WriteHeader(302)
+			}))
 			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
 			__htmgo.Register(app.Router)
 		},
