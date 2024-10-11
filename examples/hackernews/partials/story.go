@@ -24,6 +24,7 @@ func Story(ctx *h.RequestContext) *h.Partial {
 			ctx,
 			h.PushUrlHeader(fmt.Sprintf("/?item=%d", storyId)),
 			h.Div(
+				h.Class("w-full"),
 				h.Id("story-body"),
 				CachedStoryBody(storyId),
 			),
@@ -50,9 +51,10 @@ var CachedStoryBody = h.CachedPerKeyT[string, int](time.Minute*3, func(itemId in
 
 func StoryBody(story *news.Story) *h.Element {
 	return h.Div(
+		h.Class("w-full"),
 		h.Id("story-body"),
 		h.Div(
-			h.Class("prose prose-2xl bg-white border-b border-gray-200 pb-3 min-w-3xl max-w-3xl"),
+			h.Class("prose prose-2xl border-b border-gray-200 pb-3 max-w-none w-full"),
 			h.H5(
 				h.Class("flex gap-2 items-left font-bold"),
 				h.UnsafeRaw(story.Title),

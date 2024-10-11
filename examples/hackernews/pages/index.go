@@ -12,7 +12,7 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 				h.Class("flex gap-2 min-h-screen"),
 				partials.StorySidebar(ctx),
 				h.Main(
-					h.Class("flex justify-center items-start p-6 max-w-3xl min-w-3xl mx-auto"),
+					h.Class("flex justify-left items-start p-6 w-full"),
 					partials.Story(ctx),
 				),
 			),
