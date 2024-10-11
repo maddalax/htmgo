@@ -15,6 +15,7 @@ type NavItem struct {
 var navItems = []NavItem{
 	{Name: "Docs", Url: "/docs"},
 	{Name: "Examples", Url: "/examples"},
+	{Name: "Convert HTML", Url: "/html-to-go"},
 }
 
 func ToggleNavbar(ctx *h.RequestContext) *h.Partial {
