@@ -77,6 +77,15 @@ func GetStories(category string, page int, limit int) []Story {
 	ids := *top
 	start := page * limit
 	end := start + limit
+
+	if start > len(ids) {
+		return make([]Story, 0)
+	}
+
+	if end > len(ids) {
+		end = len(ids)
+	}
+
 	return batch.ParallelProcess[int, Story](
 		ids[start:end],
 		50,

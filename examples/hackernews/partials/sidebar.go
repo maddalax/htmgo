@@ -6,6 +6,7 @@ import (
 	"github.com/maddalax/htmgo/framework/hx"
 	"hackernews/components"
 	"hackernews/internal/news"
+	"hackernews/internal/parse"
 	"hackernews/internal/timeformat"
 	"time"
 )
@@ -45,9 +46,22 @@ var ScrollJs = `
 
 func StorySidebar(ctx *h.RequestContext) *h.Partial {
 	category := h.GetQueryParam(ctx, "category")
+	pageRaw := h.GetQueryParam(ctx, "page")
+	mode := h.GetQueryParam(ctx, "mode")
+
+	if pageRaw == "" {
+		pageRaw = "0"
+	}
+
 	if category == "" {
 		category = "topstories"
 	}
+
+	page := parse.MustParseInt(pageRaw, 0)
+
+	fetchMorePath := h.GetPartialPathWithQs(StorySidebar, h.NewQs("mode", "infinite", "page", fmt.Sprintf("%d", page+1), "category", category))
+
+	list := CachedStoryList(category, page, 50, fetchMorePath)
 
 	body := h.Aside(
 		h.Id("story-sidebar"),
@@ -56,13 +70,21 @@ func StorySidebar(ctx *h.RequestContext) *h.Partial {
 		h.Div(
 			h.Class("flex flex-col gap-1"),
 			SidebarTitle(category),
-			CachedStoryList(category, 0, 50),
+			h.Id("story-list"),
+			list,
 		),
 	)
+
+	if mode == "infinite" {
+		return h.NewPartial(
+			list,
+		)
+	}
 
 	if ctx.IsHxRequest() {
 		return h.SwapManyPartial(ctx, body)
 	}
+
 	return h.NewPartial(body)
 }
 
@@ -99,7 +121,7 @@ func CategoryBadge(defaultCategory string, category news.Category) *h.Element {
 	)
 }
 
-var CachedStoryList = h.CachedPerKeyT3(time.Minute*5, func(category string, page int, limit int) (string, h.GetElementFunc) {
+var CachedStoryList = h.CachedPerKeyT4(time.Minute*5, func(category string, page int, limit int, fetchMorePath string) (string, h.GetElementFunc) {
 	return fmt.Sprintf("%s-stories-%d-%d", category, page, limit), func() *h.Element {
 		stories := news.GetStories(category, page, limit)
 		return h.List(stories, func(item news.Story, index int) *h.Element {
@@ -120,6 +142,12 @@ var CachedStoryList = h.CachedPerKeyT3(time.Minute*5, func(category string, page
 					h.Class("text-sm text-gray-600"),
 					h.UnsafeRaw(fmt.Sprintf("%d upvotes &bull; %d comments", item.Score, item.Descendents)),
 				),
+				h.If(index == len(stories)-1, h.Div(
+					h.Id("load-more"),
+					h.Attribute("hx-swap", "beforeend"),
+					h.HxTarget("#story-list"),
+					h.Get(fetchMorePath, "intersect once"),
+				)),
 			)
 		})
 	}

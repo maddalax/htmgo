@@ -75,7 +75,6 @@ func StoryBody(story *news.Story) *h.Element {
 				h.TextF(" %s", timeformat.RelativeTime(story.Time)),
 			),
 		),
-		h.TriggerChildren(),
 		h.Div(
 			h.Id("comments-loader"),
 			h.Class("flex justify-center items-center h-24"),

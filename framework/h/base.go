@@ -1,7 +1,6 @@
 package h
 
 import (
-	"html"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -89,5 +88,5 @@ func GetPartialPath(partial PartialFunc) string {
 }
 
 func GetPartialPathWithQs(partial func(ctx *RequestContext) *Partial, qs *Qs) string {
-	return html.EscapeString(GetPartialPath(partial) + "?" + qs.ToString())
+	return GetPartialPath(partial) + "?" + qs.ToString()
 }
