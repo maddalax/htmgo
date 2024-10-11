@@ -18,7 +18,7 @@ function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
       callback(lastUrl, window.location.href);
       lastUrl = window.location.href;
     }
-  }, 100);
+  }, 101);
 }
 
 watchUrl((_, newUrl) => {
