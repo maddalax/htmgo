@@ -1,4 +1,4 @@
-module html-to-htmgo
+module github.com/maddalax/htmgo/tools/html-to-htmgo
 
 go 1.23.0
 

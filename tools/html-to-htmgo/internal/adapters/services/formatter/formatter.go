@@ -1,8 +1,8 @@
 package formatter
 
 import (
+	"github.com/maddalax/htmgo/tools/html-to-htmgo/internal/domain"
 	"go/format"
-	"html-to-htmgo/internal/domain"
 )
 
 type Formatter struct {

@@ -3,8 +3,8 @@
 package main
 
 import (
-	serviceformatter "html-to-htmgo/internal/adapters/services/formatter"
-	serviceparser "html-to-htmgo/internal/adapters/services/parser"
+	serviceformatter "github.com/maddalax/htmgo/tools/html-to-htmgo/internal/adapters/services/formatter"
+	serviceparser "github.com/maddalax/htmgo/tools/html-to-htmgo/internal/adapters/services/parser"
 )
 
 func Parse(input []byte) []byte {
