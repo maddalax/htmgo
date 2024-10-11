@@ -10,7 +10,10 @@ require (
 )
 
 require (
-	github.com/alecthomas/chroma/v2 v2.2.0 // indirect
-	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
+	github.com/dlclark/regexp2 v1.11.0 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
+	github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241011152834-980afbc5ac5b // indirect
+	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 )

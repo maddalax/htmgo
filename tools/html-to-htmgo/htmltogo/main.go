@@ -1,6 +1,6 @@
 // Forked from https://github.com/PiotrKowalski/html-to-gomponents
 
-package main
+package htmltogo
 
 import (
 	serviceformatter "github.com/maddalax/htmgo/tools/html-to-htmgo/internal/adapters/services/formatter"

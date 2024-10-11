@@ -20,6 +20,8 @@ type CustomNode struct {
 
 func (n *CustomNode) SetType(in string) {
 	switch in {
+	case "textarea":
+		n.Type = "h.TextArea"
 	case "head":
 		n.Type = "h.Head"
 	case "thead":
@@ -61,6 +63,8 @@ func (n *CustomNode) AddAttr(key, value string) {
 	}
 
 	switch {
+	case key == "autocomplete":
+		n.Attrs = append(n.Attrs, Attr{key: "h.AutoComplete", value: value})
 	case key == "id":
 		n.Attrs = append(n.Attrs, Attr{key: "h.Id", value: value})
 	case key == "tabindex":
@@ -88,6 +92,42 @@ func (n *CustomNode) String() string {
 		str += n.Type + "("
 	}
 
+	if str == "h.Input(" {
+		if len(n.Attrs) > 0 {
+			for i, attr := range n.Attrs {
+				if attr.key == "h.Type" {
+					str = str + fmt.Sprintf(`"%s"`, attr.value) + ","
+					n.Attrs = append(n.Attrs[:i], n.Attrs[i+1:]...)
+				}
+			}
+		}
+	}
+
+	booleanAttributes := []string{
+		"h.AllowFullscreen",
+		"h.Async",
+		"h.Autofocus",
+		"h.Autoplay",
+		"h.Checked",
+		"h.Controls",
+		"h.Default",
+		"h.Defer",
+		"h.Disabled",
+		"h.FormNoValidate",
+		"h.Hidden",
+		"h.IsMap",
+		"h.Loop",
+		"h.Multiple",
+		"h.Muted",
+		"h.NoModule",
+		"h.NoValidate",
+		"h.Open",
+		"h.ReadOnly",
+		"h.Required",
+		"h.Reversed",
+		"h.Selected",
+	}
+
 	if len(n.Attrs) > 0 {
 		for _, v := range n.Attrs {
 			switch {
@@ -101,7 +141,7 @@ func (n *CustomNode) String() string {
 				} else {
 					str = fmt.Sprintf("%s%s(\"%s\"),", str, v.key, v.value)
 				}
-			case v.value == "":
+			case v.value == "" && !slices.Contains(booleanAttributes, v.key):
 				str = fmt.Sprintf("%s%s(\"\"),", str, v.key)
 			default:
 				str = fmt.Sprintf("%s%s(),", str, v.key)

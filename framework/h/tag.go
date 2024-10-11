@@ -182,6 +182,10 @@ func Input(inputType string, children ...Ren) *Element {
 	}
 }
 
+func TextArea(children ...Ren) *Element {
+	return Tag("textarea", children...)
+}
+
 func TextInput(children ...Ren) *Element {
 	return Input("text", children...)
 }
@@ -460,6 +464,10 @@ func Tr(children ...Ren) *Element {
 
 func THead(children ...Ren) *Element {
 	return Tag("thead", children...)
+}
+
+func I(children ...Ren) *Element {
+	return Tag("i", children...)
 }
 
 func TFoot(children ...Ren) *Element {
