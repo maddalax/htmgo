@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/config"
 	"io"
 	"log/slog"
 	"os"
@@ -15,6 +16,10 @@ func HasFileFromRoot(file string) bool {
 	path := filepath.Join(cwd, file)
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func GetConfig() *config.ProjectConfig {
+	return config.FromConfigFile(process.GetWorkingDir())
 }
 
 func CreateHtmgoDir() {

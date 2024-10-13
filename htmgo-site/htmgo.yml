@@ -1,0 +1,5 @@
+tailwind: true
+# which directories to ignore when watching for changes, supports glob patterns
+watch_ignore: [".git", "node_modules", "dist/*"]
+# files to watch for changes that are not included by default, supports glob patterns
+watch_files: ["**/*.go", "**/*.css"]

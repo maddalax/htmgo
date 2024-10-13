@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/cli/htmgo/internal"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
 	"log"
 	"log/slog"
@@ -13,11 +15,10 @@ import (
 	"time"
 )
 
-var ignoredDirs = []string{".git", ".idea", "node_modules", "vendor"}
-
 func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 	events := make([]*fsnotify.Event, 0)
 	debouncer := internal.NewDebouncer(500 * time.Millisecond)
+	config := dirutil.GetConfig()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -42,16 +43,17 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 				}
 
 				if event.Has(fsnotify.Remove) {
-					info, err := os.Stat(event.Name)
-					if err != nil {
+					if dirutil.IsGlobMatch(event.Name, config.WatchFiles, config.WatchIgnore) {
+						watcher.Remove(event.Name)
 						continue
-					}
-					if info.IsDir() {
-						_ = watcher.Remove(event.Name)
 					}
 				}
 
 				if event.Has(fsnotify.Create) {
+					if dirutil.IsGlobMatch(event.Name, config.WatchFiles, config.WatchIgnore) {
+						watcher.Add(event.Name)
+						continue
+					}
 					info, err := os.Stat(event.Name)
 					if err != nil {
 						slog.Error("Error getting file info:", slog.String("path", event.Name), slog.String("error", err.Error()))
@@ -67,20 +69,22 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 					}
 				}
 
-				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
-					events = append(events, &event)
-					debouncer.Do(func() {
-						seen := make(map[string]bool)
-						dedupe := make([]*fsnotify.Event, 0)
-						for _, e := range events {
-							if _, ok := seen[e.Name]; !ok {
-								seen[e.Name] = true
-								dedupe = append(dedupe, e)
+				if dirutil.IsGlobMatch(event.Name, config.WatchFiles, config.WatchIgnore) {
+					if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
+						events = append(events, &event)
+						debouncer.Do(func() {
+							seen := make(map[string]bool)
+							dedupe := make([]*fsnotify.Event, 0)
+							for _, e := range events {
+								if _, ok := seen[e.Name]; !ok {
+									seen[e.Name] = true
+									dedupe = append(dedupe, e)
+								}
 							}
-						}
-						cb(uuid.NewString()[0:6], dedupe)
-						events = make([]*fsnotify.Event, 0)
-					})
+							cb(uuid.NewString()[0:6], dedupe)
+							events = make([]*fsnotify.Event, 0)
+						})
+					}
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -101,17 +105,25 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		watcher.Add(assetPath)
 	}
 
+	go func() {
+		for {
+			time.Sleep(time.Second * 5)
+			files := watcher.WatchList()
+			count := len(files)
+			fmt.Printf("Watching %d dirs\n", count)
+		}
+	}()
+
 	// Walk through the root directory and add all subdirectories to the watcher
 	err = filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		// Ignore directories in the ignoredDirs list
-		for _, ignoredDir := range ignoredDirs {
-			if ignoredDir == info.Name() {
-				return filepath.SkipDir
-			}
+		if dirutil.IsGlobExclude(path, config.WatchIgnore) {
+			return filepath.SkipDir
 		}
+
 		// Only watch directories
 		if info.IsDir() {
 			err = watcher.Add(path)
@@ -123,6 +135,7 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		}
 		return nil
 	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
