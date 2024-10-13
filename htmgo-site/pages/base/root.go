@@ -35,9 +35,21 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 			`),
 		),
 		h.Body(
-			h.Class("bg-stone-50 min-h-screen overflow-x-hidden"),
-			partials.NavBar(ctx, false),
+			h.Class("bg-stone-50 h-screen"),
 			h.Fragment(children...),
+		),
+	)
+}
+
+func PageWithNav(ctx *h.RequestContext, children ...h.Ren) *h.Element {
+	return RootPage(ctx,
+		h.Fragment(
+			partials.NavBar(ctx, partials.NavBarProps{
+				Expanded: false,
+			}),
+			h.Div(
+				children...,
+			),
 		),
 	)
 }
