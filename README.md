@@ -1,5 +1,5 @@
 > [!WARNING]
-> htmgo is in alpha release and active development. API's likely will have breaking changes. Do not use this library at this time if you are expecting a rock solid stable api that will require no migrations. Please report any issues on GitHub.
+> htmgo is in alpha release and active development. API's may have breaking changes between versions. Please report any issues on GitHub.
 
 ## **htmgo**
 
