@@ -45,7 +45,8 @@ func PageWithNav(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 	return RootPage(ctx,
 		h.Fragment(
 			partials.NavBar(ctx, partials.NavBarProps{
-				Expanded: false,
+				Expanded:       false,
+				ShowPreRelease: true,
 			}),
 			h.Div(
 				children...,
