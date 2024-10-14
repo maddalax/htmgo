@@ -2,6 +2,7 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
+	"log/slog"
 	"os"
 	"path"
 )
@@ -45,9 +46,11 @@ func FromConfigFile(workingDir string) *ProjectConfig {
 			bytes, err := os.ReadFile(filePath)
 			if err == nil {
 				err = yaml.Unmarshal(bytes, cfg)
-				if err == nil {
-					return cfg.EnhanceWithDefaults()
+				if err != nil {
+					slog.Error("Error parsing config file", slog.String("file", filePath), slog.String("error", err.Error()))
+					os.Exit(1)
 				}
+				return cfg.EnhanceWithDefaults()
 			}
 		}
 	}
