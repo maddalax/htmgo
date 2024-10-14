@@ -19,7 +19,7 @@ func DefaultProjectConfig() *ProjectConfig {
 			"node_modules", ".git", ".idea", "assets/dist",
 		},
 		WatchFiles: []string{
-			"**/*.go", "**/*.html", "**/*.css", "**/*.js", "**/*.json", "**/*.yaml", "**/*.yml",
+			"**/*.go", "**/*.html", "**/*.css", "**/*.js", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.md",
 		},
 	}
 }

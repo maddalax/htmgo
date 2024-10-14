@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/cli/htmgo/internal"
@@ -36,8 +35,6 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		for {
 			select {
 			case event, ok := <-watcher.Events:
-				slog.Debug("event:", slog.String("name", event.Name), slog.String("op", event.Op.String()))
-
 				if !ok {
 					return
 				}
@@ -69,23 +66,25 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 					}
 				}
 
-				if dirutil.IsGlobMatch(event.Name, config.WatchFiles, config.WatchIgnore) {
-					if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
-						events = append(events, &event)
-						debouncer.Do(func() {
-							seen := make(map[string]bool)
-							dedupe := make([]*fsnotify.Event, 0)
-							for _, e := range events {
-								if _, ok := seen[e.Name]; !ok {
-									seen[e.Name] = true
-									dedupe = append(dedupe, e)
-								}
-							}
-							cb(uuid.NewString()[0:6], dedupe)
-							events = make([]*fsnotify.Event, 0)
-						})
+				if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) {
+					if !dirutil.IsGlobMatch(event.Name, config.WatchFiles, config.WatchIgnore) {
+						continue
 					}
+					events = append(events, &event)
+					debouncer.Do(func() {
+						seen := make(map[string]bool)
+						dedupe := make([]*fsnotify.Event, 0)
+						for _, e := range events {
+							if _, ok := seen[e.Name]; !ok {
+								seen[e.Name] = true
+								dedupe = append(dedupe, e)
+							}
+						}
+						cb(uuid.NewString()[0:6], dedupe)
+						events = make([]*fsnotify.Event, 0)
+					})
 				}
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
@@ -104,15 +103,6 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		slog.Debug("Watching directory:", slog.String("path", assetPath))
 		watcher.Add(assetPath)
 	}
-
-	go func() {
-		for {
-			time.Sleep(time.Second * 5)
-			files := watcher.WatchList()
-			count := len(files)
-			fmt.Printf("Watching %d dirs\n", count)
-		}
-	}()
 
 	// Walk through the root directory and add all subdirectories to the watcher
 	err = filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
