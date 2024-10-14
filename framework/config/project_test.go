@@ -16,7 +16,7 @@ func TestDefaultProjectConfig(t *testing.T) {
 
 func TestNoConfigFileUsesDefault(t *testing.T) {
 	t.Parallel()
-	cfg := FromConfigFile("testdata")
+	cfg := FromConfigFile("testdata2")
 	assert.Equal(t, true, cfg.Tailwind)
 	assert.Equal(t, 4, len(cfg.WatchIgnore))
 	assert.Equal(t, 8, len(cfg.WatchFiles))
