@@ -96,6 +96,9 @@ func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
 						h.Text("htmgo"),
 					)),
 				h.Div(
+					h.Id("search-container"),
+				),
+				h.Div(
 					h.Class("flex gap-4 items-center"),
 					h.List(navItems, func(item NavItem, index int) *h.Element {
 						return h.Div(

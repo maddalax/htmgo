@@ -25,6 +25,7 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 			h.Meta("og:title", title),
 			h.Meta("og:url", "https://htmgo.dev"),
 			h.Link("canonical", "https://htmgo.dev"),
+			h.Link("https://cdn.jsdelivr.net/npm/@docsearch/css@3", "stylesheet"),
 			h.Meta("og:description", description),
 			h.LinkWithVersion("/public/main.css", "stylesheet", Version),
 			h.ScriptWithVersion("/public/htmgo.js", Version),
@@ -37,6 +38,16 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 		h.Body(
 			h.Class("bg-stone-50 h-screen"),
 			h.Fragment(children...),
+			h.Script("https://cdn.jsdelivr.net/npm/@docsearch/js@3"),
+			h.UnsafeRawScript(`
+				docsearch({
+				appId: "9IO2WZA8L1",
+				apiKey: "d8cd8b6f8f8a0c961ce971e09dbde90a",
+				indexName: "htmgo",
+				container: "#search-container",
+				debug: false
+				});
+			`),
 		),
 	)
 }
