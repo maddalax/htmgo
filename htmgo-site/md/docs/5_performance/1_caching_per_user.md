@@ -1,4 +1,4 @@
-## Caching Components Per User
+### Caching Components Per User
 
 If you need to cache a component per user, you can use the `CachedPerKey` functions. 
 These functions allow you to cache a component by a specific key. This key can be any string that uniquely identifies the user.
