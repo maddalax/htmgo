@@ -2,13 +2,13 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
-	"starter-template/state"
+	"sse-with-state/state"
 )
 
 func RootPage(ctx *h.RequestContext, children ...h.Ren) h.Ren {
 	s := state.NewState(ctx)
 	return h.Html(
-		h.Attribute("data-session-id", s.SessionId),
+		h.Attribute("data-session-id", string(s.SessionId)),
 		h.HxExtension(h.BaseExtensions()),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),

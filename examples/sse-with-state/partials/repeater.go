@@ -47,7 +47,7 @@ func repeaterItem(ctx *h.RequestContext, item *h.Element, index int, props *Repe
 
 func Repeater(ctx *h.RequestContext, props RepeaterProps) *h.Element {
 	if props.Id == "" {
-		props.Id = h.GenId()
+		props.Id = h.GenId(6)
 	}
 	return h.Div(
 		h.Class("flex flex-col gap-2"),

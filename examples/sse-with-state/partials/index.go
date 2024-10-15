@@ -40,7 +40,7 @@ type CounterProps struct {
 
 func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 	if props.Id == "" {
-		props.Id = h.GenId()
+		props.Id = h.GenId(6)
 	}
 	counter := UseCounter(state.GetSessionId(ctx), props.Id)
 	return h.Div(

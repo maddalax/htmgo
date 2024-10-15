@@ -5,9 +5,12 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"github.com/puzpuzpuz/xsync/v3"
+	"runtime"
 	"sse-with-state/internal"
 	"sse-with-state/sse"
 	"sse-with-state/state"
+	"strings"
+	"time"
 )
 
 type HandlerData struct {
@@ -174,7 +177,30 @@ var Map = xsync.NewMapOf[state.SessionId, *Events]()
 var socketMessageListener = make(chan sse.SocketEvent, 100)
 var serverSideMessageListener = make(chan ServerSideEvent, 100)
 
-func AddServerSideHandler(ctx *h.RequestContext, id string, event string, handler Handler) {
+func getCallerHash() string {
+	now := time.Now()
+	pc := make([]uintptr, 1000) // Adjust the size if you need a deeper stack trace
+	n := runtime.Callers(2, pc) // Skip 2: runtime.Callers() and printCallers()
+
+	frames := runtime.CallersFrames(pc[:n])
+	calls := make([]string, 0)
+
+	for {
+		frame, more := frames.Next()
+		calls = append(calls, fmt.Sprintf("%s:%d", frame.Function, frame.Line))
+		if !more {
+			break
+		}
+	}
+
+	took := time.Since(now)
+	fmt.Printf("took: %dms\n", took.Milliseconds())
+	return strings.Join(calls, ",")
+}
+
+func AddServerSideHandler(ctx *h.RequestContext, event string, handler Handler) {
+	hash := getCallerHash()
+	fmt.Printf("adding server side handler %s\n", hash)
 	sessionId := state.GetSessionId(ctx)
 	events, ok := Map.Load(sessionId)
 
@@ -183,7 +209,7 @@ func AddServerSideHandler(ctx *h.RequestContext, id string, event string, handle
 		Map.Store(sessionId, events)
 	}
 
-	events.AddServerSideHandler(event, id, handler)
+	events.AddServerSideHandler(event, "test", handler)
 }
 
 func AddHandler(ctx *h.RequestContext, event string, handler Handler) *h.AttributeMapOrdered {

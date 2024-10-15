@@ -7,6 +7,8 @@ import "./htmxextensions/mutation-error";
 import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
 import "./htmxextensions/sse"
+import "./htmxextensions/ws"
+import "./htmxextensions/ws-event-handler"
 
 // @ts-ignore
 window.htmx = htmx;
