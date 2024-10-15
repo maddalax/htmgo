@@ -1,4 +1,5 @@
-**Caching Components Globally**
+## Performance
+### Caching Components Globally
 
 You may want to cache components to improve performance. This is especially useful for components that are expensive to render 
 or make external requests for data.

@@ -1,4 +1,4 @@
-### HTMX Extensions - Mutation Error
+## HTMX Extensions - Mutation Error
 
 The `mutation-error` extension allows you to trigger an event when a request returns a >= 400 status code.
 

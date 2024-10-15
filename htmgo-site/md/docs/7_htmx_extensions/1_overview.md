@@ -1,4 +1,4 @@
-### HTMX Extensions
+## HTMX Extensions
 
 htmgo provides a few extra htmx extensions to make common tasks easier.
 Some of these extensions are optional, and some of these are required for htmgo to work correctly.

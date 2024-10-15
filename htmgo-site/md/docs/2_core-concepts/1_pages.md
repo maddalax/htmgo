@@ -1,4 +1,4 @@
-## Pages ##
+## Pages
 
 Pages are the entry point of an htmgo application. 
 

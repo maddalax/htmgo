@@ -1,4 +1,4 @@
-## Partials ##
+## Partials
 
 Partials are where things get interesting. Partials allow you to start adding interactivity to your website by swapping in content, setting headers, redirecting, etc.
 

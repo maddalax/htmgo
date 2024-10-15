@@ -1,4 +1,4 @@
-### HTMX Extensions - Trigger Children
+## HTMX Extensions - Trigger Children
 
 The `trigger-children` extension allows you to trigger an event on all children and siblings of an element.
 

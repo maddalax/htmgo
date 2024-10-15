@@ -1,4 +1,4 @@
-### Tailwind intellisense
+## Tailwind intellisense
 
 Tailwind's language server allows you to specify custom configuration on what it should match to start giving you tailwind intellisense.
 

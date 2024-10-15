@@ -1,4 +1,4 @@
-## **Introduction**
+## Introduction
 
 htmgo is a lightweight pure go way to build interactive websites / web applications using go & htmx.
 We give you the utilities to build html using pure go code in a reusable way (go functions are components) while also providing htmx functions to add interactivity to your app.

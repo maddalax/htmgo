@@ -1,4 +1,4 @@
-**Loops / Dealing With Lists**
+## Loops / Dealing With Lists
 
 Very commonly you will need to render a list or slice of items onto the page. Frameworks generally solve this in different ways, such as React uses regular JS .map function to solve it.
 
