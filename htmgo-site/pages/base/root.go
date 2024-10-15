@@ -41,11 +41,12 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 			h.Script("https://cdn.jsdelivr.net/npm/@docsearch/js@3"),
 			h.UnsafeRawScript(`
 				docsearch({
-				appId: "9IO2WZA8L1",
-				apiKey: "d8cd8b6f8f8a0c961ce971e09dbde90a",
-				indexName: "htmgo",
-				container: "#search-container",
-				debug: false
+					insights: true,
+					appId: "9IO2WZA8L1",
+					apiKey: "d8cd8b6f8f8a0c961ce971e09dbde90a",
+					indexName: "htmgo",
+					container: "#search-container",
+					debug: false
 				});
 			`),
 		),
