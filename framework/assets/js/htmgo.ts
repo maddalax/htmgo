@@ -6,8 +6,7 @@ import "./htmxextensions/response-targets";
 import "./htmxextensions/mutation-error";
 import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
-import "./htmxextensions/ws"
-import "./htmxextensions/ws-event-handler"
+import "./htmxextensions/sse"
 
 // @ts-ignore
 window.htmx = htmx;
@@ -19,7 +18,7 @@ function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
       callback(lastUrl, window.location.href);
       lastUrl = window.location.href;
     }
-  }, 100);
+  }, 101);
 }
 
 watchUrl((_, newUrl) => {

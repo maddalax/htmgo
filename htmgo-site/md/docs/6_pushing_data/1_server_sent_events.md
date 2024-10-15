@@ -1,4 +1,4 @@
-**Server Sent Events (SSE)**
+## Server Sent Events (SSE)
 
 htmgo supports server-sent events (SSE) out of the box. 
 This allows you to push data from the server to the client in real-time. 

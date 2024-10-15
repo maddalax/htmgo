@@ -11,3 +11,5 @@ require (
 	golang.org/x/sys v0.25.0
 	golang.org/x/tools v0.25.0
 )
+
+require github.com/bmatcuk/doublestar/v4 v4.7.1 // indirect

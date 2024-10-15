@@ -1,4 +1,4 @@
-**HTML Tags**
+## HTML Tags
 
 htmgo provides many methods to render html tags:
 

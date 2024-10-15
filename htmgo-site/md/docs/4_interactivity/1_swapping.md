@@ -1,4 +1,4 @@
-### Interactivity
+## Interactivity / Swapping
 
 1. Adding interactivity to your website is done through [htmx](http://htmx.org) by utilizing various attributes/headers. This should cover most use cases.
    htmgo offers utility methods to make this process a bit easier

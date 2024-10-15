@@ -1,4 +1,4 @@
-**If / Else Statements**
+## Conditional Statements
 
 If / else statements are useful when you want to conditionally render attributes or elements / components.
 

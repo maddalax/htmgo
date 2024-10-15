@@ -1,13 +1,16 @@
 name: Build and Deploy htmgo.dev
 
 on:
+  workflow_run:
+    workflows: [ "Update HTMGO Framework Dependency" ]  # The name of the first workflow
+    types:
+      - completed
   workflow_dispatch:  # Trigger on manual workflow_dispatch
   push:
     branches:
       - master         # Trigger on pushes to master
     paths:
       - 'htmgo-site/**'  # Trigger only if files in this directory change
-      - "framework/**"
       - "framework-ui/**"
       - "cli/**"
 

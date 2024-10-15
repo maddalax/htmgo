@@ -51,6 +51,7 @@ func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return l
 }
 
+// OnLoad This will work on any element because of the htmgo htmx extension to trigger it, instead of the browser.
 func OnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadDomEvent, cmd...)
 }

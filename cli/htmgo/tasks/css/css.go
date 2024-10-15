@@ -12,7 +12,7 @@ import (
 )
 
 func IsTailwindEnabled() bool {
-	return dirutil.HasFileFromRoot("tailwind.config.js")
+	return dirutil.GetConfig().Tailwind && dirutil.HasFileFromRoot("tailwind.config.js")
 }
 
 func Setup() bool {

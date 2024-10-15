@@ -1,4 +1,4 @@
-**Components**
+## Components
 
 Components are re-usable bits of logic to render HTML. Similar to how in React components are Javascript functions, in htmgo, components are pure go functions.
 

@@ -1,0 +1,52 @@
+name: Build and Deploy htmgo hackernews clone
+
+on:
+  workflow_run:
+    workflows: [ "Update HTMGO Framework Dependency" ]  # The name of the first workflow
+    types:
+      - completed
+  workflow_dispatch:  # Trigger on manual workflow_dispatch
+  push:
+    branches:
+      - master         # Trigger on pushes to master
+    paths:
+      - 'examples/hackernews/**'  # Trigger only if files in this directory change
+      - "framework-ui/**"
+      - "cli/**"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get short commit hash
+        id: vars
+        run: echo "::set-output name=short_sha::$(echo $GITHUB_SHA | cut -c1-7)"
+
+      - name: Build Docker image
+        run: |
+          cd ./examples/hackernews && docker build -t ghcr.io/${{ github.repository_owner }}/hackernews:${{ steps.vars.outputs.short_sha }} .
+
+      - name: Tag as latest Docker image
+        run: |
+          docker tag ghcr.io/${{ github.repository_owner }}/hackernews:${{ steps.vars.outputs.short_sha }} ghcr.io/${{ github.repository_owner }}/hackernews:latest
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/hackernews:latest
