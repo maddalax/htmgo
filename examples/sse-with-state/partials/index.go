@@ -1,8 +1,8 @@
 package partials
 
 import (
-	"github.com/maddalax/htmgo/extensions/ws/state"
-	"github.com/maddalax/htmgo/extensions/ws/ws"
+	"github.com/maddalax/htmgo/extensions/websocket/state"
+	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 )
 

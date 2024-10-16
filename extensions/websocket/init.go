@@ -1,8 +1,8 @@
 package websocket
 
 import (
-	"github.com/maddalax/htmgo/extensions/ws/internal/wsutil"
-	"github.com/maddalax/htmgo/extensions/ws/ws"
+	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
+	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 )

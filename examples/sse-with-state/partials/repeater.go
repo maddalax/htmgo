@@ -2,7 +2,7 @@ package partials
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/extensions/ws/ws"
+	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 )
 

@@ -2,7 +2,7 @@ package state
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/extensions/ws/internal"
+	"github.com/maddalax/htmgo/extensions/websocket/internal"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
 )
