@@ -43,6 +43,7 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 		props.Id = h.GenId(6)
 	}
 	counter := UseCounter(state.GetSessionId(ctx), props.Id)
+
 	return h.Div(
 		h.Attribute("hx-swap", "none"),
 		h.Class("flex flex-col gap-3 items-center"),

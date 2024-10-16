@@ -53,9 +53,11 @@ export function addWsEventHandlers() {
 
             ids.add(id);
             if (added.has(id)) {
+                console.debug('already added, skipping', id)
                 return;
             }
             added.add(id);
+            console.debug('adding event listener for ws send', id, event)
             element.addEventListener(event, (e) => {
                 sendWs({id, event})
             });
@@ -65,7 +67,6 @@ export function addWsEventHandlers() {
                 added.delete(id);
             }
         }
-        console.log('size', added.size)
     }
 
     register([])

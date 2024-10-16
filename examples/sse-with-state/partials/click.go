@@ -6,7 +6,7 @@ import (
 )
 
 func OnClick(ctx *h.RequestContext, handler event.Handler) *h.AttributeMapOrdered {
-	return event.AddHandler(ctx, "click", handler)
+	return event.AddClientSideHandler(ctx, "click", handler)
 }
 
 func OnServerSideEvent(ctx *h.RequestContext, eventName string, handler event.Handler) h.Ren {
@@ -15,5 +15,5 @@ func OnServerSideEvent(ctx *h.RequestContext, eventName string, handler event.Ha
 }
 
 func OnMouseOver(ctx *h.RequestContext, handler event.Handler) *h.AttributeMapOrdered {
-	return event.AddHandler(ctx, "mouseover", handler)
+	return event.AddClientSideHandler(ctx, "mouseover", handler)
 }
