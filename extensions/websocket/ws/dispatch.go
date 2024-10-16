@@ -1,4 +1,4 @@
-package event
+package ws
 
 import "github.com/maddalax/htmgo/framework/h"
 

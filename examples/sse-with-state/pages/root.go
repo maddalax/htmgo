@@ -1,8 +1,8 @@
 package pages
 
 import (
+	"github.com/maddalax/htmgo/extensions/ws/state"
 	"github.com/maddalax/htmgo/framework/h"
-	"sse-with-state/state"
 )
 
 func RootPage(ctx *h.RequestContext, children ...h.Ren) h.Ren {

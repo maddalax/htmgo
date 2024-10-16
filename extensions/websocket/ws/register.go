@@ -1,18 +1,18 @@
-package event
+package ws
 
 import (
+	"github.com/maddalax/htmgo/extensions/ws/internal/wsutil"
+	"github.com/maddalax/htmgo/extensions/ws/state"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
-	"sse-with-state/sse"
-	"sse-with-state/state"
 	"sync"
 	"sync/atomic"
 )
 
 type HandlerData struct {
 	SessionId state.SessionId
-	Socket    *sse.SocketConnection
-	Manager   *sse.SocketManager
+	Socket    *wsutil.SocketConnection
+	Manager   *wsutil.SocketManager
 }
 
 type Handler func(data HandlerData)
@@ -29,7 +29,7 @@ var sessionIdToHashes = xsync.NewMapOf[state.SessionId, map[KeyHash]bool]()
 var hashesToSessionId = xsync.NewMapOf[KeyHash, state.SessionId]()
 var serverEventNamesToHash = xsync.NewMapOf[string, map[KeyHash]bool]()
 
-var socketMessageListener = make(chan sse.SocketEvent, 100)
+var socketMessageListener = make(chan wsutil.SocketEvent, 100)
 var serverSideMessageListener = make(chan ServerSideEvent, 100)
 var lock = sync.Mutex{}
 var callingHandler = atomic.Bool{}

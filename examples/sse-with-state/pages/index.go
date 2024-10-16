@@ -2,10 +2,10 @@ package pages
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/ws/state"
+	"github.com/maddalax/htmgo/extensions/ws/ws"
 	"github.com/maddalax/htmgo/framework/h"
-	"sse-with-state/event"
 	"sse-with-state/partials"
-	"sse-with-state/state"
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
@@ -22,11 +22,11 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 
 				partials.Repeater(ctx, partials.RepeaterProps{
 					Id: "repeater-1",
-					OnAdd: func(data event.HandlerData) {
-						event.BroadcastServerSideEvent("increment", map[string]any{})
+					OnAdd: func(data ws.HandlerData) {
+						ws.BroadcastServerSideEvent("increment", map[string]any{})
 					},
-					OnRemove: func(data event.HandlerData, index int) {
-						event.BroadcastServerSideEvent("decrement", map[string]any{})
+					OnRemove: func(data ws.HandlerData, index int) {
+						ws.BroadcastServerSideEvent("decrement", map[string]any{})
 					},
 					AddButton: h.Button(
 						h.Text("+ Add Item"),

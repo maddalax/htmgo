@@ -1,4 +1,4 @@
-package sse
+package wsutil
 
 import (
 	"fmt"

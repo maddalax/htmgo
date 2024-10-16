@@ -2,9 +2,9 @@ package state
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/ws/internal"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
-	"sse-with-state/internal"
 )
 
 type SessionId string
@@ -60,4 +60,14 @@ func Set(sessionId SessionId, key string, value any) {
 		return xsync.NewMapOf[string, any]()
 	})
 	actual.Store(key, value)
+}
+
+func Use[T any](sessionId SessionId, key string, initial T) (func() T, func(T)) {
+	var get = func() T {
+		return Get[T](sessionId, key, initial)
+	}
+	var set = func(value T) {
+		Set(sessionId, key, value)
+	}
+	return get, set
 }

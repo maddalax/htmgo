@@ -1,15 +1,15 @@
-package event
+package ws
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/ws/internal/wsutil"
+	"github.com/maddalax/htmgo/extensions/ws/state"
 	"github.com/maddalax/htmgo/framework/service"
-	"sse-with-state/sse"
-	"sse-with-state/state"
 	"time"
 )
 
 func StartListener(locator *service.Locator) {
-	manager := service.Get[sse.SocketManager](locator)
+	manager := service.Get[wsutil.SocketManager](locator)
 	manager.Listen(socketMessageListener)
 	handler := NewMessageHandler(manager)
 
@@ -29,9 +29,9 @@ func StartListener(locator *service.Locator) {
 				handler.OnServerSideEvent(event)
 			case event := <-socketMessageListener:
 				switch event.Type {
-				case sse.DisconnectedEvent:
+				case wsutil.DisconnectedEvent:
 					handler.OnSocketDisconnected(event)
-				case sse.MessageEvent:
+				case wsutil.MessageEvent:
 					handlerId := event.Payload["id"].(string)
 					eventName := event.Payload["event"].(string)
 					sessionId := state.SessionId(event.SessionId)

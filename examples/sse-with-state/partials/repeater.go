@@ -2,8 +2,8 @@ package partials
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/ws/ws"
 	"github.com/maddalax/htmgo/framework/h"
-	"sse-with-state/event"
 )
 
 type RepeaterProps struct {
@@ -13,8 +13,8 @@ type RepeaterProps struct {
 	DefaultItems []*h.Element
 	Id           string
 	currentIndex int
-	OnAdd        func(data event.HandlerData)
-	OnRemove     func(data event.HandlerData, index int)
+	OnAdd        func(data ws.HandlerData)
+	OnRemove     func(data ws.HandlerData, index int)
 }
 
 func (props *RepeaterProps) itemId(index int) string {
@@ -34,10 +34,10 @@ func repeaterItem(ctx *h.RequestContext, item *h.Element, index int, props *Repe
 		props.RemoveButton(index,
 			h.ClassIf(index == 0, "opacity-0 disabled"),
 			h.If(index == 0, h.Disabled()),
-			OnClick(ctx, func(data event.HandlerData) {
+			ws.OnClick(ctx, func(data ws.HandlerData) {
 				props.OnRemove(data, index)
 				props.currentIndex--
-				event.PushElement(data,
+				ws.PushElement(data,
 					h.Div(
 						h.Attribute("hx-swap-oob", fmt.Sprintf("delete:#%s", id)),
 						h.Div(),
@@ -61,9 +61,9 @@ func Repeater(ctx *h.RequestContext, props RepeaterProps) *h.Element {
 			h.Id(props.addButtonId()),
 			h.Class("flex justify-center"),
 			props.AddButton,
-			OnClick(ctx, func(data event.HandlerData) {
+			ws.OnClick(ctx, func(data ws.HandlerData) {
 				props.OnAdd(data)
-				event.PushElement(data,
+				ws.PushElement(data,
 					h.Div(
 						h.Attribute("hx-swap-oob", "beforebegin:#"+props.addButtonId()),
 						repeaterItem(
