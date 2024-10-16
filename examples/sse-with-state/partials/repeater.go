@@ -13,6 +13,8 @@ type RepeaterProps struct {
 	DefaultItems []*h.Element
 	Id           string
 	currentIndex int
+	OnAdd        func(data event.HandlerData)
+	OnRemove     func(data event.HandlerData, index int)
 }
 
 func (props *RepeaterProps) itemId(index int) string {
@@ -33,6 +35,7 @@ func repeaterItem(ctx *h.RequestContext, item *h.Element, index int, props *Repe
 			h.ClassIf(index == 0, "opacity-0 disabled"),
 			h.If(index == 0, h.Disabled()),
 			OnClick(ctx, func(data event.HandlerData) {
+				props.OnRemove(data, index)
 				props.currentIndex--
 				event.PushElement(data,
 					h.Div(
@@ -59,7 +62,7 @@ func Repeater(ctx *h.RequestContext, props RepeaterProps) *h.Element {
 			h.Class("flex justify-center"),
 			props.AddButton,
 			OnClick(ctx, func(data event.HandlerData) {
-				event.PushServerSideEvent(data.SessionId, "increment")
+				props.OnAdd(data)
 				event.PushElement(data,
 					h.Div(
 						h.Attribute("hx-swap-oob", "beforebegin:#"+props.addButtonId()),

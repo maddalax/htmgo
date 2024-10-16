@@ -19,6 +19,7 @@ func UseState[T any](sessionId state.SessionId, key string, initial T) (func() T
 type Counter struct {
 	Count     func() int
 	Increment func()
+	Decrement func()
 }
 
 func UseCounter(sessionId state.SessionId, id string) Counter {
@@ -28,9 +29,14 @@ func UseCounter(sessionId state.SessionId, id string) Counter {
 		set(get() + 1)
 	}
 
+	var decrement = func() {
+		set(get() - 1)
+	}
+
 	return Counter{
 		Count:     get,
 		Increment: increment,
+		Decrement: decrement,
 	}
 }
 
@@ -66,16 +72,10 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 				counter.Increment()
 				event.PushElement(data, CounterForm(ctx, props))
 			}),
-			//OnMouseOver(ctx, func(data event.HandlerData) {
-			//	counter.Increment()
-			//	updated := CounterForm(ctx, props)
-			//	event.PushElement(data, updated)
-			//}),
-			//OnClick(ctx, func(data event.HandlerData) {
-			//	counter.Increment()
-			//	updated := CounterForm(ctx, props)
-			//	event.PushElement(data, updated)
-			//}),
+			OnServerSideEvent(ctx, "decrement", func(data event.HandlerData) {
+				counter.Decrement()
+				event.PushElement(data, CounterForm(ctx, props))
+			}),
 		),
 	)
 }
