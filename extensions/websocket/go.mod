@@ -1,4 +1,4 @@
-module github.com/maddalax/htmgo/extensions/ws
+module github.com/maddalax/htmgo/extensions/websocket
 
 go 1.23.0
 
