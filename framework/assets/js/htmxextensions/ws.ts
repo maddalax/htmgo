@@ -1,6 +1,5 @@
 import htmx from 'htmx.org'
 import {removeAssociatedScripts} from "./htmgo";
-import {addWsEventHandlers} from "./ws-event-handler";
 
 let api : any = null;
 let processed = new Set<string>()
