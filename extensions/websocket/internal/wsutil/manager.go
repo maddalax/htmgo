@@ -2,6 +2,7 @@ package wsutil
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/websocket/opts"
 	"github.com/puzpuzpuz/xsync/v3"
 	"strings"
 	"time"
@@ -40,12 +41,14 @@ type SocketManager struct {
 	sockets   *xsync.MapOf[string, *xsync.MapOf[string, SocketConnection]]
 	idToRoom  *xsync.MapOf[string, string]
 	listeners []chan SocketEvent
+	opts      *opts.ExtensionOpts
 }
 
-func NewSocketManager() *SocketManager {
+func NewSocketManager(opts *opts.ExtensionOpts) *SocketManager {
 	return &SocketManager{
 		sockets:  xsync.NewMapOf[string, *xsync.MapOf[string, SocketConnection]](),
 		idToRoom: xsync.NewMapOf[string, string](),
+		opts:     opts,
 	}
 }
 

@@ -1,9 +1,9 @@
 package partials
 
 import (
-	"github.com/maddalax/htmgo/extensions/websocket/state"
 	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/session"
 )
 
 type Counter struct {
@@ -12,8 +12,8 @@ type Counter struct {
 	Decrement func()
 }
 
-func UseCounter(sessionId state.SessionId, id string) Counter {
-	get, set := state.Use(sessionId, id, 0)
+func UseCounter(sessionId session.Id, id string) Counter {
+	get, set := session.UseState(sessionId, id, 0)
 
 	var increment = func() {
 		set(get() + 1)
@@ -38,7 +38,7 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 	if props.Id == "" {
 		props.Id = h.GenId(6)
 	}
-	counter := UseCounter(state.GetSessionId(ctx), props.Id)
+	counter := UseCounter(session.GetSessionId(ctx), props.Id)
 
 	return h.Div(
 		h.Attribute("hx-swap", "none"),

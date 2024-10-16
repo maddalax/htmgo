@@ -1,18 +1,17 @@
-package state
+package session
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/extensions/websocket/internal"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
 )
 
-type SessionId string
+type Id string
 
-var cache = xsync.NewMapOf[SessionId, *xsync.MapOf[string, any]]()
+var cache = xsync.NewMapOf[Id, *xsync.MapOf[string, any]]()
 
 type State struct {
-	SessionId SessionId
+	SessionId Id
 }
 
 func NewState(ctx *h.RequestContext) *State {
@@ -23,28 +22,28 @@ func NewState(ctx *h.RequestContext) *State {
 	}
 }
 
-func GetSessionId(ctx *h.RequestContext) SessionId {
+func GetSessionId(ctx *h.RequestContext) Id {
 	sessionIdRaw := ctx.Get("session-id")
 	sessionId := ""
 
 	if sessionIdRaw == "" || sessionIdRaw == nil {
-		sessionId = fmt.Sprintf("session-id-%s", internal.RandSeq(30))
+		sessionId = fmt.Sprintf("session-id-%s", h.GenId(30))
 		ctx.Set("session-id", sessionId)
 	} else {
 		sessionId = sessionIdRaw.(string)
 	}
 
-	return SessionId(sessionId)
+	return Id(sessionId)
 }
 
-func Update[T any](sessionId SessionId, key string, compute func(prev T) T) T {
+func Update[T any](sessionId Id, key string, compute func(prev T) T) T {
 	actual := Get[T](sessionId, key, *new(T))
 	next := compute(actual)
 	Set(sessionId, key, next)
 	return next
 }
 
-func Get[T any](sessionId SessionId, key string, fallback T) T {
+func Get[T any](sessionId Id, key string, fallback T) T {
 	actual, _ := cache.LoadOrCompute(sessionId, func() *xsync.MapOf[string, any] {
 		return xsync.NewMapOf[string, any]()
 	})
@@ -55,14 +54,14 @@ func Get[T any](sessionId SessionId, key string, fallback T) T {
 	return fallback
 }
 
-func Set(sessionId SessionId, key string, value any) {
+func Set(sessionId Id, key string, value any) {
 	actual, _ := cache.LoadOrCompute(sessionId, func() *xsync.MapOf[string, any] {
 		return xsync.NewMapOf[string, any]()
 	})
 	actual.Store(key, value)
 }
 
-func Use[T any](sessionId SessionId, key string, initial T) (func() T, func(T)) {
+func UseState[T any](sessionId Id, key string, initial T) (func() T, func(T)) {
 	var get = func() T {
 		return Get[T](sessionId, key, initial)
 	}

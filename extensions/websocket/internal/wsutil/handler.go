@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
+	ws2 "github.com/maddalax/htmgo/extensions/websocket/opts"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
@@ -13,13 +14,13 @@ import (
 	"time"
 )
 
-func WsHttpHandler() http.HandlerFunc {
+func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 		locator := cc.ServiceLocator()
 		manager := service.Get[SocketManager](locator)
 
-		sessionId := r.URL.Query().Get("sessionId")
+		sessionId := opts.SessionId(cc)
 
 		if sessionId == "" {
 			w.WriteHeader(http.StatusUnauthorized)

@@ -3,7 +3,7 @@ package ws
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
-	"github.com/maddalax/htmgo/extensions/websocket/state"
+	"github.com/maddalax/htmgo/framework/session"
 	"sync"
 )
 
@@ -62,7 +62,7 @@ func (h *MessageHandler) OnServerSideEvent(e ServerSideEvent) {
 	}
 }
 
-func (h *MessageHandler) OnClientSideEvent(handlerId string, sessionId state.SessionId) {
+func (h *MessageHandler) OnClientSideEvent(handlerId string, sessionId session.Id) {
 	cb, ok := handlers.Load(handlerId)
 	if ok {
 		cb(HandlerData{
@@ -78,7 +78,7 @@ func (h *MessageHandler) OnDomElementRemoved(handlerId string) {
 }
 
 func (h *MessageHandler) OnSocketDisconnected(event wsutil.SocketEvent) {
-	sessionId := state.SessionId(event.SessionId)
+	sessionId := session.Id(event.SessionId)
 	hashes, ok := sessionIdToHashes.Load(sessionId)
 	if ok {
 		for hash := range hashes {

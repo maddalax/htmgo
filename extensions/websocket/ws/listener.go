@@ -3,8 +3,8 @@ package ws
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
-	"github.com/maddalax/htmgo/extensions/websocket/state"
 	"github.com/maddalax/htmgo/framework/service"
+	"github.com/maddalax/htmgo/framework/session"
 	"time"
 )
 
@@ -34,7 +34,7 @@ func StartListener(locator *service.Locator) {
 				case wsutil.MessageEvent:
 					handlerId := event.Payload["id"].(string)
 					eventName := event.Payload["event"].(string)
-					sessionId := state.SessionId(event.SessionId)
+					sessionId := session.Id(event.SessionId)
 					if eventName == "dom-element-removed" {
 						handler.OnDomElementRemoved(handlerId)
 						continue

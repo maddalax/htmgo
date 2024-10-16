@@ -1,12 +1,12 @@
 package pages
 
 import (
-	"github.com/maddalax/htmgo/extensions/websocket/state"
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/session"
 )
 
 func RootPage(ctx *h.RequestContext, children ...h.Ren) h.Ren {
-	s := state.NewState(ctx)
+	s := session.NewState(ctx)
 	return h.Html(
 		h.Attribute("data-session-id", string(s.SessionId)),
 		h.HxExtension(h.BaseExtensions()),

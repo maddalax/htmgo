@@ -2,19 +2,19 @@ package pages
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/extensions/websocket/state"
 	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/session"
 	"sse-with-state/partials"
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
-	sessionId := state.GetSessionId(ctx)
+	sessionId := session.GetSessionId(ctx)
 	return h.NewPage(
 		RootPage(
 			ctx,
 			h.Div(
-				h.Attribute("ws-connect", fmt.Sprintf("/ws/test?sessionId=%s", sessionId)),
+				h.Attribute("ws-connect", fmt.Sprintf("/ws?sessionId=%s", sessionId)),
 				h.Class("flex flex-col gap-4 items-center pt-24 min-h-screen bg-neutral-100"),
 				h.H3(h.Id("intro-text"), h.Text("Repeater Example"), h.Class("text-2xl")),
 
