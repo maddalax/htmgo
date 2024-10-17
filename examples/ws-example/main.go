@@ -7,7 +7,7 @@ import (
 	"github.com/maddalax/htmgo/framework/service"
 	"io/fs"
 	"net/http"
-	"sse-with-state/__htmgo"
+	"ws-example/__htmgo"
 )
 
 func main() {

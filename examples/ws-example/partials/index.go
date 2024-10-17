@@ -12,7 +12,8 @@ type Counter struct {
 	Decrement func()
 }
 
-func UseCounter(sessionId session.Id, id string) Counter {
+func UseCounter(ctx *h.RequestContext, id string) Counter {
+	sessionId := session.GetSessionId(ctx)
 	get, set := session.UseState(sessionId, id, 0)
 
 	var increment = func() {
@@ -38,7 +39,7 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 	if props.Id == "" {
 		props.Id = h.GenId(6)
 	}
-	counter := UseCounter(session.GetSessionId(ctx), props.Id)
+	counter := UseCounter(ctx, props.Id)
 
 	return h.Div(
 		h.Attribute("hx-swap", "none"),

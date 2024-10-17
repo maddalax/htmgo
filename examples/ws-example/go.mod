@@ -1,4 +1,4 @@
-module sse-with-state
+module ws-example
 
 go 1.23.0
 

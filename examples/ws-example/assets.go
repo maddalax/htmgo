@@ -5,7 +5,7 @@ package main
 
 import (
 	"io/fs"
-	"sse-with-state/internal/embedded"
+	"ws-example/internal/embedded"
 )
 
 func GetStaticAssets() fs.FS {

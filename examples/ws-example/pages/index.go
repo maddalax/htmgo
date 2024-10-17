@@ -5,7 +5,7 @@ import (
 	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/session"
-	"sse-with-state/partials"
+	"ws-example/partials"
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
