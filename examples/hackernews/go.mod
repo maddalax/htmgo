@@ -2,7 +2,7 @@ module hackernews
 
 go 1.23.0
 
-require github.com/maddalax/htmgo/framework v0.0.0-20241014151703-8503dffa4e7d
+require github.com/maddalax/htmgo/framework v0.0.0-20241017151008-2f0a5262450b
 
 require (
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
