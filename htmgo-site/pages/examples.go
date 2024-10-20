@@ -15,6 +15,13 @@ type Example struct {
 
 var examples = []Example{
 	{
+		Title:       "User Authentication Example",
+		Github:      "https://github.com/maddalax/htmgo/tree/master/examples/simple-auth",
+		Description: "An example showing basic user registration and login with htmgo",
+		Demo:        "https://auth-example.htmgo.dev",
+		Image:       "public/auth-example.jpg",
+	},
+	{
 		Title:       "Hacker News Clone",
 		Github:      "https://github.com/maddalax/htmgo/tree/master/examples/hackernews",
 		Description: "A hacker news reader clone built with htmgo",
