@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"chat/components"
 	"github.com/maddalax/htmgo/framework/h"
 )
 
@@ -25,7 +24,7 @@ func CenteredForm(props CenteredFormProps) *h.Element {
 				h.Class("flex flex-col gap-4"),
 				h.Children(props.Children...),
 				// Error message
-				components.FormError(""),
+				FormError(""),
 				// Submit button at the bottom
 				SubmitButton(props.SubmitText),
 			),
