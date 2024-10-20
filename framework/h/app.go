@@ -33,6 +33,21 @@ func GetRequestContext(r *http.Request) *RequestContext {
 	return r.Context().Value(RequestContextKey).(*RequestContext)
 }
 
+func (c *RequestContext) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(c.Response, cookie)
+}
+
+func (c *RequestContext) Redirect(path string, code int) {
+	if code == 0 {
+		code = http.StatusTemporaryRedirect
+	}
+	if code < 300 || code > 399 {
+		code = http.StatusTemporaryRedirect
+	}
+	c.Response.Header().Set("Location", path)
+	c.Response.WriteHeader(code)
+}
+
 func (c *RequestContext) IsHttpPost() bool {
 	return c.Request.Method == http.MethodPost
 }

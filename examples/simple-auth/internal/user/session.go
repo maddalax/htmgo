@@ -68,7 +68,7 @@ func WriteSessionCookie(ctx *h.RequestContext, session CreatedSession) {
 		Expires:  session.Expiration,
 		Path:     "/",
 	}
-	ctx.Response.Header().Add("Set-Cookie", cookie.String())
+	ctx.SetCookie(&cookie)
 }
 
 func GenerateSessionID() (string, error) {

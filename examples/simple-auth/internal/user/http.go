@@ -9,8 +9,7 @@ func GetUserOrRedirect(ctx *h.RequestContext) (db.User, bool) {
 	user, err := GetUserFromSession(ctx)
 
 	if err != nil {
-		ctx.Response.Header().Set("Location", "/login")
-		ctx.Response.WriteHeader(302)
+		ctx.Redirect("/login", 302)
 		return db.User{}, false
 	}
 
