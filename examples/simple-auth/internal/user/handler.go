@@ -26,9 +26,6 @@ type CreatedUser struct {
 }
 
 func Create(ctx *h.RequestContext, request CreateUserRequest) (int64, error) {
-
-	fmt.Printf("%+v\n", request)
-
 	if len(request.Password) < 6 {
 		return 0, errors.New("password must be at least 6 characters long")
 	}
