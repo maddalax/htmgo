@@ -33,4 +33,4 @@ EXPOSE 3000
 
 
 # Command to run the binary
-CMD ["./simple-auth"]
+CMD ["./simpleauth"]
