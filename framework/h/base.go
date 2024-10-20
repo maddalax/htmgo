@@ -23,6 +23,10 @@ func NewPage(root Ren) *Page {
 	}
 }
 
+func EmptyPage() *Page {
+	return NewPage(Fragment())
+}
+
 func NewPageWithHttpMethod(httpMethod string, root *Element) *Page {
 	return &Page{
 		HttpMethod: httpMethod,

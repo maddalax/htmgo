@@ -33,6 +33,22 @@ func GetRequestContext(r *http.Request) *RequestContext {
 	return r.Context().Value(RequestContextKey).(*RequestContext)
 }
 
+func (c *RequestContext) IsHttpPost() bool {
+	return c.Request.Method == http.MethodPost
+}
+
+func (c *RequestContext) IsHttpGet() bool {
+	return c.Request.Method == http.MethodGet
+}
+
+func (c *RequestContext) IsHttpPut() bool {
+	return c.Request.Method == http.MethodPut
+}
+
+func (c *RequestContext) IsHttpDelete() bool {
+	return c.Request.Method == http.MethodDelete
+}
+
 func (c *RequestContext) FormValue(key string) string {
 	return c.Request.FormValue(key)
 }
@@ -210,16 +226,27 @@ func (app *App) start() {
 }
 
 func writeHtml(w http.ResponseWriter, element Ren) error {
+	if element == nil {
+		return nil
+	}
 	w.Header().Set("Content-Type", "text/html")
 	_, err := fmt.Fprint(w, Render(element))
 	return err
 }
 
 func HtmlView(w http.ResponseWriter, page *Page) error {
+	// if the page is nil, do nothing, this can happen if custom response is written, such as a 302 redirect
+	if page == nil {
+		return nil
+	}
 	return writeHtml(w, page.Root)
 }
 
 func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)
@@ -236,6 +263,10 @@ func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Pa
 }
 
 func PartialView(w http.ResponseWriter, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)
