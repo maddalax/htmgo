@@ -30,7 +30,6 @@ func validateCommands(cmds []Command) {
 			panic(fmt.Sprintf("element is not allowed in lifecycle events. Got: %v", t))
 		default:
 			panic(fmt.Sprintf("type is not allowed in lifecycle events. Got: %v", t))
-
 		}
 	}
 }

@@ -41,6 +41,38 @@ func TestShouldNotSetTailwindTrue(t *testing.T) {
 	assert.Equal(t, 8, len(cfg.WatchFiles))
 }
 
+func TestShouldPrefixAutomaticPageRoutingIgnore(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultProjectConfig()
+	cfg.AutomaticPageRoutingIgnore = []string{"somefile"}
+	cfg.Enhance()
+	assert.Equal(t, []string{"pages/somefile"}, cfg.AutomaticPageRoutingIgnore)
+}
+
+func TestShouldPrefixAutomaticPageRoutingIgnore_1(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultProjectConfig()
+	cfg.AutomaticPageRoutingIgnore = []string{"pages/somefile/*"}
+	cfg.Enhance()
+	assert.Equal(t, []string{"pages/somefile/*"}, cfg.AutomaticPageRoutingIgnore)
+}
+
+func TestShouldPrefixAutomaticPartialRoutingIgnore(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultProjectConfig()
+	cfg.AutomaticPartialRoutingIgnore = []string{"somefile/*"}
+	cfg.Enhance()
+	assert.Equal(t, []string{"partials/somefile/*"}, cfg.AutomaticPartialRoutingIgnore)
+}
+
+func TestShouldPrefixAutomaticPartialRoutingIgnore_1(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultProjectConfig()
+	cfg.AutomaticPartialRoutingIgnore = []string{"partials/somefile/*"}
+	cfg.Enhance()
+	assert.Equal(t, []string{"partials/somefile/*"}, cfg.AutomaticPartialRoutingIgnore)
+}
+
 func writeConfigFile(t *testing.T, content string) string {
 	temp := os.TempDir()
 	os.Mkdir(temp, 0755)

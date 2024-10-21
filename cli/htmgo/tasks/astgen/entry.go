@@ -2,7 +2,9 @@ package astgen
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/h"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -24,6 +26,7 @@ type Partial struct {
 	FuncName string
 	Package  string
 	Import   string
+	Path     string
 }
 
 const GeneratedDirName = "__htmgo"
@@ -103,6 +106,7 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 										if selectorExpr.Sel.Name == "Partial" {
 											p := Partial{
 												Package:  node.Name.Name,
+												Path:     sliceCommonPrefix(cwd, path),
 												Import:   sliceCommonPrefix(cwd, strings.ReplaceAll(filepath.Dir(path), `\`, `/`)),
 												FuncName: funcDecl.Name.Name,
 											}
@@ -254,10 +258,16 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 }
 
 func writePartialsFile() {
+	config := dirutil.GetConfig()
+
 	cwd := process.GetWorkingDir()
 	partialPath := filepath.Join(cwd, "partials")
 	partials, err := findPublicFuncsReturningHPartial(partialPath, func(partial Partial) bool {
 		return partial.FuncName != "GetPartialFromContext"
+	})
+
+	partials = h.Filter(partials, func(partial Partial) bool {
+		return !dirutil.IsGlobExclude(partial.Path, config.AutomaticPartialRoutingIgnore)
 	})
 
 	if err != nil {
@@ -317,6 +327,7 @@ func formatRoute(path string) string {
 }
 
 func writePagesFile() {
+	config := dirutil.GetConfig()
 
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(GeneratedFileLine)
@@ -325,6 +336,10 @@ func writePagesFile() {
 	builder.AddImport(ChiModuleName)
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
+
+	pages = h.Filter(pages, func(page Page) bool {
+		return !dirutil.IsGlobExclude(page.Path, config.AutomaticPageRoutingIgnore)
+	})
 
 	if len(pages) > 0 {
 		builder.AddImport(ModuleName)
