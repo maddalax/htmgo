@@ -30,7 +30,7 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 
 Most web applications can be built with htmgo, including but not limited to:
 
-- Traditional business CRUD applications
+- traditional business CRUD applications
 - blogs 
 - documentation sites
 - consumer facing websites 
