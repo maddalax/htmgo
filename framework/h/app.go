@@ -213,7 +213,7 @@ func (app *App) start() {
 	}
 
 	port := ":3000"
-	slog.Info(fmt.Sprintf("Server started at localhost:%s", port))
+	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
 	err := http.ListenAndServe(port, app.Router)
 
 	if err != nil {
