@@ -75,12 +75,12 @@ func Star(ctx *h.RequestContext) *h.Element {
 }
 
 func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
-	prelease := h.If(props.ShowPreRelease, h.A(
-		h.Class("bg-yellow-200 text-yellow-800 text-center p-2 flex items-center justify-center"),
-		h.Href("https://github.com/maddalax/htmgo/issues"),
-		h.Attribute("target", "_blank"),
-		h.Text("htmgo is in alpha release. Please report any issues on GitHub."),
-	))
+	//prelease := h.If(props.ShowPreRelease, h.A(
+	//	h.Class("bg-blue-200 text-blue-700 text-center p-2 flex items-center justify-center"),
+	//	h.Href("https://github.com/maddalax/htmgo/issues"),
+	//	h.Attribute("target", "_blank"),
+	//	h.Text("htmgo."),
+	//))
 
 	desktopNav := h.Nav(
 		h.Class("hidden sm:block bg-neutral-100 border border-b-slate-300 p-4 md:p-3 max-h-[100vh - 9rem] overflow-y-auto"),
@@ -118,7 +118,7 @@ func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
 
 	return h.Div(
 		h.Id("navbar"),
-		prelease,
+		//prelease,
 		MobileNav(ctx, props.Expanded),
 		desktopNav,
 	)
