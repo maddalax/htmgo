@@ -90,9 +90,7 @@ func Checked() Ren {
 }
 
 func Id(value string) Ren {
-	if strings.HasPrefix(value, "#") {
-		value = value[1:]
-	}
+	value = strings.TrimPrefix(value, "#")
 	return Attribute("id", value)
 }
 
