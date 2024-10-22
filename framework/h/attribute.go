@@ -192,7 +192,7 @@ func Class(value ...string) *AttributeR {
 	return Attribute("class", MergeClasses(value...))
 }
 
-func Classf(format string, args ...interface{}) *AttributeR {
+func ClassF(format string, args ...interface{}) *AttributeR {
 	atr := fmt.Sprintf(format, args...)
 	return Attribute("class", atr)
 }
