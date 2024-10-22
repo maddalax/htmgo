@@ -3,9 +3,6 @@ package h
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,6 +10,10 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/service"
 )
 
 type RequestContext struct {
@@ -214,9 +215,8 @@ func (app *App) start() {
 
 	port := ":3000"
 	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
-	err := http.ListenAndServe(port, app.Router)
 
-	if err != nil {
+	if err := http.ListenAndServe(port, app.Router); err != nil {
 		// If we are in watch mode, just try to kill any processes holding that port
 		// and try again
 		if IsDevelopment() && IsWatchMode() {
@@ -228,14 +228,16 @@ func (app *App) start() {
 				cmd := exec.Command("bash", "-c", fmt.Sprintf("kill -9 $(lsof -ti%s)", port))
 				cmd.Run()
 			}
+
 			time.Sleep(time.Millisecond * 50)
-			err = http.ListenAndServe(":3000", app.Router)
-			if err != nil {
+
+			// Try to start server again
+			if err := http.ListenAndServe(port, app.Router); err != nil {
+				slog.Error("Failed to restart server", "error", err)
 				panic(err)
 			}
-		} else {
-			panic(err)
 		}
+
 		panic(err)
 	}
 }
