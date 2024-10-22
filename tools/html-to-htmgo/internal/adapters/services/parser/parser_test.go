@@ -22,12 +22,12 @@ func FuzzFromBytes(f *testing.F) {
 		if err != nil {
 			return
 		}
-		if err != nil && !isExpectedError(err) {
+		if !isExpectedError(err) {
 			t.Errorf("Unexpected error: %v", err)
 		}
 	})
 }
 
 func isExpectedError(err error) bool {
-	return err != nil && errors.Is(err, ParseErr)
+	return err != nil && errors.Is(err, ErrParse)
 }

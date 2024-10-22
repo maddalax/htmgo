@@ -4,20 +4,21 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/maddalax/htmgo/tools/html-to-htmgo/internal/domain"
 	"golang.org/x/net/html"
-	"strings"
 )
 
 type Parser struct {
 }
 
-var ParseErr = errors.New("parse error")
+var ErrParse = errors.New("parse error")
 
 func (p Parser) FromBytes(in []byte) (*domain.CustomNode, error) {
 	hNode, err := html.Parse(bytes.NewReader(in))
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ParseErr, err)
+		return nil, fmt.Errorf("%w: %v", ErrParse, err)
 	}
 	var findBody func(n *html.Node) *html.Node
 	findBody = func(n *html.Node) *html.Node {
@@ -33,7 +34,7 @@ func (p Parser) FromBytes(in []byte) (*domain.CustomNode, error) {
 
 	body := findBody(hNode)
 	if body == nil {
-		return nil, fmt.Errorf("%w", ParseErr)
+		return nil, fmt.Errorf("%w", ErrParse)
 	}
 
 	var f func(*html.Node, *domain.CustomNode) *domain.CustomNode
