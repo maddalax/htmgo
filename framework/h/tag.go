@@ -268,9 +268,7 @@ func TagF(tag string, format string, args ...interface{}) *Element {
 		case *AttributeMapOrdered:
 			children = append(children, d)
 		case *ChildList:
-			for _, child := range d.Children {
-				children = append(children, child)
-			}
+			children = append(children, d.Children...)
 		case *AttributeR:
 			children = append(children, d)
 		default:
