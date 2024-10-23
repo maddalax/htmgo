@@ -10,6 +10,7 @@ type Lifecycle = string
 
 var (
 	Singleton Lifecycle = "singleton"
+	Transient Lifecycle = "transient"
 )
 
 type Provider struct {
@@ -33,6 +34,10 @@ func NewLocator() *Locator {
 
 func (l *Locator) setCache(key string, value any) {
 	l.cache[key] = value
+}
+
+func (l *Locator) clearCache(key string) {
+	delete(l.cache, key)
 }
 
 func (l *Locator) getCache(key string) any {
@@ -68,10 +73,12 @@ func Get[T any](locator *Locator) *T {
 func Set[T any](locator *Locator, lifecycle Lifecycle, value func() *T) {
 	t := reflect.TypeOf(value)
 	rt := t.Out(0)
-	locator.services[rt.String()] = Provider{
+	key := rt.String()
+	locator.services[key] = Provider{
 		cb: func() any {
 			return value()
 		},
 		lifecycle: lifecycle,
 	}
+	locator.clearCache(key)
 }
