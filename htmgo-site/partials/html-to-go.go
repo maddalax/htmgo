@@ -17,7 +17,7 @@ func ConvertHtmlToGo(ctx *h.RequestContext) *h.Partial {
 
 func HtmlInput() *h.Element {
 	return h.Div(
-		h.Class("h-[90%] w-1/2 min-w-1/2"),
+		h.Class("h-full w-1/2 min-w-1/2"),
 		h.TextArea(
 			h.Name("html-input"),
 			h.MaxLength(500*1000),
@@ -31,7 +31,7 @@ func HtmlInput() *h.Element {
 
 func GoOutput(content string) *h.Element {
 	return h.Div(
-		h.Class("h-[90%] w-1/2 min-w-1/2"),
+		h.Class("h-full w-1/2 min-w-1/2"),
 		h.Id("go-output"),
 		h.Div(
 			h.Class("h-[90%] w-full rounded border border-slate-200"),
