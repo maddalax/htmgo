@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+func TestRendererShouldRenderDocType(t *testing.T) {
+	t.Parallel()
+	result := Render(Html(
+		Div(),
+	), WithDocType())
+	assert.Equal(t, `<!DOCTYPE html><html><div></div></html>`, result)
+}
+
 func TestSimpleRender(t *testing.T) {
 	t.Parallel()
 	result := Render(
