@@ -14,7 +14,7 @@ func NewQs(pairs ...string) *Qs {
 		m: make(map[string]string),
 	}
 	if len(pairs)%2 != 0 {
-		return q
+		pairs = append(pairs, "")
 	}
 	for i := 0; i < len(pairs); i++ {
 		q.m[pairs[i]] = pairs[i+1]
@@ -38,8 +38,10 @@ func (q *Qs) ToString() string {
 	index := 0
 	for k, v := range q.m {
 		builder.WriteString(k)
-		builder.WriteString("=")
-		builder.WriteString(v)
+		if v != "" {
+			builder.WriteString("=")
+			builder.WriteString(v)
+		}
 		if index < len(q.m)-1 {
 			builder.WriteString("&")
 		}
