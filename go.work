@@ -1,0 +1,14 @@
+go 1.23.0
+
+use (
+	cli/htmgo
+	examples/todo-list
+	framework
+	framework-ui
+	htmgo-site
+	templates/starter
+	examples/chat
+	examples/hackernews
+	tools/html-to-htmgo
+	examples/simple-auth
+)
