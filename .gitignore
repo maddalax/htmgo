@@ -4,6 +4,7 @@ node_modules/
 dist/
 js/dist
 js/node_modules
+go.work
 go.work.sum
 .idea
 !framework/assets/dist
