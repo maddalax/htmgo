@@ -19,7 +19,7 @@ func ReplaceTextInFile(file string, text string, replacement string) error {
 
 func ReplaceTextInDirRecursive(dir string, text string, replacement string, filter func(file string) bool) error {
 	return filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if filter(path) {
+		if filter(filepath.Base(path)) {
 			_ = ReplaceTextInFile(path, text, replacement)
 		}
 		return nil
