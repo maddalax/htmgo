@@ -9,10 +9,14 @@ import (
 	"os"
 )
 
-func Build() {
+func MakeBuildable() {
 	copyassets.CopyAssets()
 	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
+}
+
+func Build() {
+	MakeBuildable()
 
 	process.RunOrExit(process.NewRawCommand("", "mkdir -p ./dist"))
 

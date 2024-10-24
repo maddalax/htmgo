@@ -106,8 +106,7 @@ func main() {
 		} else if taskName == "ast" {
 			_ = astgen.GenAst(process.ExitOnError)
 		} else if taskName == "run" {
-			_ = astgen.GenAst(process.ExitOnError)
-			_ = css.GenerateCss(process.ExitOnError)
+			run.MakeBuildable()
 			_ = run.Server(process.ExitOnError)
 		} else if taskName == "template" {
 			name := ""
