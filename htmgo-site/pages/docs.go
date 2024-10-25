@@ -31,11 +31,11 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 						h.Class("w-full md:hidden bg-neutral-50 overflow-y-auto"),
 						partials.DocSidebar(pages),
 					),
-					h.Class("overflow-y-auto justify-center md:mx-auto overflow-x-hidden pb-6"),
+					h.Class("overflow-y-auto justify-center overflow-x-hidden pb-6 items-center w-full"),
 					h.Div(
-						h.Class("flex flex-col"),
+						h.Class("flex flex-col mx-auto"),
 						h.Div(
-							h.Class("flex flex-col justify-center items-center md:mt-6 "),
+							h.Class("flex flex-col justify-center items-center md:mt-6 mx-auto"),
 							h.List(pages, func(page *dirwalk.Page, index int) *h.Element {
 								anchor := partials.CreateAnchor(page.Parts)
 								return h.Div(

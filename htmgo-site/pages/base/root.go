@@ -38,7 +38,7 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 			`),
 		),
 		h.Body(
-			h.Class("bg-stone-50 h-screen"),
+			h.Class("bg-white h-screen"),
 			h.Fragment(children...),
 			h.Script("https://cdn.jsdelivr.net/npm/@docsearch/js@3"),
 			h.UnsafeRawScript(`
