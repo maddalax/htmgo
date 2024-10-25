@@ -3,7 +3,7 @@ module simpleauth
 go 1.23.0
 
 require (
-	github.com/maddalax/htmgo/framework v1.0.2-0.20241025153348-8736c00fd562
+	github.com/maddalax/htmgo/framework v1.0.2-0.20241025161122-e2939cd8ba8e
 	github.com/mattn/go-sqlite3 v1.14.24
 	golang.org/x/crypto v0.28.0
 )
