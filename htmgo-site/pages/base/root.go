@@ -13,7 +13,9 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 	description := "build simple and scalable systems with go + htmx"
 
 	return h.Html(
-		h.HxExtension(h.BaseExtensions()),
+		h.HxExtension(
+			h.BaseExtensions(),
+		),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
 			h.Meta("title", title),
@@ -54,7 +56,8 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Element {
 }
 
 func PageWithNav(ctx *h.RequestContext, children ...h.Ren) *h.Element {
-	return RootPage(ctx,
+	return RootPage(
+		ctx,
 		h.Fragment(
 			partials.NavBar(ctx, partials.NavBarProps{
 				Expanded:       false,

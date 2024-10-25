@@ -105,7 +105,12 @@ func main() {
 				fmt.Println(fmt.Sprintf("Usage: htmgo format <file>"))
 				os.Exit(1)
 			}
-			formatter.FormatFile(os.Args[2])
+			file := os.Args[2]
+			if file == "." {
+				formatter.FormatDir(process.GetWorkingDir())
+			} else {
+				formatter.FormatFile(os.Args[2])
+			}
 		} else if taskName == "schema" {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("Enter entity name:")

@@ -30,10 +30,14 @@ func Indent(input string) string {
 	}
 
 	for _, decl := range f.Decls {
-		switch decl.(type) {
+		switch c := decl.(type) {
 		case *ast.FuncDecl:
-			component := decl.(*ast.FuncDecl)
-			returnType := component.Type.Results.List[0].Type
+
+			if c.Type.Results == nil || len(c.Type.Results.List) == 0 {
+				continue
+			}
+
+			returnType := c.Type.Results.List[0].Type
 
 			isHtmgoComponent := false
 			if v, ok := returnType.(*ast.StarExpr); ok {
@@ -48,20 +52,63 @@ func Indent(input string) string {
 				continue
 			}
 
-			astutil.Apply(component.Body, nil, func(cursor *astutil.Cursor) bool {
+			var isHTag = func(n ast.Expr) bool {
+				switch argc := n.(type) {
+				// If the first argument is another node, add an indent
+				case *ast.CallExpr:
+					if v, ok := argc.Fun.(*ast.SelectorExpr); ok {
+						if v2, ok := v.X.(*ast.Ident); ok {
+							if v2.Name == "h" || v2.Name == "js" {
+								return true
+							}
+						}
+					}
+				}
+				return false
+			}
+
+			var indent = func(children []ast.Expr) []ast.Expr {
+				children = append(children, ast.NewIdent("INDENTME"))
+				return children
+			}
+
+			astutil.Apply(c.Body, nil, func(cursor *astutil.Cursor) bool {
 				switch n := cursor.Node().(type) {
 				case *ast.CallExpr:
 					newChildren := make([]ast.Expr, 0)
+
+					hasAnyHElements := false
+
+					for _, arg := range n.Args {
+						if isHTag(arg) {
+							hasAnyHElements = true
+							break
+						}
+					}
+
 					for i, arg := range n.Args {
-						if i == 0 {
-							switch arg.(type) {
-							// If the first argument is another node, add an indent
-							case *ast.CallExpr:
-								newChildren = append(newChildren, ast.NewIdent("INDENTME"))
+
+						if len(n.Args) == 1 && isHTag(arg) {
+							newChildren = indent(newChildren)
+							newChildren = append(newChildren, arg)
+							newChildren = indent(newChildren)
+							continue
+						}
+
+						if !hasAnyHElements {
+							newChildren = append(newChildren, arg)
+							continue
+						}
+
+						if len(n.Args) > 1 {
+							if i == 0 {
+								newChildren = indent(newChildren)
 							}
 						}
 						newChildren = append(newChildren, arg)
-						newChildren = append(newChildren, ast.NewIdent("INDENTME"))
+						if len(n.Args) > 1 {
+							newChildren = indent(newChildren)
+						}
 					}
 					n.Args = newChildren
 					return true
