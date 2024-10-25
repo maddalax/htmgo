@@ -48,6 +48,15 @@ func Indent(input string) string {
 				}
 			}
 
+			// support non-pointer return types
+			if v, ok := returnType.(*ast.SelectorExpr); ok {
+				if x, ok := v.X.(*ast.Ident); ok {
+					name := x.Name
+					str := name + "." + v.Sel.Name
+					isHtmgoComponent = slices.Contains(htmgoComponentTypes, str)
+				}
+			}
+
 			if !isHtmgoComponent {
 				continue
 			}

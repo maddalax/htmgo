@@ -6,7 +6,9 @@ import (
 
 func RootPage(children ...h.Ren) h.Ren {
 	return h.Html(
-		h.HxExtensions(h.BaseExtensions()),
+		h.HxExtensions(
+			h.BaseExtensions(),
+		),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
 			h.Link("/public/favicon.ico", "icon"),
