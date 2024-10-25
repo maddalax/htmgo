@@ -31,11 +31,11 @@ func Indent(input string) string {
 					switch arg.(type) {
 					// If the first argument is another node, add an indent
 					case *ast.CallExpr:
-						newChildren = append(newChildren, ast.NewIdent("INDENT"))
+						newChildren = append(newChildren, ast.NewIdent("INDENTME"))
 					}
 				}
 				newChildren = append(newChildren, arg)
-				newChildren = append(newChildren, ast.NewIdent("INDENT"))
+				newChildren = append(newChildren, ast.NewIdent("INDENTME"))
 			}
 			n.Args = newChildren
 			return true
@@ -51,8 +51,8 @@ func Indent(input string) string {
 	}
 
 	// Output the formatted code
-	indented := strings.ReplaceAll(buf.String(), "INDENT,", "\n\t\t")
-	indented = strings.ReplaceAll(indented, ", INDENT", ", \n\t\t")
+	indented := strings.ReplaceAll(buf.String(), "INDENTME,", "\n\t\t")
+	indented = strings.ReplaceAll(indented, ", INDENTME", ", \n\t\t")
 
 	return indented
 }

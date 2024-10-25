@@ -38,6 +38,14 @@ func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }
 
+func Details(children ...Ren) *Element {
+	return Tag("details", children...)
+}
+
+func Summary(children ...Ren) *Element {
+	return Tag("summary", children...)
+}
+
 func Text(text string) *TextContent {
 	return NewTextContent(text)
 }
