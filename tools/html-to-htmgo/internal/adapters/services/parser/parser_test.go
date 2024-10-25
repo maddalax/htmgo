@@ -22,7 +22,7 @@ func FuzzFromBytes(f *testing.F) {
 		if err != nil {
 			return
 		}
-		if err != nil && !isExpectedError(err) {
+		if !isExpectedError(err) {
 			t.Errorf("Unexpected error: %v", err)
 		}
 	})
