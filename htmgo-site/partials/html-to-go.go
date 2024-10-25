@@ -47,6 +47,7 @@ func GoOutput(content string) *h.Element {
 					h.Class("absolute top-0 right-0 p-2 bg-slate-800 text-white rounded-bl-md cursor-pointer"),
 					h.Text("Copy"),
 					h.OnClick(
+						// language=JavaScript
 						js.EvalJs(`
 							if(!navigator.clipboard) {
 								alert("Clipboard API not supported");

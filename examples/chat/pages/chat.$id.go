@@ -129,7 +129,8 @@ func CollapseButton() *h.Element {
 				`),
 			),
 			h.UnsafeRaw("&#9776;"),
-			// The icon for collapsing the sidebar
+
+		// The icon for collapsing the sidebar
 		),
 	)
 }
