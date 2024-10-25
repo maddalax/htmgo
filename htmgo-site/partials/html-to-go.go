@@ -42,7 +42,6 @@ func GoOutput(content string) *h.Element {
 				h.UnsafeRaw(content),
 			),
 			h.If(content != "", h.Div(
-
 				h.Class("absolute top-0 right-0 p-2 bg-slate-800 text-white rounded-bl-md cursor-pointer"),
 				h.Text("Copy"),
 				// language=JavaScript

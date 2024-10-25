@@ -18,5 +18,5 @@ func Parse(input []byte) []byte {
 		return nil
 	}
 
-	return []byte(formatter.Format(parsed))
+	return []byte(Indent(formatter.Format(parsed)))
 }
