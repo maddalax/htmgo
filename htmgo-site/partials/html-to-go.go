@@ -48,17 +48,17 @@ func GoOutput(content string) *h.Element {
 					h.Text("Copy"),
 					h.OnClick(
 						js.EvalJs(`
-					if(!navigator.clipboard) {
-                        alert("Clipboard API not supported");
-						return;
-					}
-                    let text = self.parentElement.querySelector("#go-output-content").innerText;
-					navigator.clipboard.writeText(text);
-                    self.innerText = "Copied!";
-                    setTimeout(() => {
-                        self.innerText = "Copy";
-                    }, 1000);
-				`),
+							if(!navigator.clipboard) {
+								alert("Clipboard API not supported");
+								return;
+							}
+							let text = self.parentElement.querySelector("#go-output-content").innerText;
+							navigator.clipboard.writeText(text);
+							self.innerText = "Copied!";
+							setTimeout(() => {
+								self.innerText = "Copy";
+							}, 1000);
+						`),
 					),
 				),
 			),

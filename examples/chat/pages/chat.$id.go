@@ -17,13 +17,10 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 		RootPage(
 			h.Div(
 				h.TriggerChildren(),
-
 				h.Attribute("sse-connect", fmt.Sprintf("/sse/chat/%s", roomId)),
-
 				h.HxOnSseOpen(
 					js.ConsoleLog("Connected to chat room"),
 				),
-
 				h.HxOnSseError(
 					js.EvalJs(fmt.Sprintf(`
 						const reason = e.detail.event.data
@@ -38,35 +35,27 @@ func ChatRoom(ctx *h.RequestContext) *h.Page {
 						}
 					`, roomId, roomId)),
 				),
-
 				// Adjusted flex properties for responsive layout
 				h.Class("flex flex-row h-screen bg-neutral-100 overflow-x-hidden"),
-
 				// Collapse Button for mobile
 				CollapseButton(),
-
 				// Sidebar for connected users
 				UserSidebar(),
-
 				h.Div(
 					// Adjusted to fill height and width
 					h.Class("flex flex-col h-full w-full bg-white p-4 overflow-hidden"),
-
 					// Room name at the top, fixed
 					CachedRoomHeader(ctx),
-
 					h.HxAfterSseMessage(
 						js.EvalJsOnSibling("#messages",
 							`element.scrollTop = element.scrollHeight;`),
 					),
-
 					// Chat Messages
 					h.Div(
 						h.Id("messages"),
 						// Adjusted flex properties and removed max-width
 						h.Class("flex flex-col gap-4 mb-4 overflow-auto flex-grow w-full pt-[50px]"),
 					),
-
 					// Chat Input at the bottom
 					Form(),
 				),
@@ -91,7 +80,10 @@ func roomNameHeader(ctx *h.RequestContext) *h.Element {
 	}
 	return h.Div(
 		h.Class("bg-neutral-700 text-white p-3 shadow-sm w-full fixed top-0 left-0 flex justify-center z-10"),
-		h.H2F(room.Name, h.Class("text-lg font-bold")),
+		h.H2F(
+			room.Name,
+			h.Class("text-lg font-bold"),
+		),
 		h.Div(
 			h.Class("absolute right-5 top-3 cursor-pointer"),
 			h.Text("Share"),
@@ -108,7 +100,10 @@ func UserSidebar() *h.Element {
 	return h.Div(
 		h.Class("sidebar h-full pt-[67px] min-w-48 w-48 bg-neutral-200 p-4 flex-col justify-between gap-3 rounded-l-lg hidden md:flex"),
 		h.Div(
-			h.H3F("Connected Users", h.Class("text-lg font-bold")),
+			h.H3F(
+				"Connected Users",
+				h.Class("text-lg font-bold"),
+			),
 			chat.ConnectedUsers(make([]db.User, 0), ""),
 		),
 		h.A(
@@ -121,9 +116,11 @@ func UserSidebar() *h.Element {
 
 func CollapseButton() *h.Element {
 	return h.Div(
-		h.Class("fixed top-0 left-4 md:hidden z-50"), // Always visible on mobile
+		h.Class("fixed top-0 left-4 md:hidden z-50"),
+		// Always visible on mobile
 		h.Button(
-			h.Class("p-2 text-2xl bg-neutral-700 text-white rounded-md"), // Styling the button
+			h.Class("p-2 text-2xl bg-neutral-700 text-white rounded-md"),
+			// Styling the button
 			h.OnClick(
 				js.EvalJs(`
 					const sidebar = document.querySelector('.sidebar');
@@ -131,13 +128,15 @@ func CollapseButton() *h.Element {
 					sidebar.classList.toggle('flex');
 				`),
 			),
-			h.UnsafeRaw("&#9776;"), // The icon for collapsing the sidebar
+			h.UnsafeRaw("&#9776;"),
+			// The icon for collapsing the sidebar
 		),
 	)
 }
 
 func MessageInput() *h.Element {
-	return h.Input("text",
+	return h.Input(
+		"text",
 		h.Id("message-input"),
 		h.Required(),
 		h.Class("p-4 rounded-md border border-slate-200 w-full focus:outline-none focus:ring focus:ring-slate-200"),

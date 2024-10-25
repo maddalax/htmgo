@@ -16,7 +16,7 @@ import (
 func Indent(input string) string {
 	fset := token.NewFileSet()
 	// Parse the code string into an AST
-	f, err := parser.ParseFile(fset, "", input, 0)
+	f, err := parser.ParseFile(fset, "", input, parser.ParseComments)
 
 	if err != nil {
 		return input
