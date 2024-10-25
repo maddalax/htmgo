@@ -43,7 +43,8 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 									MarkdownContent(ctx, page.FilePath, anchor),
 									h.Div(
 										h.Class("ml-4 pl-1 mt-2 bg-rose-200"),
-										h.If(anchor == "core-concepts-partials",
+										h.If(
+											anchor == "core-concepts-partials",
 											h.GetPartial(partials.CurrentTimePartial, "load, every 1s"),
 										),
 									),

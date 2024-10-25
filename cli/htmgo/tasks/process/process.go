@@ -115,7 +115,7 @@ func OnShutdown() {
 		}
 	}
 	// give it a second
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 1)
 	// force kill
 	KillAll()
 }

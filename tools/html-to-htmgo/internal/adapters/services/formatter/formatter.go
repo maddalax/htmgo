@@ -16,8 +16,7 @@ import (
 func MyComponent() *h.Element {
 	return ` + node.String() + `
 }`)
-	indented := Indent(string(b))
-	dist, err := format.Source([]byte(indented))
+	dist, err := format.Source(b)
 	if err != nil {
 		return string(b)
 	}

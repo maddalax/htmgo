@@ -24,14 +24,16 @@ func UserProfilePage(u db.User) *h.Element {
 
 	return h.Div(
 		h.Class("flex flex-col gap-6 items-center pt-10 min-h-screen bg-neutral-100"),
-		h.H3F("User Profile", h.Class("text-2xl font-bold")),
+		h.H3F(
+			"User Profile",
+			h.Class("text-2xl font-bold"),
+		),
 		h.Pf("Welcome, %s!", u.Email),
 		h.Form(
 			h.Attribute("hx-swap", "none"),
 			h.PostPartial(partials.UpdateProfile),
 			h.TriggerChildren(),
 			h.Class("flex flex-col gap-4 w-full max-w-md p-6 bg-white rounded-md shadow-md"),
-
 			ui.Input(ui.InputProps{
 				Id:           "email",
 				Name:         "email",
@@ -42,26 +44,22 @@ func UserProfilePage(u db.User) *h.Element {
 					h.Disabled(),
 				},
 			}),
-
 			ui.Input(ui.InputProps{
 				Name:         "birth-date",
 				Label:        "Birth Date",
 				DefaultValue: user.GetMetaKey(meta, "birthDate"),
 				Type:         "date",
 			}),
-
 			ui.Input(ui.InputProps{
 				Name:         "favorite-color",
 				Label:        "Favorite Color",
 				DefaultValue: user.GetMetaKey(meta, "favoriteColor"),
 			}),
-
 			ui.Input(ui.InputProps{
 				Name:         "occupation",
 				Label:        "Occupation",
 				DefaultValue: user.GetMetaKey(meta, "occupation"),
 			}),
-
 			ui.FormError(""),
 			ui.SubmitButton("Save Changes"),
 		),

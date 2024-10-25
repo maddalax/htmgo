@@ -9,21 +9,29 @@ import (
 )
 
 func Form(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(base.RootPage(ctx,
+	return h.NewPage(base.RootPage(
+		ctx,
 		h.Div(
 			h.Class("flex flex-col items-center justify-center p-4 gap-6"),
-			h.H2F("Form submission with loading state example", h.Class("text-2xl font-bold")),
+			h.H2F(
+				"Form submission with loading state example",
+				h.Class("text-2xl font-bold"),
+			),
 			h.Form(
 				h.TriggerChildren(),
 				h.PostPartial(partials.SubmitForm),
 				h.Class("flex flex-col gap-2"),
 				h.LabelFor("name", "Your Name"),
-				h.Input("text",
+				h.Input(
+					"text",
 					h.Required(),
 					h.Class("p-4 rounded-md border border-slate-200"),
 					h.Name("name"),
 					h.Placeholder("Name"),
-					h.OnEvent(hx.KeyDownEvent, js.SubmitFormOnEnter()),
+					h.OnEvent(
+						hx.KeyDownEvent,
+						js.SubmitFormOnEnter(),
+					),
 				),
 				SubmitButton(),
 			),

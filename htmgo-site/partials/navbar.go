@@ -58,29 +58,26 @@ func Star(ctx *h.RequestContext) *h.Element {
 				h.Class("w-4 h-4 -mt-0.5 mr-0.5 stroke-current text-white"),
 				h.Attribute("xmlns", "http://www.w3.org/2000/svg"),
 				h.Attribute("viewBox", "0 0 24 24"),
-				h.Attribute("fill", "none"),           // No fill
-				h.Attribute("stroke", "currentColor"), // Apply stroke
-				h.Attribute("stroke-width", "2"),      // Stroke width
+				h.Attribute("fill", "none"),
+				h.Attribute("stroke", "currentColor"),
+				h.Attribute("stroke-width", "2"),
 				h.Path(
 					h.D("M12 17.27l5.18 3.05-1.64-5.68 4.46-3.87-5.88-.5L12 3.5l-2.12 6.77-5.88.5 4.46 3.87-1.64 5.68L12 17.27z"),
 				),
 			),
 			h.Text("Star"),
 		),
-		h.If(count > 0, h.Div(
-			h.Class("flex items-center px-3 py-1 bg-black text-white text-sm font-semibold"),
-			h.Pf("%d", count),
-		)),
+		h.If(
+			count > 0,
+			h.Div(
+				h.Class("flex items-center px-3 py-1 bg-black text-white text-sm font-semibold"),
+				h.Pf("%d", count),
+			),
+		),
 	)
 }
 
 func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
-	//prelease := h.If(props.ShowPreRelease, h.A(
-	//	h.Class("bg-blue-200 text-blue-700 text-center p-2 flex items-center justify-center"),
-	//	h.Href("https://github.com/maddalax/htmgo/issues"),
-	//	h.Attribute("target", "_blank"),
-	//	h.Text("htmgo."),
-	//))
 
 	desktopNav := h.Nav(
 		h.Class("hidden sm:block bg-neutral-100 border border-b-slate-300 p-4 md:p-3 max-h-[100vh - 9rem] overflow-y-auto"),
@@ -94,7 +91,8 @@ func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
 						h.Class("text-2xl"),
 						h.Href("/"),
 						h.Text("htmgo"),
-					)),
+					),
+				),
 				h.Div(
 					h.Id("search-container"),
 				),
@@ -118,7 +116,6 @@ func NavBar(ctx *h.RequestContext, props NavBarProps) *h.Element {
 
 	return h.Div(
 		h.Id("navbar"),
-		//prelease,
 		MobileNav(ctx, props.Expanded),
 		desktopNav,
 	)
@@ -139,43 +136,54 @@ func MobileNav(ctx *h.RequestContext, expanded bool) *h.Element {
 						h.Class("text-2xl"),
 						h.Href("/"),
 						h.Text("htmgo"),
-					)),
+					),
+				),
 				h.Div(
 					h.Class("flex items-center gap-3"),
-					h.Div(h.Class("mt-1"), CachedStar(ctx)),
+					h.Div(
+						h.Class("mt-1"),
+						CachedStar(ctx),
+					),
 					h.Button(
 						h.Boost(),
-
 						h.GetPartialWithQs(
 							ToggleNavbar,
-							h.NewQs("expanded", h.Ternary(expanded, "false", "true"), "test", "true"),
+							h.NewQs(
+								"expanded",
+								h.Ternary(expanded, "false", "true"),
+								"test",
+								"true",
+							),
 							"click",
 						),
-
 						h.AttributePairs(
-							"class", "text-2xl",
-							"aria-expanded", h.Ternary(expanded, "true", "false"),
+							"class",
+							"text-2xl",
+							"aria-expanded",
+							h.Ternary(expanded, "true", "false"),
 						),
-
 						h.Class("text-2xl"),
 						h.UnsafeRaw("&#9776;"),
 					),
 				),
 			),
 		),
-		h.If(expanded, h.Div(
-			h.Class("mt-2 ml-2 flex flex-col gap-2"),
-			h.List(navItems, func(item NavItem, index int) *h.Element {
-				return h.Div(
-					h.Class("flex items-center"),
-					h.A(
-						h.Boost(),
-						h.Class(""),
-						h.Href(item.Url),
-						h.Text(item.Name),
-					),
-				)
-			}),
-		)),
+		h.If(
+			expanded,
+			h.Div(
+				h.Class("mt-2 ml-2 flex flex-col gap-2"),
+				h.List(navItems, func(item NavItem, index int) *h.Element {
+					return h.Div(
+						h.Class("flex items-center"),
+						h.A(
+							h.Boost(),
+							h.Class(""),
+							h.Href(item.Url),
+							h.Text(item.Name),
+						),
+					)
+				}),
+			),
+		),
 	)
 }

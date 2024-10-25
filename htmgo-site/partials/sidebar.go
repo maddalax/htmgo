@@ -71,7 +71,10 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 				h.Class("flex flex-col gap-4"),
 				h.List(grouped.Entries(), func(entry datastructures.Entry[string, []*dirwalk.Page], index int) *h.Element {
 					return h.Div(
-						h.P(h.Text(formatPart(entry.Key)), h.Class("text-slate-800 font-bold")),
+						h.P(
+							h.Text(formatPart(entry.Key)),
+							h.Class("text-slate-800 font-bold"),
+						),
 						h.Div(
 							h.Class("pl-4 flex flex-col"),
 							h.List(entry.Value, func(page *dirwalk.Page, index int) *h.Element {
