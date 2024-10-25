@@ -13,6 +13,13 @@ import (
 )
 
 const frameworkRepo = "github.com/maddalax/htmgo/framework"
+const htmlToHtmgoRepo = "github.com/maddalax/htmgo/tools/html-to-htmgo"
+
+var depsToUpdate = []string{
+	frameworkRepo,
+	htmlToHtmgoRepo,
+}
+
 const githubAPIURL = "https://api.github.com/repos/maddalax/htmgo/commits"
 
 // Commit represents the structure of a commit object returned by the GitHub API.
@@ -52,17 +59,14 @@ func main() {
 
 		// Check if the directory contains a go.mod file.
 		if info.IsDir() && fileExists(filepath.Join(path, "go.mod")) {
-			// Check if the go.mod contains 'github.com/maddalax/htmgo/framework'.
-			if containsFrameworkDependency(filepath.Join(path, "go.mod")) {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					// Run go get github.com/maddalax/htmgo/framework@<latestCommitHash>.
-					fmt.Printf("Running 'go get' with latest commit hash in %s\n", path)
-					RunCommand(path, "go", "get", fmt.Sprintf("%s@%s", frameworkRepo, latestCommitHash))
-					RunCommand(path, "go", "mod", "tidy")
-				}()
-			}
+			goModPath := filepath.Join(path, "go.mod")
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for _, s := range depsToUpdate {
+					updateDepToLatestVersion(s, goModPath, latestCommitHash)
+				}
+			}()
 		}
 
 		return nil
@@ -82,8 +86,18 @@ func fileExists(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-// containsFrameworkDependency checks if 'github.com/maddalax/htmgo/framework' is in the go.mod file.
-func containsFrameworkDependency(goModPath string) bool {
+func updateDepToLatestVersion(dep string, goModPath string, latestCommitHash string) {
+	if containsDep(dep, goModPath) {
+		dir := filepath.Dir(goModPath)
+		// Run go get github.com/maddalax/htmgo/framework@<latestCommitHash>.
+		fmt.Printf("Running 'go get' with latest commit hash in %s\n", dep)
+		RunCommand(dir, "go", "get", fmt.Sprintf("%s@%s", dep, latestCommitHash))
+		RunCommand(dir, "go", "mod", "tidy")
+	}
+}
+
+// containsDep checks if 'github.com/maddalax/htmgo/framework' is in the go.mod file.
+func containsDep(dep string, goModPath string) bool {
 	file, err := os.Open(goModPath)
 	if err != nil {
 		fmt.Println("Error opening go.mod file:", err)
@@ -93,7 +107,7 @@ func containsFrameworkDependency(goModPath string) bool {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		if strings.Contains(scanner.Text(), frameworkRepo) {
+		if strings.Contains(scanner.Text(), dep) {
 			return true
 		}
 	}

@@ -30,9 +30,6 @@ func (n *CustomNode) SetType(in string) {
 		n.Type = "h.TBody"
 	case "id":
 		n.Type = "h.Id"
-	case "path":
-		n.Type = "path"
-		n.customType = true
 	case "circle":
 		n.Type = "circle"
 		n.customType = true
