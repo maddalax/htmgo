@@ -16,11 +16,11 @@ import (
 func MyComponent() *h.Element {
 	return ` + node.String() + `
 }`)
-	dist, err := format.Source(b)
+	indented := Indent(string(b))
+	dist, err := format.Source([]byte(indented))
 	if err != nil {
 		return string(b)
 	}
-
 	return string(dist)
 }
 
