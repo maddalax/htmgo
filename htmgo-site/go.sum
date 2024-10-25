@@ -21,8 +21,6 @@ github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUq
 github.com/hexops/gotextdiff v1.0.3/go.mod h1:pSWU5MAI3yDq+fZBTazCSJysOMbxWL1BSow5/V2vxeg=
 github.com/maddalax/htmgo/framework v1.0.1-0.20241025120735-61758622ef5d h1:DLYdhEcgATLoQToKnyyANN/kRFWSnosZNzmw3BGU5Pc=
 github.com/maddalax/htmgo/framework v1.0.1-0.20241025120735-61758622ef5d/go.mod h1:NGGzWVXWksrQJ9kV9SGa/A1F1Bjsgc08cN7ZVb98RqY=
-github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241011161932-8b9e536f1490 h1:D7jkugRnEtKACr4kQH6eSNxB8cKXgrhLm+5yeLsvscg=
-github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241011161932-8b9e536f1490/go.mod h1:hpDNkFnNT0FIgmQsVjMeQOzLuPxaqmkbNuws3zh4gWs=
 github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241025120735-61758622ef5d h1:Hw4oQTJJvulOMkan5VfsG87ACvGkzVLReq2w2pV9T9U=
 github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241025120735-61758622ef5d/go.mod h1:hpDNkFnNT0FIgmQsVjMeQOzLuPxaqmkbNuws3zh4gWs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -40,6 +38,8 @@ golang.org/x/net v0.30.0 h1:AcW1SDZMkb8IpzCdQUaIq2sP4sZ4zw+55h6ynffypl4=
 golang.org/x/net v0.30.0/go.mod h1:2wGyMJ5iFasEhkwi13ChkO/t1ECNC4X4eBKkVFyYFlU=
 golang.org/x/text v0.19.0 h1:kTxAhCbGbxhK0IwgSKiMO5awPoDQ0RpfiVYBfK860YM=
 golang.org/x/text v0.19.0/go.mod h1:BuEKDfySbSR4drPmRPG/7iBdf8hvFMuRexcpahXilzY=
+golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d h1:vU5i/LfpvrRCpgM/VPfJLg5KjxD3E+hfT1SH+d9zLwg=
+golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d/go.mod h1:aiJjzUbINMkxbQROHiO6hDPo2LHcIPhhQsa9DLh0yGk=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
