@@ -5,6 +5,7 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"hackernews/internal/batch"
 	"hackernews/internal/httpjson"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"log/slog"
 	"strconv"
@@ -132,6 +133,8 @@ func GetComment(id int) (*Comment, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.Text = sanitize.Sanitize(c.Text)
+	c.By = sanitize.Sanitize(c.By)
 	c.Time = timeformat.ParseUnix(c.TimeRaw)
 	return c, nil
 }
@@ -141,6 +144,9 @@ func GetStory(id int) (*Story, error) {
 	if err != nil {
 		return nil, err
 	}
+	s.Title = sanitize.Sanitize(s.Title)
+	s.Text = sanitize.Sanitize(s.Text)
+	s.By = sanitize.Sanitize(s.By)
 	s.Time = timeformat.ParseUnix(s.TimeRaw)
 	return s, nil
 }
