@@ -142,7 +142,7 @@ var CachedStoryList = h.CachedPerKeyT4(time.Minute*5, func(category string, page
 				h.Class("block p-2 bg-white rounded-md shadow cursor-pointer"),
 				h.Div(
 					h.Class("font-bold"),
-					h.UnsafeRaw(item.Title),
+					h.Text(item.Title),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),

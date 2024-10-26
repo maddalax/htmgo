@@ -57,7 +57,7 @@ func StoryBody(story *news.Story) *h.Element {
 			h.Class("prose prose-2xl border-b border-gray-200 pb-3 max-w-none w-full"),
 			h.H5(
 				h.Class("flex gap-2 items-left font-bold"),
-				h.UnsafeRaw(story.Title),
+				h.Text(story.Title),
 			),
 			h.A(
 				h.Href(story.Url),
@@ -66,7 +66,7 @@ func StoryBody(story *news.Story) *h.Element {
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600"),
-				h.UnsafeRaw(story.Text),
+				h.Text(story.Text),
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600 mt-2"),

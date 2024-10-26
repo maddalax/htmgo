@@ -75,7 +75,7 @@ func Comment(item news.Comment, nesting int) *h.Element {
 				h.Class("flex gap-1 items-center"),
 				h.Div(
 					h.Class("font-bold text-rose-500"),
-					h.UnsafeRaw(item.By),
+					h.Text(item.By),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),
@@ -85,7 +85,7 @@ func Comment(item news.Comment, nesting int) *h.Element {
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600"),
-				h.UnsafeRaw(strings.TrimSpace(item.Text)),
+				h.Text(strings.TrimSpace(item.Text)),
 			),
 		),
 		h.If(
