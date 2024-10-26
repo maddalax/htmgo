@@ -5,6 +5,7 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"hackernews/internal/batch"
 	"hackernews/internal/news"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"strings"
 	"time"
@@ -75,7 +76,7 @@ func Comment(item news.Comment, nesting int) *h.Element {
 				h.Class("flex gap-1 items-center"),
 				h.Div(
 					h.Class("font-bold text-rose-500"),
-					h.Text(item.By),
+					h.UnsafeRaw(sanitize.Sanitize(item.By)),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),
@@ -85,7 +86,7 @@ func Comment(item news.Comment, nesting int) *h.Element {
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600"),
-				h.Text(strings.TrimSpace(item.Text)),
+				h.UnsafeRaw(sanitize.Sanitize(strings.TrimSpace(item.Text))),
 			),
 		),
 		h.If(

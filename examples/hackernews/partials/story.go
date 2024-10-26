@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"hackernews/internal/news"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"time"
 )
@@ -57,7 +58,7 @@ func StoryBody(story *news.Story) *h.Element {
 			h.Class("prose prose-2xl border-b border-gray-200 pb-3 max-w-none w-full"),
 			h.H5(
 				h.Class("flex gap-2 items-left font-bold"),
-				h.Text(story.Title),
+				h.UnsafeRaw(sanitize.Sanitize(story.Title)),
 			),
 			h.A(
 				h.Href(story.Url),
@@ -66,7 +67,7 @@ func StoryBody(story *news.Story) *h.Element {
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600"),
-				h.Text(story.Text),
+				h.UnsafeRaw(sanitize.Sanitize(story.Text)),
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600 mt-2"),

@@ -6,6 +6,7 @@ import (
 	"hackernews/components"
 	"hackernews/internal/news"
 	"hackernews/internal/parse"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"time"
 )
@@ -142,7 +143,7 @@ var CachedStoryList = h.CachedPerKeyT4(time.Minute*5, func(category string, page
 				h.Class("block p-2 bg-white rounded-md shadow cursor-pointer"),
 				h.Div(
 					h.Class("font-bold"),
-					h.Text(item.Title),
+					h.UnsafeRaw(sanitize.Sanitize(item.Title)),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),
