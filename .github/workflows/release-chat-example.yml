@@ -1,9 +1,10 @@
 name: Build and Deploy htmgo.dev chat example
 
 on:
-  pull_request:
-    branches:
-      - master
+  workflow_run:
+    workflows: [ "Update HTMGO Framework Dependency" ]  # The name of the first workflow
+    types:
+      - completed
   workflow_dispatch:  # Trigger on manual workflow_dispatch
   push:
     branches:

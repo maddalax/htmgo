@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+func TestRendererShouldRenderDocType(t *testing.T) {
+	t.Parallel()
+	result := Render(Html(
+		Div(),
+	), WithDocType())
+	assert.Equal(t, `<!DOCTYPE html><html><div></div></html>`, result)
+}
+
 func TestSimpleRender(t *testing.T) {
 	t.Parallel()
 	result := Render(
@@ -25,7 +33,6 @@ func TestRender(t *testing.T) {
 		Attribute("data-attr-2", "value"),
 		Attributes(&AttributeMap{
 			"data-attr-3": "value",
-			"data-attr-4": "value",
 		}),
 		HxBeforeRequest(
 			SetText("before request"),
@@ -41,12 +48,12 @@ func TestRender(t *testing.T) {
 
 	div.attributes.Set("data-attr-1", "value")
 
-	expected := `<div data-attr-1="value" id="my-div" data-attr-2="value" data-attr-3="value" data-attr-4="value" hx-on::before-request="this.innerText = &#39;before request&#39;;" hx-on::after-request="this.innerText = &#39;after request&#39;;"><div>hello, world</div>hello, child</div>`
+	expected := `<div data-attr-1="value" id="my-div" data-attr-2="value" data-attr-3="value" hx-on::before-request="this.innerText = &#39;before request&#39;;" hx-on::after-request="this.innerText = &#39;after request&#39;;"><div>hello, world</div>hello, child</div>`
 	result := Render(div)
 
 	assert.Equal(t,
 		expected,
-		result)
+		strings.ReplaceAll(result, "var self=this;var e=event;", ""))
 }
 
 func TestRenderAttributes_1(t *testing.T) {

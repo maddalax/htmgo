@@ -30,7 +30,6 @@ func validateCommands(cmds []Command) {
 			panic(fmt.Sprintf("element is not allowed in lifecycle events. Got: %v", t))
 		default:
 			panic(fmt.Sprintf("type is not allowed in lifecycle events. Got: %v", t))
-
 		}
 	}
 }
@@ -52,6 +51,7 @@ func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 }
 
 // OnLoad executes the given commands when the element is loaded into the DOM, it also executes when the element is replaced / swapped in.
+// This will work on any element because of the htmgo htmx extension to trigger it, instead of the browser.
 func OnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadDomEvent, cmd...)
 }
@@ -352,12 +352,7 @@ func SetValue(value string) SimpleJsCommand {
 func SubmitFormOnEnter() ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(`
-		if (event.code === 'Enter') { 
-            console.log('submitting form');
-			setTimeout(() => {
-                self.form.dispatchEvent(new Event('submit', { cancelable: true })); 
-			}, 250)
-		}
+		if (event.code === 'Enter') { self.form.dispatchEvent(new Event('submit', { cancelable: true })); }
 	`)
 }
 

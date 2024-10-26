@@ -1,4 +1,4 @@
-**Attributes**
+## Attributes
 
 Attributes are one of the main ways we can add interactivity to the pages with [htmx](http://htmx.org). If you have not read over the htmx documentation, please do so before continuing. 
 

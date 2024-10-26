@@ -92,7 +92,7 @@ func CopyAssets() {
 			})
 	}
 
-	if !dirutil.HasFileFromRoot("tailwind.config.js") {
+	if dirutil.GetConfig().Tailwind && !dirutil.HasFileFromRoot("tailwind.config.js") {
 		err = dirutil.CopyFile(
 			filepath.Join(assetCssDir, "tailwind.config.js"),
 			filepath.Join(process.GetWorkingDir(), "tailwind.config.js"),

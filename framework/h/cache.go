@@ -304,7 +304,7 @@ func (c *CachedNode) ClearExpired() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	deletedCount := 0
-	if c.isByKey == true {
+	if c.isByKey {
 		if c.byKeyCache != nil && c.byKeyExpiration != nil {
 			for key := range c.byKeyCache {
 				expir, ok := c.byKeyExpiration[key]
@@ -330,7 +330,7 @@ func (c *CachedNode) ClearExpired() {
 }
 
 func (c *CachedNode) Render(ctx *RenderContext) {
-	if c.isByKey == true {
+	if c.isByKey {
 		panic("CachedPerKey should not be rendered directly")
 	} else {
 		c.mutex.Lock()

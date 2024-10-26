@@ -58,7 +58,9 @@ func Input(list []*ent.Task) *h.Element {
 			h.Name("name"),
 			h.Class("pl-12 text-xl p-4 w-full outline-none focus:outline-2 focus:outline-rose-400"),
 			h.Placeholder("What needs to be done?"),
-			h.Post(h.GetPartialPath(Create)),
+			h.Post(
+				h.GetPartialPath(Create),
+			),
 			h.HxTrigger(hx.OnEvent(hx.TriggerKeyUpEnter)),
 		),
 		CompleteAllIcon(list),
@@ -66,23 +68,34 @@ func Input(list []*ent.Task) *h.Element {
 }
 
 func CompleteAllIcon(list []*ent.Task) *h.Element {
-	notCompletedCount := len(h.Filter(list, func(item *ent.Task) bool {
-		return item.CompletedAt == nil
-	}))
+	notCompletedCount := len(
+		h.Filter(list, func(item *ent.Task) bool {
+			return item.CompletedAt == nil
+		}),
+	)
 
 	return h.Div(
 		h.ClassX("absolute top-1 left-5 p-2 rotate-90 text-3xl cursor-pointer", map[string]bool{
 			"text-slate-400": notCompletedCount > 0,
-		}), h.UnsafeRaw("&#x203A;"),
-		h.PostPartialWithQs(CompleteAll, h.NewQs("complete", h.Ternary(notCompletedCount > 0, "true", "false"))),
+		}),
+		h.UnsafeRaw("&#x203A;"),
+		h.PostPartialWithQs(
+			CompleteAll,
+			h.NewQs(
+				"complete",
+				h.Ternary(notCompletedCount > 0, "true", "false"),
+			),
+		),
 	)
 }
 
 func Footer(list []*ent.Task, activeTab Tab) *h.Element {
 
-	notCompletedCount := len(h.Filter(list, func(item *ent.Task) bool {
-		return item.CompletedAt == nil
-	}))
+	notCompletedCount := len(
+		h.Filter(list, func(item *ent.Task) bool {
+			return item.CompletedAt == nil
+		}),
+	)
 
 	tabs := []Tab{TabAll, TabActive, TabComplete}
 
@@ -96,7 +109,12 @@ func Footer(list []*ent.Task, activeTab Tab) *h.Element {
 			h.Class("flex items-center gap-4"),
 			h.List(tabs, func(tab Tab, index int) *h.Element {
 				return h.P(
-					h.PostOnClick(h.GetPartialPathWithQs(ChangeTab, h.NewQs("tab", tab))),
+					h.PostOnClick(
+						h.GetPartialPathWithQs(
+							ChangeTab,
+							h.NewQs("tab", tab),
+						),
+					),
 					h.ClassX("cursor-pointer px-2 py-1 rounded", map[string]bool{
 						"border border-rose-600": activeTab == tab,
 					}),
@@ -139,12 +157,14 @@ func Task(task *ent.Task, editing bool) *h.Element {
 			"border border-b-slate-100": !editing,
 		}),
 		CompleteIcon(task),
-		h.IfElse(editing,
+		h.IfElse(
+			editing,
 			h.Div(
 				h.Class("flex-1 h-full"),
 				h.Form(
 					h.Class("h-full"),
-					h.Input("text",
+					h.Input(
+						"text",
 						h.Name("task"),
 						h.Value(task.ID.String()),
 						h.Class("hidden"),
@@ -168,30 +188,43 @@ func Task(task *ent.Task, editing bool) *h.Element {
 				),
 			),
 			h.P(
-				h.GetPartialWithQs(EditNameForm, h.NewQs("id", task.ID.String()), hx.TriggerDblClick),
+				h.GetPartialWithQs(
+					EditNameForm,
+					h.NewQs("id", task.ID.String()),
+					hx.TriggerDblClick,
+				),
 				h.ClassX("text-xl break-all text-wrap truncate", map[string]bool{
 					"line-through text-slate-400": task.CompletedAt != nil,
 				}),
 				h.Text(task.Name),
-			)),
+			),
+		),
 	)
 }
 
 func CompleteIcon(task *ent.Task) *h.Element {
 	return h.Div(
 		h.HxTrigger(hx.OnClick()),
-		h.Post(h.GetPartialPathWithQs(ToggleCompleted, h.NewQs("id", task.ID.String()))),
+		h.Post(
+			h.GetPartialPathWithQs(
+				ToggleCompleted,
+				h.NewQs("id", task.ID.String()),
+			),
+		),
 		h.Class("flex items-center justify-center cursor-pointer"),
 		h.Div(
 			h.ClassX("w-10 h-10 border rounded-full flex items-center justify-center", map[string]bool{
 				"border-green-500": task.CompletedAt != nil,
 				"border-slate-400": task.CompletedAt == nil,
 			}),
-			h.If(task.CompletedAt != nil, h.UnsafeRaw(`
+			h.If(
+				task.CompletedAt != nil,
+				h.UnsafeRaw(`
 				<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       			<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
     			</svg>
-			`)),
+			`),
+			),
 		),
 	)
 }
@@ -199,46 +232,75 @@ func CompleteIcon(task *ent.Task) *h.Element {
 func UpdateName(ctx *h.RequestContext) *h.Partial {
 	id, err := uuid.Parse(ctx.FormValue("task"))
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("invalid id")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("invalid id"),
+			),
+		)
 	}
 
 	name := ctx.FormValue("name")
 	if name == "" {
-		return h.NewPartial(h.Div(h.Text("name is required")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("name is required"),
+			),
+		)
 	}
 
 	if len(name) > 150 {
-		return h.NewPartial(h.Div(h.Text("task must be less than 150 characters")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("task must be less than 150 characters"),
+			),
+		)
 	}
 
 	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
-		return h.NewPartial(h.Div(h.Text("task not found")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("task not found"),
+			),
+		)
 	}
 
 	task, err = service.SetName(task.ID, name)
 
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("failed to update")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("failed to update"),
+			),
+		)
 	}
 
 	return h.NewPartial(
-		h.OobSwap(ctx, Task(task, false)))
+		h.OobSwap(ctx, Task(task, false)),
+	)
 }
 
 func EditNameForm(ctx *h.RequestContext) *h.Partial {
 	id, err := uuid.Parse(ctx.QueryParam("id"))
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("invalid id")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("invalid id"),
+			),
+		)
 	}
 
 	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
-		return h.NewPartial(h.Div(h.Text("task not found")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("task not found"),
+			),
+		)
 	}
 
 	return h.NewPartial(
@@ -249,21 +311,36 @@ func EditNameForm(ctx *h.RequestContext) *h.Partial {
 func ToggleCompleted(ctx *h.RequestContext) *h.Partial {
 	id, err := uuid.Parse(ctx.QueryParam("id"))
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("invalid id")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("invalid id"),
+			),
+		)
 	}
 
 	service := tasks.NewService(ctx)
 	task, err := service.Get(id)
 
 	if task == nil {
-		return h.NewPartial(h.Div(h.Text("task not found")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("task not found"),
+			),
+		)
 	}
 
-	task, err = service.SetCompleted(task.ID, h.
-		Ternary(task.CompletedAt == nil, true, false))
+	task, err = service.SetCompleted(
+		task.ID,
+		h.
+			Ternary(task.CompletedAt == nil, true, false),
+	)
 
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("failed to update")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("failed to update"),
+			),
+		)
 	}
 
 	list, _ := service.List()
@@ -282,7 +359,9 @@ func CompleteAll(ctx *h.RequestContext) *h.Partial {
 
 	list, _ := service.List()
 
-	return h.NewPartial(h.OobSwap(ctx, CardBody(list, getActiveTab(ctx))))
+	return h.NewPartial(
+		h.OobSwap(ctx, CardBody(list, getActiveTab(ctx))),
+	)
 }
 
 func ClearCompleted(ctx *h.RequestContext) *h.Partial {
@@ -291,7 +370,9 @@ func ClearCompleted(ctx *h.RequestContext) *h.Partial {
 
 	list, _ := service.List()
 
-	return h.NewPartial(h.OobSwap(ctx, CardBody(list, getActiveTab(ctx))))
+	return h.NewPartial(
+		h.OobSwap(ctx, CardBody(list, getActiveTab(ctx))),
+	)
 }
 
 func Create(ctx *h.RequestContext) *h.Partial {
@@ -300,7 +381,9 @@ func Create(ctx *h.RequestContext) *h.Partial {
 	if len(name) > 150 {
 		return h.NewPartial(
 			h.Div(
-				h.HxOnLoad(js.Alert("Task must be less than 150 characters")),
+				h.HxOnLoad(
+					js.Alert("Task must be less than 150 characters"),
+				),
 			),
 		)
 	}
@@ -312,7 +395,9 @@ func Create(ctx *h.RequestContext) *h.Partial {
 	if list != nil && len(list) >= 100 {
 		return h.NewPartial(
 			h.Div(
-				h.HxOnLoad(js.Alert("There are too many tasks, please complete and clear some.")),
+				h.HxOnLoad(
+					js.Alert("There are too many tasks, please complete and clear some."),
+				),
 			),
 		)
 	}
@@ -322,7 +407,11 @@ func Create(ctx *h.RequestContext) *h.Partial {
 	})
 
 	if err != nil {
-		return h.NewPartial(h.Div(h.Text("failed to create")))
+		return h.NewPartial(
+			h.Div(
+				h.Text("failed to create"),
+			),
+		)
 	}
 
 	list, err = service.List()
@@ -338,8 +427,12 @@ func ChangeTab(ctx *h.RequestContext) *h.Partial {
 
 	tab := ctx.QueryParam("tab")
 
-	return h.SwapManyPartialWithHeaders(ctx,
-		h.PushQsHeader(ctx, h.NewQs("tab", tab)),
+	return h.SwapManyPartialWithHeaders(
+		ctx,
+		h.PushQsHeader(
+			ctx,
+			h.NewQs("tab", tab),
+		),
 		List(list, tab),
 		Footer(list, tab),
 	)

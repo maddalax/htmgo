@@ -4,8 +4,6 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"io/fs"
 	"os"
-	"slices"
-	"strconv"
 	"strings"
 )
 
@@ -34,23 +32,6 @@ func WalkPages(dir string, system fs.FS) []*Page {
 			})
 		}
 		return nil
-	})
-
-	var getRouteOrder = func(page *Page) int {
-		fileName := page.Parts[len(page.Parts)-1]
-		if len(fileName) > 1 && fileName[1] == '_' {
-			num, err := strconv.ParseInt(fileName[0:1], 10, 64)
-			if err != nil {
-				return 0
-			}
-			page.Parts[len(page.Parts)-1] = fileName[2:]
-			return int(num)
-		}
-		return 0
-	}
-
-	slices.SortFunc(pages, func(a *Page, b *Page) int {
-		return getRouteOrder(a) - getRouteOrder(b)
 	})
 
 	return pages

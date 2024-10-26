@@ -28,12 +28,28 @@ func Button(props ButtonProps) h.Ren {
 	text := h.Text(props.Text)
 
 	button := h.Button(
-		h.If(props.Id != "", h.Id(props.Id)),
-		h.If(props.Children != nil, h.Children(props.Children...)),
+		h.If(
+			props.Id != "",
+			h.Id(props.Id),
+		),
+		h.If(
+			props.Children != nil,
+			h.Children(props.Children...),
+		),
 		h.Class("flex gap-1 items-center justify-center border p-4 rounded cursor-hover", props.Class),
-		h.If(props.Get != "", h.Get(props.Get)),
-		h.If(props.Target != "", h.HxTarget(props.Target)),
-		h.IfElse(props.Type != "", h.Type(props.Type), h.Type("button")),
+		h.If(
+			props.Get != "",
+			h.Get(props.Get),
+		),
+		h.If(
+			props.Target != "",
+			h.HxTarget(props.Target),
+		),
+		h.IfElse(
+			props.Type != "",
+			h.Type(props.Type),
+			h.Type("button"),
+		),
 		text,
 	)
 

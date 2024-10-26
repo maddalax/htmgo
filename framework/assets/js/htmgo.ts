@@ -8,6 +8,9 @@ import "./htmxextensions/livereload"
 import "./htmxextensions/htmgo";
 import "./htmxextensions/sse"
 
+// @ts-ignore
+window.htmx = htmx;
+
 function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
   let lastUrl = window.location.href;
   setInterval(() => {
@@ -15,7 +18,7 @@ function watchUrl(callback: (oldUrl: string, newUrl: string) => void) {
       callback(lastUrl, window.location.href);
       lastUrl = window.location.href;
     }
-  }, 100);
+  }, 101);
 }
 
 watchUrl((_, newUrl) => {
@@ -78,3 +81,17 @@ function onUrlChange(newUrl: string) {
     }
   });
 }
+
+/*
+   400s should allow swapping by default, as it's useful to show error messages
+ */
+document.addEventListener('htmx:beforeSwap', function(evt) {
+  if(evt instanceof CustomEvent) {
+    // Allow 422 and 400 responses to swap
+    // We treat these as form validation errors
+    if (evt.detail.xhr.status === 422 || evt.detail.xhr.status === 400) {
+      evt.detail.shouldSwap = true;
+      evt.detail.isError = false;
+    }
+  }
+});

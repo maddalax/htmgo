@@ -2,7 +2,7 @@ package chat
 
 import (
 	"chat/internal/db"
-	"chat/ws"
+	"chat/sse"
 	"context"
 	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
@@ -11,79 +11,86 @@ import (
 )
 
 type Manager struct {
-	socketManager *ws.SocketManager
+	socketManager *sse.SocketManager
 	queries       *db.Queries
 	service       *Service
 }
 
 func NewManager(locator *service.Locator) *Manager {
 	return &Manager{
-		socketManager: service.Get[ws.SocketManager](locator),
+		socketManager: service.Get[sse.SocketManager](locator),
 		queries:       service.Get[db.Queries](locator),
 		service:       NewService(locator),
 	}
 }
 
 func (m *Manager) StartListener() {
-	c := make(chan ws.SocketEvent)
+	c := make(chan sse.SocketEvent, 1)
 	m.socketManager.Listen(c)
 
 	for {
 		select {
 		case event := <-c:
 			switch event.Type {
-			case ws.ConnectedEvent:
+			case sse.ConnectedEvent:
 				m.OnConnected(event)
-			case ws.DisconnectedEvent:
+			case sse.DisconnectedEvent:
 				m.OnDisconnected(event)
-			case ws.MessageEvent:
+			case sse.MessageEvent:
 				m.onMessage(event)
+			default:
+				fmt.Printf("Unknown event type: %s\n", event.Type)
 			}
 		}
 	}
 }
 
-func (m *Manager) OnConnected(e ws.SocketEvent) {
+func (m *Manager) dispatchConnectedUsers(roomId string, predicate func(conn sse.SocketConnection) bool) {
+
+	connectedUsers := make([]db.User, 0)
+
+	// backfill all existing clients to the connected client
+	m.socketManager.ForEachSocket(roomId, func(conn sse.SocketConnection) {
+		if !predicate(conn) {
+			return
+		}
+		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
+		if err != nil {
+			return
+		}
+		connectedUsers = append(connectedUsers, user)
+	})
+
+	m.socketManager.ForEachSocket(roomId, func(conn sse.SocketConnection) {
+		m.socketManager.SendText(conn.Id, h.Render(ConnectedUsers(connectedUsers, conn.Id)))
+	})
+}
+
+func (m *Manager) OnConnected(e sse.SocketEvent) {
 	room, _ := m.service.GetRoom(e.RoomId)
 
 	if room == nil {
-		m.socketManager.CloseWithError(e.Id, 1008, "invalid room")
+		m.socketManager.CloseWithMessage(e.Id, "invalid room")
 		return
 	}
 
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 
 	if err != nil {
-		m.socketManager.CloseWithError(e.Id, 1008, "invalid user")
+		m.socketManager.CloseWithMessage(e.Id, "invalid user")
 		return
 	}
 
 	fmt.Printf("User %s connected to %s\n", user.Name, e.RoomId)
 
-	// backfill all existing clients to the connected client
-	m.socketManager.ForEachSocket(e.RoomId, func(conn ws.SocketConnection) {
-		user, err := m.queries.GetUserBySessionId(context.Background(), conn.Id)
-		if err != nil {
-			return
-		}
-		isMe := conn.Id == e.Id
-		fmt.Printf("Sending connected user %s to %s\n", user.Name, e.Id)
-		m.socketManager.SendText(e.Id, h.Render(ConnectedUsers(user.Name, isMe)))
+	m.dispatchConnectedUsers(e.RoomId, func(conn sse.SocketConnection) bool {
+		return true
 	})
 
-	// send the connected user to all existing clients
-	m.socketManager.BroadcastText(
-		e.RoomId,
-		h.Render(ConnectedUsers(user.Name, false)),
-		func(conn ws.SocketConnection) bool {
-			return conn.Id != e.Id
-		},
-	)
-
-	go m.backFill(e.Id, e.RoomId)
+	m.backFill(e.Id, e.RoomId)
 }
 
-func (m *Manager) OnDisconnected(e ws.SocketEvent) {
+func (m *Manager) OnDisconnected(e sse.SocketEvent) {
 	user, err := m.queries.GetUserBySessionId(context.Background(), e.Id)
 	if err != nil {
 		return
@@ -93,7 +100,7 @@ func (m *Manager) OnDisconnected(e ws.SocketEvent) {
 		return
 	}
 	fmt.Printf("User %s disconnected from %s\n", user.Name, room.ID)
-	m.socketManager.BroadcastText(room.ID, h.Render(ConnectedUser(user.Name, true, false)), func(conn ws.SocketConnection) bool {
+	m.dispatchConnectedUsers(e.RoomId, func(conn sse.SocketConnection) bool {
 		return conn.Id != e.Id
 	})
 }
@@ -116,7 +123,7 @@ func (m *Manager) backFill(socketId string, roomId string) {
 	}
 }
 
-func (m *Manager) onMessage(e ws.SocketEvent) {
+func (m *Manager) onMessage(e sse.SocketEvent) {
 	message := e.Payload["message"].(string)
 
 	if message == "" {
@@ -140,7 +147,7 @@ func (m *Manager) onMessage(e ws.SocketEvent) {
 		m.socketManager.BroadcastText(
 			e.RoomId,
 			h.Render(MessageRow(saved)),
-			func(conn ws.SocketConnection) bool {
+			func(conn sse.SocketConnection) bool {
 				return true
 			},
 		)

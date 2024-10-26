@@ -6,6 +6,7 @@ import (
 	"htmgo-site/__htmgo"
 	"htmgo-site/internal/cache"
 	"htmgo-site/internal/markdown"
+	"htmgo-site/internal/sitemap"
 	"io/fs"
 	"net/http"
 )
@@ -34,6 +35,16 @@ func main() {
 			}
 
 			http.FileServerFS(sub)
+
+			app.Router.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				s, err := sitemap.Generate()
+				if err != nil {
+					http.Error(w, "failed to generate sitemap", http.StatusInternalServerError)
+					return
+				}
+				w.Header().Set("Content-Type", "application/xml")
+				w.Write(s)
+			}))
 
 			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
 

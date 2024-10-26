@@ -1,4 +1,4 @@
-**Rendering Raw Html**
+## Rendering Raw Html
 
 In some cases, you may want to render raw HTML instead of using htmgo's functions.
 This can be done by using the following methods:

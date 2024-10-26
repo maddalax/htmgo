@@ -1,30 +1,26 @@
-## **Introduction**
+## Introduction
 
 htmgo is a lightweight pure go way to build interactive websites / web applications using go & htmx.
 We give you the utilities to build html using pure go code in a reusable way (go functions are components) while also providing htmx functions to add interactivity to your app.
 
 ```go
 func DocsPage(ctx *h.RequestContext) *h.Page {
-	assets := ctx.Get("embeddedMarkdown").(fs.FS)
-	pages := dirwalk.WalkPages("md/docs", assets)
-
-	return h.NewPage(base.RootPage(
+	pages := dirwalk.WalkPages("md/docs")
+	return h.NewPage(
 		h.Div(
-			h.Class("flex flex-col md:flex-row gap-4 justify-center mb-12"),
-			partials.DocSidebar(pages),
+			h.Class("flex flex-col md:flex-row gap-4"),
+			DocSidebar(pages),
 			h.Div(
 				h.Class("flex flex-col justify-center items-center mt-6"),
 				h.List(pages, func(page *dirwalk.Page, index int) *h.Element {
 					return h.Div(
-						h.Class("border-b border-b-slate-300 w-full pb-8 mb-8"),
-						MarkdownContent(ctx, 
-                            page.FilePath, 
-                            partials.CreateAnchor(page.Parts)),
+						h.Class("border-b border-b-slate-300"),
+						MarkdownContent(ctx, page),
 					)
 				}),
 			),
 		),
-	))
+	)
 }
 ```
 

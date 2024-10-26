@@ -2,7 +2,6 @@ package h
 
 import (
 	"github.com/maddalax/htmgo/framework/hx"
-	"strings"
 )
 
 // Get adds two attributes to the element: hx-get and hx-trigger.
@@ -27,19 +26,11 @@ func GetWithQs(path string, qs *Qs, trigger string) *AttributeMapOrdered {
 
 // PostPartial adds two attributes to the element: hx-post and hx-trigger, and uses the partial path for the hx-post attribute.
 func PostPartial(partial PartialFunc, triggers ...string) *AttributeMapOrdered {
-	path := GetPartialPath(partial)
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
-	}
-	return Post(path, triggers...)
+	return Post(GetPartialPath(partial), triggers...)
 }
 
 // PostPartialWithQs adds two attributes to the element: hx-post and hx-trigger, and uses the partial path for the hx-post attribute. It also sets the query string parameters.
 func PostPartialWithQs(partial PartialFunc, qs *Qs, trigger ...string) *AttributeMapOrdered {
-	path := GetPartialPathWithQs(partial, qs)
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
-	}
 	return Post(GetPartialPathWithQs(partial, qs), trigger...)
 }
 

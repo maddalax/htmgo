@@ -1,6 +1,3 @@
-> [!WARNING]
-> htmgo is in alpha release. Please report any issues on GitHub.
-
 ## **htmgo**
 
 ### build simple and scalable systems with go + htmx
@@ -34,9 +31,12 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 2. live reload (rebuilds css, go, ent schema, and routes upon change)
 3. automatic page and partial registration based on file path
 4. built in tailwindcss support, no need to configure anything by default
-5. plugin architecture to include optional plugins to streamline development, such as http://entgo.io
-6. custom [htmx extensions](https://github.com/maddalax/htmgo/tree/b610aefa36e648b98a13823a6f8d87566120cfcc/framework/assets/js/htmxextensions) to reduce boilerplate with common tasks
+5. custom [htmx extensions](https://github.com/maddalax/htmgo/tree/b610aefa36e648b98a13823a6f8d87566120cfcc/framework/assets/js/htmxextensions) to reduce boilerplate with common tasks
 
 **get started:**
 
 View documentation on [htmgo.dev](https://htmgo.dev/docs).
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maddalax/htmgo&type=Date)](https://star-history.com/#maddalax/htmgo&Date)

@@ -12,8 +12,10 @@ htmx.defineExtension("mutation-error", {
       }
       const status = evt.detail.xhr.status;
       if (status >= 400) {
-        htmx.findAll("[hx-on\\:\\:mutation-error]").forEach((element) => {
-          htmx.trigger(element, "htmx:mutation-error", { status });
+        document.querySelectorAll("*").forEach((element) => {
+          if (element.hasAttribute("hx-on::on-mutation-error")) {
+            htmx.trigger(element, "htmx:on-mutation-error", { status });
+          }
         });
       }
     }

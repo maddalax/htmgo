@@ -1,15 +1,11 @@
-github.com/coder/websocket v1.8.12 h1:5bUXkEPPIbewrnkU8LTCLVaxi4N4J8ahufH2vlo4NAo=
-github.com/coder/websocket v1.8.12/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-chi/chi/v5 v5.1.0 h1:acVI1TYaD+hhedDJ3r54HyA6sExp3HfXq7QWEEY/xMw=
 github.com/go-chi/chi/v5 v5.1.0/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/maddalax/htmgo/framework v0.0.0-20241001184532-9a5b92987701 h1:0Zk282axc1kPiuspLNzK5BJV7cQ5h2kPZHe54dznhYY=
-github.com/maddalax/htmgo/framework v0.0.0-20241001184532-9a5b92987701/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
-github.com/maddalax/htmgo/framework v0.0.0-20241002032603-8b816e956692 h1:NtLJ7GcD9hWvPYmombxC1SzVNgvnhLXWhZEQJZOstik=
-github.com/maddalax/htmgo/framework v0.0.0-20241002032603-8b816e956692/go.mod h1:HYKI49Pb6oyY2opSJdTt145B1vWgfWIDohvlolynv80=
+github.com/maddalax/htmgo/framework v1.0.2-0.20241025174132-df3edccd7fb0 h1:K9Q5b7BmbpCPJFjrAHS8+wPdKDcZN9NMC3Fg51n5IaQ=
+github.com/maddalax/htmgo/framework v1.0.2-0.20241025174132-df3edccd7fb0/go.mod h1:NGGzWVXWksrQJ9kV9SGa/A1F1Bjsgc08cN7ZVb98RqY=
 github.com/mattn/go-sqlite3 v1.14.23 h1:gbShiuAP1W5j9UOksQ06aiiqPMxYecovVGwmTxWtuw0=
 github.com/mattn/go-sqlite3 v1.14.23/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

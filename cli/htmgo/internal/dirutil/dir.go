@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/config"
 	"io"
 	"log/slog"
 	"os"
@@ -15,6 +16,10 @@ func HasFileFromRoot(file string) bool {
 	path := filepath.Join(cwd, file)
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func GetConfig() *config.ProjectConfig {
+	return config.FromConfigFile(process.GetWorkingDir())
 }
 
 func CreateHtmgoDir() {
@@ -71,7 +76,7 @@ func MoveFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %v", err)
 	}
-	// Disconnect the source file.
+	// Remove the source file.
 	err = os.Remove(src)
 	if err != nil {
 		return fmt.Errorf("failed to remove source file: %v", err)

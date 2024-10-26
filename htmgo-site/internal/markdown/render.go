@@ -2,6 +2,8 @@ package markdown
 
 import (
 	"bytes"
+	"github.com/alecthomas/chroma/v2"
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
@@ -52,6 +54,12 @@ func RenderMarkdown(reader io.Reader) bytes.Buffer {
 		),
 		goldmark.WithExtensions(
 			highlighting.NewHighlighting(
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+					chromahtml.WithCustomCSS(map[chroma.TokenType]string{
+						chroma.PreWrapper: "padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important;",
+					}),
+				),
 				highlighting.WithStyle("github"),
 			),
 		),

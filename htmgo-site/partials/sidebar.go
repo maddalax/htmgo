@@ -57,14 +57,24 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 	grouped := groupByFirstPart(pages)
 
 	return h.Div(
-		h.Class("px-3 py-2 pr-6 md:min-h-[(calc(100%))] md:min-h-screen bg-neutral-50 border-r border-r-slate-300"),
+		h.Class("px-3 py-2 pr-6 min-h-screen bg-neutral-50 border-r border-r-slate-300 overflow-y-auto"),
 		h.Div(
-			h.H4(h.Text("Contents"), h.Class("mt-4 text-slate-900 font-bold mb-3")),
+			h.Div(
+				h.Class("mb-3"),
+				h.A(
+					h.Href("#quick-start-introduction"),
+					h.Text("Documentation"),
+					h.Class("md:mt-4 text-xl text-slate-900 font-bold"),
+				),
+			),
 			h.Div(
 				h.Class("flex flex-col gap-4"),
 				h.List(grouped.Entries(), func(entry datastructures.Entry[string, []*dirwalk.Page], index int) *h.Element {
 					return h.Div(
-						h.P(h.Text(formatPart(entry.Key)), h.Class("text-slate-800 font-bold")),
+						h.P(
+							h.Text(formatPart(entry.Key)),
+							h.Class("text-slate-800 font-bold"),
+						),
 						h.Div(
 							h.Class("pl-4 flex flex-col"),
 							h.List(entry.Value, func(page *dirwalk.Page, index int) *h.Element {

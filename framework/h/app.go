@@ -3,9 +3,6 @@ package h
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,6 +10,10 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/service"
 )
 
 type RequestContext struct {
@@ -29,8 +30,83 @@ type RequestContext struct {
 	kv                map[string]interface{}
 }
 
+func GetRequestContext(r *http.Request) *RequestContext {
+	return r.Context().Value(RequestContextKey).(*RequestContext)
+}
+
+func (c *RequestContext) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(c.Response, cookie)
+}
+
+func (c *RequestContext) Redirect(path string, code int) {
+	if code == 0 {
+		code = http.StatusTemporaryRedirect
+	}
+	if code < 300 || code > 399 {
+		code = http.StatusTemporaryRedirect
+	}
+	c.Response.Header().Set("Location", path)
+	c.Response.WriteHeader(code)
+}
+
+func (c *RequestContext) IsHttpPost() bool {
+	return c.Request.Method == http.MethodPost
+}
+
+func (c *RequestContext) IsHttpGet() bool {
+	return c.Request.Method == http.MethodGet
+}
+
+func (c *RequestContext) IsHttpPut() bool {
+	return c.Request.Method == http.MethodPut
+}
+
+func (c *RequestContext) IsHttpDelete() bool {
+	return c.Request.Method == http.MethodDelete
+}
+
+func (c *RequestContext) FormValue(key string) string {
+	return c.Request.FormValue(key)
+}
+
+func (c *RequestContext) Header(key string) string {
+	return c.Request.Header.Get(key)
+}
+
+func (c *RequestContext) UrlParam(key string) string {
+	return chi.URLParam(c.Request, key)
+}
+
 func (c *RequestContext) QueryParam(key string) string {
 	return c.Request.URL.Query().Get(key)
+}
+
+func (c *RequestContext) IsBoosted() bool {
+	return c.isBoosted
+}
+
+func (c *RequestContext) IsHxRequest() bool {
+	return c.isHxRequest
+}
+
+func (c *RequestContext) HxPromptResponse() string {
+	return c.hxPromptResponse
+}
+
+func (c *RequestContext) HxTargetId() string {
+	return c.hxTargetId
+}
+
+func (c *RequestContext) HxTriggerName() string {
+	return c.hxTriggerName
+}
+
+func (c *RequestContext) HxTriggerId() string {
+	return c.hxTriggerId
+}
+
+func (c *RequestContext) HxCurrentBrowserUrl() string {
+	return c.currentBrowserUrl
 }
 
 func (c *RequestContext) Set(key string, value interface{}) {
@@ -79,7 +155,6 @@ func Start(opts AppOpts) {
 const RequestContextKey = "htmgo.request.context"
 
 func populateHxFields(cc *RequestContext) {
-	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
 	cc.isBoosted = cc.Request.Header.Get(hx.BoostedHeader) == "true"
 	cc.currentBrowserUrl = cc.Request.Header.Get(hx.CurrentUrlHeader)
 	cc.hxPromptResponse = cc.Request.Header.Get(hx.PromptResponseHeader)
@@ -144,10 +219,9 @@ func (app *App) start() {
 	}
 
 	port := ":3000"
-	slog.Info(fmt.Sprintf("Server started on port %s", port))
-	err := http.ListenAndServe(port, app.Router)
+	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
 
-	if err != nil {
+	if err := http.ListenAndServe(port, app.Router); err != nil {
 		// If we are in watch mode, just try to kill any processes holding that port
 		// and try again
 		if IsDevelopment() && IsWatchMode() {
@@ -159,29 +233,42 @@ func (app *App) start() {
 				cmd := exec.Command("bash", "-c", fmt.Sprintf("kill -9 $(lsof -ti%s)", port))
 				cmd.Run()
 			}
+
 			time.Sleep(time.Millisecond * 50)
-			err = http.ListenAndServe(":3000", app.Router)
-			if err != nil {
+
+			// Try to start server again
+			if err := http.ListenAndServe(port, app.Router); err != nil {
+				slog.Error("Failed to restart server", "error", err)
 				panic(err)
 			}
-		} else {
-			panic(err)
 		}
+
 		panic(err)
 	}
 }
 
 func writeHtml(w http.ResponseWriter, element Ren) error {
+	if element == nil {
+		return nil
+	}
 	w.Header().Set("Content-Type", "text/html")
-	_, err := fmt.Fprint(w, Render(element))
+	_, err := fmt.Fprint(w, Render(element, WithDocType()))
 	return err
 }
 
 func HtmlView(w http.ResponseWriter, page *Page) error {
+	// if the page is nil, do nothing, this can happen if custom response is written, such as a 302 redirect
+	if page == nil {
+		return nil
+	}
 	return writeHtml(w, page.Root)
 }
 
 func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)
@@ -198,6 +285,10 @@ func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Pa
 }
 
 func PartialView(w http.ResponseWriter, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)

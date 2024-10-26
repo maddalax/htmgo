@@ -2,9 +2,10 @@ package h
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/datastructure"
-	"strings"
 )
 
 type AttributeMap = map[string]any
@@ -89,9 +90,7 @@ func Checked() Ren {
 }
 
 func Id(value string) Ren {
-	if strings.HasPrefix(value, "#") {
-		value = value[1:]
-	}
+	value = strings.TrimPrefix(value, "#")
 	return Attribute("id", value)
 }
 
@@ -200,6 +199,12 @@ func Hidden() Ren {
 
 func Class(value ...string) *AttributeR {
 	return Attribute("class", MergeClasses(value...))
+}
+
+// ClassF is a helper function to create a class attribute with the given format string and arguments
+func ClassF(format string, args ...interface{}) *AttributeR {
+	atr := fmt.Sprintf(format, args...)
+	return Attribute("class", atr)
 }
 
 // ClassX conditionally renders a class based on a map of class names and boolean values

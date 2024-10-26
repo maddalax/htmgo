@@ -38,6 +38,14 @@ func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }
 
+func Details(children ...Ren) *Element {
+	return Tag("details", children...)
+}
+
+func Summary(children ...Ren) *Element {
+	return Tag("summary", children...)
+}
+
 func Text(text string) *TextContent {
 	return NewTextContent(text)
 }
@@ -182,6 +190,10 @@ func Input(inputType string, children ...Ren) *Element {
 	}
 }
 
+func TextArea(children ...Ren) *Element {
+	return Tag("textarea", children...)
+}
+
 func TextInput(children ...Ren) *Element {
 	return Input("text", children...)
 }
@@ -264,9 +276,7 @@ func TagF(tag string, format string, args ...interface{}) *Element {
 		case *AttributeMapOrdered:
 			children = append(children, d)
 		case *ChildList:
-			for _, child := range d.Children {
-				children = append(children, child)
-			}
+			children = append(children, d.Children...)
 		case *AttributeR:
 			children = append(children, d)
 		default:
@@ -460,6 +470,10 @@ func Tr(children ...Ren) *Element {
 
 func THead(children ...Ren) *Element {
 	return Tag("thead", children...)
+}
+
+func I(children ...Ren) *Element {
+	return Tag("i", children...)
 }
 
 func TFoot(children ...Ren) *Element {
