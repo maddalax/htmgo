@@ -51,6 +51,7 @@ func RenderMarkdown(reader io.Reader) bytes.Buffer {
 		),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
+			html.WithHardWraps(),
 		),
 		goldmark.WithExtensions(
 			highlighting.NewHighlighting(
