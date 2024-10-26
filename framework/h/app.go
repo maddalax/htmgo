@@ -47,6 +47,10 @@ func (c *RequestContext) Get(key string) interface{} {
 	return c.kv[key]
 }
 
+// ServiceLocator returns the service locator to register and retrieve services
+// Usage:
+// service.Set[db.Queries](locator, service.Singleton, db.Provide)
+// service.Get[db.Queries](locator)
 func (c *RequestContext) ServiceLocator() *service.Locator {
 	return c.locator
 }
@@ -62,6 +66,7 @@ type App struct {
 	Router *chi.Mux
 }
 
+// Start starts the htmgo server
 func Start(opts AppOpts) {
 	router := chi.NewRouter()
 	instance := App{
