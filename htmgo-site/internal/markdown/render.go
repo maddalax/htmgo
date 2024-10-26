@@ -11,10 +11,12 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 	"io"
 	"io/fs"
+	"sync"
 )
 
 type Renderer struct {
 	cache map[string]string
+	lock  sync.Mutex
 }
 
 func NewRenderer() *Renderer {
@@ -22,6 +24,8 @@ func NewRenderer() *Renderer {
 }
 
 func (r *Renderer) RenderFile(source string, system fs.FS) string {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	if val, ok := r.cache[source]; ok {
 		return val
 	}
