@@ -7,6 +7,8 @@
 ![Build](https://github.com/maddalax/htmgo/actions/workflows/run-framework-tests.yml/badge.svg)
 
 
+<sup>looking for a python version? check out: https://fastht.ml</sup>
+
 **introduction:**
 
 htmgo is a lightweight pure go way to build interactive websites / web applications using go & htmx.
