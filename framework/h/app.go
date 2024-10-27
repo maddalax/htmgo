@@ -251,7 +251,7 @@ func writeHtml(w http.ResponseWriter, element Ren) error {
 	if element == nil {
 		return nil
 	}
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, err := fmt.Fprint(w, Render(element, WithDocType()))
 	return err
 }
