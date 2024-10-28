@@ -372,8 +372,8 @@ func Label(children ...Ren) *Element {
 	return Tag("label", children...)
 }
 
-func IFrame(src string) *Element {
-	return Tag("iframe", Src(src))
+func IFrame(src string, children ...Ren) *Element {
+	return Tag("iframe", children...).AppendChildren(Src(src))
 }
 
 func Address(children ...Ren) *Element {

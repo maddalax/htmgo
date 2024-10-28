@@ -65,29 +65,49 @@ func snippetView(snippet *Snippet) *h.Element {
 			),
 		),
 		h.Div(
-			h.Class("border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full"),
-			h.Div(
-				h.Get(
-					h.GetPartialPath(snippet.partial),
-					"load",
+			h.ClassX("border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full", map[string]bool{
+				"mb-6": snippet.externalRoute == "",
+			}),
+			h.IfElse(
+				snippet.externalRoute != "",
+				h.IFrame(
+					snippet.externalRoute,
+					h.Class("h-full min-h-[800px] w-[50vw]"),
+				),
+				h.Div(
+					h.Get(
+						h.GetPartialPath(snippet.partial),
+						"load",
+					),
 				),
 			),
 		),
 		h.Div(
-			h.Class("mt-8 flex flex-col gap-2 justify-center"),
+			h.Class("flex flex-col gap-2 justify-center"),
 			h.Div(
 				h.Class("flex gap-2 items-center"),
 				h.A(
-					githubLogo(),
-					h.Href(GetGithubPath(snippet.path)),
-					h.Class("font-sm text-blue-500 hover:text-blue-400"),
+					h.Fragment(
+						githubLogo(),
+						h.If(
+							snippet.externalRoute != "",
+							h.Text("View source"),
+						),
+					),
+					h.Href(
+						h.Ternary(snippet.sourceCodePath == "", GetGithubPath(snippet.path), snippet.sourceCodePath),
+					),
+					h.Class("flex gap-1 items-center font-sm text-blue-500 hover:text-blue-400"),
 				),
-				h.H3(
-					h.Text("Source Code"),
-					h.Class("text-lg font-bold"),
+				h.If(
+					snippet.externalRoute == "",
+					h.H3(
+						h.Text("Source Code"),
+						h.Class("text-lg font-bold"),
+					),
 				),
 			),
-			RenderCodeToString(snippet.partial),
+			h.If(snippet.externalRoute == "", RenderCodeToString(snippet.partial)),
 		),
 	)
 }
@@ -98,7 +118,7 @@ func emptyState() *h.Element {
 		h.Div(
 			h.Class("flex gap-2 items-center"),
 			h.H3(
-				h.Text("Choose a snippet on the sidebar to view"),
+				h.Text("Choose an example on the sidebar to view"),
 				h.Class("text-lg"),
 			),
 		),

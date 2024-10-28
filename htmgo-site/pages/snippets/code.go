@@ -22,7 +22,7 @@ func getFunctionFilePath(fn interface{}) string {
 }
 
 func GetGithubPath(path string) string {
-	return fmt.Sprintf("https://github.com/maddalax/htmgo/blob/master%s", path)
+	return fmt.Sprintf("https://github.com/maddalax/htmgo/tree/master/htmgo-site/partials%s.go", path)
 }
 
 func RenderCodeToString(partial h.PartialFunc) *h.Element {

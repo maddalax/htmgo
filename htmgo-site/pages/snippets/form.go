@@ -5,6 +5,6 @@ import (
 )
 
 func FormExample(ctx *h.RequestContext) *h.Page {
-	SetSnippet(ctx, &FormWithLoadingState)
+	SetSnippet(ctx, &FormWithLoadingStateSnippet)
 	return Index(ctx)
 }

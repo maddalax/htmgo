@@ -12,7 +12,7 @@ func SnippetSidebar() *h.Element {
 				h.Class("mb-3"),
 				h.A(
 					h.Href("#"),
-					h.Text("Snippets"),
+					h.Text("Examples"),
 					h.Class("md:mt-4 text-xl text-slate-900 font-bold"),
 				),
 			),

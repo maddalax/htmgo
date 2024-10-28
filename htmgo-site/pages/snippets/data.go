@@ -3,11 +3,13 @@ package snippets
 import "github.com/maddalax/htmgo/framework/h"
 
 type Snippet struct {
-	name        string
-	description string
-	sidebarName string
-	path        string
-	partial     h.PartialFunc
+	name           string
+	description    string
+	sidebarName    string
+	path           string
+	partial        h.PartialFunc
+	externalRoute  string
+	sourceCodePath string
 }
 
 func SetSnippet(ctx *h.RequestContext, snippet *Snippet) {
