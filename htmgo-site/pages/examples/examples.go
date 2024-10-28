@@ -58,7 +58,7 @@ var TodoListSnippet = Snippet{
 var ClickToEditSnippet = Snippet{
 	name:        "Inline Click To Edit",
 	description: "List view of items with a click to edit button and persistence",
-	sidebarName: "Inline click to edit",
+	sidebarName: "Inline Click To Edit",
 	path:        "/examples/click-to-edit",
 	partial:     snippets.ClickToEdit,
 }
