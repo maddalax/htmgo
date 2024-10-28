@@ -2,6 +2,8 @@ package h
 
 import (
 	"context"
+	"embed"
+	_ "embed"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -15,6 +17,9 @@ import (
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/service"
 )
+
+//go:embed assets/*
+var staticAssets embed.FS
 
 type RequestContext struct {
 	Request           *http.Request
@@ -145,6 +150,9 @@ type App struct {
 // Start starts the htmgo server
 func Start(opts AppOpts) {
 	router := chi.NewRouter()
+
+	router.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticAssets))))
+
 	instance := App{
 		Opts:   opts,
 		Router: router,
