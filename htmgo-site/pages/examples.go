@@ -2,7 +2,6 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
-	"htmgo-site/pages/base"
 )
 
 type Example struct {
@@ -49,39 +48,37 @@ var examples = []Example{
 	},
 	{
 		Title:       "Form With Loading State",
-		Github:      "https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go",
-		Demo:        "/form",
+		Github:      "https://github.com/maddalax/htmgo/blob/master/htmgo-site/partials/snippets/form.go",
+		Demo:        "/snippets/form",
 		Description: "A simple form submission example with a loading state",
 	},
 }
 
 func ExamplesPage(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(
-		base.PageWithNav(
-			ctx,
+	return PageWithNav(
+		ctx,
+		h.Div(
+			h.Class("flex items-center justify-center"),
 			h.Div(
-				h.Class("flex items-center justify-center"),
+				h.Class("w-full px-4 flex flex-col prose max-w-[95vw] md:max-w-3xl mt-6"),
 				h.Div(
-					h.Class("w-full px-4 flex flex-col prose max-w-[95vw] md:max-w-3xl mt-6"),
+					h.Class("flex flex-col mb-6 md:mb-0 md:flex-row justify-between items-center"),
 					h.Div(
-						h.Class("flex flex-col mb-6 md:mb-0 md:flex-row justify-between items-center"),
-						h.Div(
-							h.H1(
-								h.Class("text-center md:text-left"),
-								h.Text("htmgo examples"),
-							),
-							h.H3(
-								h.Class("-mt-4"),
-								h.TextF("example projects built with htmgo"),
-							),
+						h.H1(
+							h.Class("text-center md:text-left"),
+							h.Text("htmgo examples"),
+						),
+						h.H3(
+							h.Class("-mt-4"),
+							h.TextF("example projects built with htmgo"),
 						),
 					),
+				),
+				h.Div(
+					h.Class("border-b border-b-slate-200 h-1"),
 					h.Div(
-						h.Class("border-b border-b-slate-200 h-1"),
-						h.Div(
-							h.Class("mt-4"),
-							ExampleCards(),
-						),
+						h.Class("mt-4"),
+						ExampleCards(),
 					),
 				),
 			),

@@ -16,8 +16,10 @@ func FormatCode(code string, customStyles ...string) string {
 	lexer := lexers.Get("go")
 	style := styles.Get("github")
 	formatter := html.New(
+		html.WrapLongLines(true),
+		html.WithLineNumbers(true),
 		html.WithCustomCSS(map[chroma.TokenType]string{
-			chroma.PreWrapper: fmt.Sprintf("padding: 12px; overflow: auto; %s", strings.Join(customStyles, ";")),
+			chroma.PreWrapper: fmt.Sprintf("padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important; %s", strings.Join(customStyles, ";")),
 		}))
 	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
@@ -27,8 +29,8 @@ func FormatCode(code string, customStyles ...string) string {
 	return buf.String()
 }
 
-func CodeSnippet(code string) *h.Element {
+func CodeSnippet(code string, customStyles ...string) *h.Element {
 	return h.Div(
-		h.UnsafeRaw(FormatCode(code)),
+		h.UnsafeRaw(FormatCode(code, customStyles...)),
 	)
 }

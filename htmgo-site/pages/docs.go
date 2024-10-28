@@ -3,7 +3,6 @@ package pages
 import (
 	"github.com/maddalax/htmgo/framework/h"
 	"htmgo-site/internal/dirwalk"
-	"htmgo-site/pages/base"
 	"htmgo-site/partials"
 	"io/fs"
 )
@@ -12,7 +11,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 	assets := ctx.Get("embeddedMarkdown").(fs.FS)
 	pages := dirwalk.WalkPages("md/docs", assets)
 
-	return h.NewPage(base.RootPage(
+	return RootPage(
 		ctx,
 		h.Div(
 			h.Class("flex h-full"),
@@ -28,7 +27,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 				}),
 				h.Main(
 					h.Div(
-						h.Class("w-full md:hidden bg-neutral-50 overflow-y-auto"),
+						h.Class("w-full md:hidden bg-neutral-50 overflow-y-auto mb-4 border-b border-b-slate-300"),
 						partials.DocSidebar(pages),
 					),
 					h.Class("overflow-y-auto justify-center overflow-x-hidden pb-6 items-center w-full"),
@@ -63,5 +62,5 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 				),
 			),
 		),
-	))
+	)
 }

@@ -1,42 +1,33 @@
-package pages
+package snippets
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/js"
-	"htmgo-site/pages/base"
-	"htmgo-site/partials"
+	"time"
 )
 
-func Form(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(base.RootPage(
-		ctx,
-		h.Div(
-			h.Class("flex flex-col items-center justify-center p-4 gap-6"),
-			h.H2F(
-				"Form submission with loading state example",
-				h.Class("text-2xl font-bold"),
-			),
-			h.Form(
-				h.TriggerChildren(),
-				h.PostPartial(partials.SubmitForm),
-				h.Class("flex flex-col gap-2"),
-				h.LabelFor("name", "Your Name"),
-				h.Input(
-					"text",
-					h.Required(),
-					h.Class("p-4 rounded-md border border-slate-200"),
-					h.Name("name"),
-					h.Placeholder("Name"),
-					h.OnEvent(
-						hx.KeyDownEvent,
-						js.SubmitFormOnEnter(),
-					),
+func FormExample(ctx *h.RequestContext) *h.Partial {
+	return h.NewPartial(
+		h.Form(
+			h.TriggerChildren(),
+			h.PostPartial(SubmitForm),
+			h.Class("flex flex-col gap-2 max-w-[300px] mx-auto"),
+			h.LabelFor("name", "Your Name"),
+			h.Input(
+				"text",
+				h.Required(),
+				h.Class("p-4 rounded-md border border-slate-200"),
+				h.Name("name"),
+				h.Placeholder("Name"),
+				h.OnEvent(
+					hx.KeyDownEvent,
+					js.SubmitFormOnEnter(),
 				),
-				SubmitButton(),
 			),
+			SubmitButton(),
 		),
-	))
+	)
 }
 
 func SubmitButton() *h.Element {
@@ -68,7 +59,18 @@ func SubmitButton() *h.Element {
 func Spinner(children ...h.Ren) *h.Element {
 	return h.Div(
 		h.Children(children...),
-		h.Class("absolute left-1 spinner spinner-border animate-spin inline-block w-6 h-6 border-4 rounded-full border-slate-200 border-t-transparent"),
+		h.Class("absolute left-1 spinner spinner-border animate-spin "+
+			"inline-block w-6 h-6 border-4 rounded-full border-slate-200 border-t-transparent"),
 		h.Attribute("role", "status"),
+	)
+}
+
+func SubmitForm(ctx *h.RequestContext) *h.Partial {
+	name := ctx.FormValue("name")
+	time.Sleep(time.Second * 2)
+	return h.NewPartial(
+		h.Div(
+			h.TextF("Form submitted with name: %s", name),
+		),
 	)
 }
