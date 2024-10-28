@@ -110,11 +110,15 @@ func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 						h.Class("h-full min-h-[800px] w-[50vw]"),
 					),
 					h.A(
-						h.Class("absolute top-0 left-0 w-full h-full bg-transparent cursor-pointer"),
+						h.Class("absolute top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center cursor-pointer"),
 						h.Href(
 							snippet.externalRoute,
 						),
 						h.Target("_blank"),
+						h.Span(
+							h.Text("Click to view"),
+							h.Class("text-white text-lg font-bold"),
+						),
 					),
 				),
 				h.Div(
