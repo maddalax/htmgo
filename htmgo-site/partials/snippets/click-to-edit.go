@@ -18,10 +18,6 @@ type Record struct {
 	Salary   string
 }
 
-type TableProps struct {
-	EditingId string
-}
-
 var records = []Record{
 	{
 		Id:       "1",
@@ -43,10 +39,7 @@ func ClickToEdit(ctx *h.RequestContext) *h.Partial {
 	return h.NewPartial(
 		h.Div(
 			h.Class("flex gap-2 items-center w-full"),
-			Table(TableProps{
-				// no record is being edited initially
-				EditingId: "",
-			}),
+			Table(),
 		),
 	)
 }
@@ -89,7 +82,7 @@ func SaveEditing(ctx *h.RequestContext) *h.Partial {
 	return h.SwapPartial(ctx, TableRow(&record, false))
 }
 
-func Table(props TableProps) *h.Element {
+func Table() *h.Element {
 	return h.Div(
 		h.Class("overflow-x-auto w-full"),
 		h.Table(
@@ -120,8 +113,7 @@ func Table(props TableProps) *h.Element {
 			h.TBody(
 				h.Class("divide-y divide-gray-200"),
 				h.List(records, func(record Record, index int) *h.Element {
-					editing := props.EditingId == record.Id
-					return TableRow(&record, editing)
+					return TableRow(&record, false)
 				}),
 			),
 		),
