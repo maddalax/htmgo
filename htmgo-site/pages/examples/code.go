@@ -1,4 +1,4 @@
-package snippets
+package examples
 
 import (
 	"bytes"
@@ -8,14 +8,17 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 )
 
 func GetGithubPath(path string) string {
+	path = strings.ReplaceAll(path, "/partials/examples/", "/partials/snippets/")
 	return fmt.Sprintf("https://github.com/maddalax/htmgo/tree/master/htmgo-site/partials%s.go", path)
 }
 
 func GetGithubRawPath(path string) string {
+	path = strings.ReplaceAll(path, "/examples/", "/snippets/")
 	return fmt.Sprintf("https://raw.githubusercontent.com/maddalax/htmgo/master/htmgo-site/partials%s.go", path)
 }
 

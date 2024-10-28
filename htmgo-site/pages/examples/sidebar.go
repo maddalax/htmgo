@@ -1,4 +1,4 @@
-package snippets
+package examples
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
@@ -18,7 +18,7 @@ func SnippetSidebar() *h.Element {
 			),
 			h.Div(
 				h.Class("flex flex-col gap-2"),
-				h.List(Snippets, func(entry Snippet, index int) *h.Element {
+				h.List(examples, func(entry Snippet, index int) *h.Element {
 					return h.A(
 						h.Href(entry.path),
 						h.Text(entry.sidebarName),

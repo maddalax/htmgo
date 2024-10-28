@@ -1,4 +1,4 @@
-package snippets
+package examples
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
