@@ -17,7 +17,7 @@ func SnippetSidebar() *h.Element {
 				),
 			),
 			h.Div(
-				h.Class("flex flex-col gap-4"),
+				h.Class("flex flex-col gap-2"),
 				h.List(Snippets, func(entry Snippet, index int) *h.Element {
 					return h.A(
 						h.Href(entry.path),

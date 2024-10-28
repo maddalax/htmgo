@@ -30,8 +30,18 @@ var ChatSnippet = Snippet{
 	sourceCodePath: "https://github.com/maddalax/htmgo/tree/master/examples/chat",
 }
 
+var HackerNewsSnippet = Snippet{
+	name:           "Hacker News Clone",
+	description:    "A hacker news reader clone built with htmgo",
+	sidebarName:    "Hacker News Clone",
+	path:           "/snippets/hackernews",
+	externalRoute:  "https://hn.htmgo.dev",
+	sourceCodePath: "https://github.com/maddalax/htmgo/tree/master/examples/hackernews",
+}
+
 var Snippets = []Snippet{
 	FormWithLoadingStateSnippet,
 	UserAuthSnippet,
 	ChatSnippet,
+	HackerNewsSnippet,
 }

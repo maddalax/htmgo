@@ -36,7 +36,7 @@ func Index(ctx *h.RequestContext) *h.Page {
 						h.IfElseLazy(
 							snippet != nil,
 							func() *h.Element {
-								return snippetView(snippet)
+								return snippetView(ctx, snippet)
 							},
 							emptyState,
 						),
@@ -47,7 +47,33 @@ func Index(ctx *h.RequestContext) *h.Page {
 	)
 }
 
-func snippetView(snippet *Snippet) *h.Element {
+func viewSourceButton(snippet *Snippet) *h.Element {
+	return h.Div(
+		h.Class("flex gap-2 items-center"),
+		h.A(
+			h.Fragment(
+				githubLogo(),
+				h.If(
+					snippet.externalRoute != "",
+					h.Text("View source"),
+				),
+			),
+			h.Href(
+				h.Ternary(snippet.sourceCodePath == "", GetGithubPath(snippet.path), snippet.sourceCodePath),
+			),
+			h.Class("flex gap-2 items-center font-sm text-blue-500 hover:text-blue-400"),
+		),
+		h.If(
+			snippet.externalRoute == "",
+			h.H3(
+				h.Text("Source Code"),
+				h.Class("text-lg font-bold"),
+			),
+		),
+	)
+}
+
+func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 	return h.Div(
 		h.Class("flex flex-col mx-auto items-center gap-6 max-w-[90vw] md:max-w-[75vw] xl:max-w-4xl px-8"),
 		h.Div(
@@ -63,6 +89,13 @@ func snippetView(snippet *Snippet) *h.Element {
 					h.Class("text-slate-900"),
 				),
 			),
+			h.If(
+				snippet.externalRoute != "",
+				h.Div(
+					h.Class("mt-3"),
+					viewSourceButton(snippet),
+				),
+			),
 		),
 		h.Div(
 			h.ClassX("border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full", map[string]bool{
@@ -70,44 +103,34 @@ func snippetView(snippet *Snippet) *h.Element {
 			}),
 			h.IfElse(
 				snippet.externalRoute != "",
-				h.IFrame(
-					snippet.externalRoute,
-					h.Class("h-full min-h-[800px] w-[50vw]"),
+				h.Div(
+					h.Class("relative"),
+					h.IFrame(
+						snippet.externalRoute,
+						h.Class("h-full min-h-[800px] w-[50vw]"),
+					),
+					h.A(
+						h.Class("absolute top-0 left-0 w-full h-full bg-transparent cursor-pointer"),
+						h.Href(
+							snippet.externalRoute,
+						),
+						h.Target("_blank"),
+					),
 				),
 				h.Div(
-					h.Get(
-						h.GetPartialPath(snippet.partial),
-						"load",
-					),
+					h.IfElseLazy(snippet.partial != nil, func() *h.Element {
+						return snippet.partial(ctx).Root
+					}, h.Empty),
 				),
 			),
 		),
-		h.Div(
-			h.Class("flex flex-col gap-2 justify-center"),
+		h.If(
+			snippet.externalRoute == "",
 			h.Div(
-				h.Class("flex gap-2 items-center"),
-				h.A(
-					h.Fragment(
-						githubLogo(),
-						h.If(
-							snippet.externalRoute != "",
-							h.Text("View source"),
-						),
-					),
-					h.Href(
-						h.Ternary(snippet.sourceCodePath == "", GetGithubPath(snippet.path), snippet.sourceCodePath),
-					),
-					h.Class("flex gap-1 items-center font-sm text-blue-500 hover:text-blue-400"),
-				),
-				h.If(
-					snippet.externalRoute == "",
-					h.H3(
-						h.Text("Source Code"),
-						h.Class("text-lg font-bold"),
-					),
-				),
+				h.Class("flex flex-col gap-2 justify-center"),
+				viewSourceButton(snippet),
+				RenderCodeToStringCached(snippet),
 			),
-			h.If(snippet.externalRoute == "", RenderCodeToString(snippet.partial)),
 		),
 	)
 }
