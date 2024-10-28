@@ -37,6 +37,10 @@ const ModuleName = "github.com/maddalax/htmgo/framework/h"
 var PackageName = fmt.Sprintf("package %s", GeneratedDirName)
 var GeneratedFileLine = fmt.Sprintf("// Package %s THIS FILE IS GENERATED. DO NOT EDIT.", GeneratedDirName)
 
+func normalizePath(path string) string {
+	return strings.ReplaceAll(path, `\`, "/")
+}
+
 func sliceCommonPrefix(dir1, dir2 string) string {
 	// Use filepath.Clean to normalize the paths
 	dir1 = filepath.Clean(dir1)
@@ -62,9 +66,9 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 
 	// Return the longer one
 	if len(slicedDir1) > len(slicedDir2) {
-		return slicedDir1
+		return normalizePath(slicedDir1)
 	}
-	return slicedDir2
+	return normalizePath(slicedDir2)
 }
 
 func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial) bool) ([]Partial, error) {
@@ -106,8 +110,8 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 										if selectorExpr.Sel.Name == "Partial" {
 											p := Partial{
 												Package:  node.Name.Name,
-												Path:     sliceCommonPrefix(cwd, path),
-												Import:   sliceCommonPrefix(cwd, strings.ReplaceAll(filepath.Dir(path), `\`, `/`)),
+												Path:     normalizePath(sliceCommonPrefix(cwd, path)),
+												Import:   sliceCommonPrefix(cwd, normalizePath(filepath.Dir(path))),
 												FuncName: funcDecl.Name.Name,
 											}
 											if predicate(p) {
@@ -173,8 +177,8 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 										if selectorExpr.Sel.Name == "Page" {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
-												Import:   strings.ReplaceAll(filepath.Dir(path), `\`, `/`),
-												Path:     path,
+												Import:   normalizePath(filepath.Dir(path)),
+												Path:     normalizePath(path),
 												FuncName: funcDecl.Name.Name,
 											})
 											break

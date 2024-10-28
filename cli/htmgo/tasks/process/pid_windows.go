@@ -12,7 +12,10 @@ func KillProcess(process CmdWithFlags) error {
 	if process.Cmd == nil || process.Cmd.Process == nil {
 		return nil
 	}
-	Run(NewRawCommand("killprocess", fmt.Sprintf("taskkill /F /T /PID %s", strconv.Itoa(process.Cmd.Process.Pid))))
+	err := exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(process.Cmd.Process.Pid)).Run()
+	if err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(time.Millisecond * 50)
 	return nil
 }
