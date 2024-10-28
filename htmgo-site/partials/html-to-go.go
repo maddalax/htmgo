@@ -2,18 +2,20 @@ package partials
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/js"
 	"github.com/maddalax/htmgo/tools/html-to-htmgo/htmltogo"
 	"htmgo-site/ui"
 )
 
 func ConvertHtmlToGo(ctx *h.RequestContext) *h.Partial {
 	value := ctx.FormValue("html-input")
-	parsed := htmltogo.Parse([]byte(value))
+	parsed := string(htmltogo.Parse([]byte(value)))
 
-	formatted := ui.FormatCode(string(parsed), "height: 100%;")
+	formatted := ui.FormatCode(parsed, "height: 100%;")
 
-	return h.SwapPartial(ctx, GoOutput(formatted))
+	return h.SwapManyPartial(ctx,
+		GoOutput(formatted),
+		HiddenCopyOutput(parsed),
+	)
 }
 
 func HtmlInput() *h.Element {
@@ -30,6 +32,14 @@ func HtmlInput() *h.Element {
 	)
 }
 
+func HiddenCopyOutput(content string) *h.Element {
+	return h.Div(
+		h.Class("hidden"),
+		h.Id("go-output-raw"),
+		h.UnsafeRaw(content),
+	)
+}
+
 func GoOutput(content string) *h.Element {
 	return h.Div(
 		h.Class("h-full w-1/2 min-w-1/2"),
@@ -43,25 +53,7 @@ func GoOutput(content string) *h.Element {
 			),
 			h.If(
 				content != "",
-				h.Div(
-					h.Class("absolute top-0 right-0 p-2 bg-slate-800 text-white rounded-bl-md cursor-pointer"),
-					h.Text("Copy"),
-					h.OnClick(
-						// language=JavaScript
-						js.EvalJs(`
-							if(!navigator.clipboard) {
-								alert("Clipboard API not supported");
-								return;
-							}
-							let text = self.parentElement.querySelector("#go-output-content").innerText;
-							navigator.clipboard.writeText(text);
-							self.innerText = "Copied!";
-							setTimeout(() => {
-								self.innerText = "Copy";
-							}, 1000);
-						`),
-					),
-				),
+				ui.CopyButton("#go-output-raw"),
 			),
 		),
 	)

@@ -8,6 +8,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
+	"reflect"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -29,20 +32,38 @@ var RenderCodeToStringCached = h.CachedPerKeyT(time.Minute*30, func(snippet *Sni
 })
 
 func renderCodeToString(snippet *Snippet) *h.Element {
-	url := GetGithubRawPath(snippet.path)
-	slog.Info("getting snippet source code", slog.String("url", url))
-	resp, err := http.Get(url)
-	if err != nil {
-		return h.Empty()
+	source := ""
+	// in development, use the local file
+	if h.IsDevelopment() {
+		ptr := reflect.ValueOf(snippet.partial).Pointer()
+		fnInfo := runtime.FuncForPC(ptr)
+		if fnInfo == nil {
+			return h.Empty()
+		}
+		file, _ := fnInfo.FileLine(ptr)
+		b, err := os.ReadFile(file)
+		if err != nil {
+			return h.Empty()
+		}
+		source = string(b)
+	} else {
+		url := GetGithubRawPath(snippet.path)
+		slog.Info("getting snippet source code", slog.String("url", url))
+		resp, err := http.Get(url)
+		if err != nil {
+			return h.Empty()
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			return h.Empty()
+		}
+		out := bytes.NewBuffer(nil)
+		_, err = io.Copy(out, resp.Body)
+		if err != nil {
+			return h.Empty()
+		}
+		source = out.String()
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return h.Empty()
-	}
-	out := bytes.NewBuffer(nil)
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return h.Empty()
-	}
-	return ui.CodeSnippet(out.String(), "border-radius: 0.5rem;")
+
+	return ui.CodeSnippet(source, "border-radius: 0.5rem;")
 }

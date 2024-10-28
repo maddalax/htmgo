@@ -62,7 +62,7 @@ func RenderMarkdown(reader io.Reader) bytes.Buffer {
 				highlighting.WithFormatOptions(
 					chromahtml.WithLineNumbers(true),
 					chromahtml.WithCustomCSS(map[chroma.TokenType]string{
-						chroma.PreWrapper: "padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important;",
+						chroma.PreWrapper: "font-size: 14px; padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important;",
 					}),
 				),
 				highlighting.WithStyle("github"),

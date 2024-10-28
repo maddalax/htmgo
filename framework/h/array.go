@@ -14,6 +14,15 @@ func Unique[T any](slice []T, key func(item T) string) []T {
 	return result
 }
 
+func Find[T any](slice []T, predicate func(item *T) bool) *T {
+	for _, v := range slice {
+		if predicate(&v) {
+			return &v
+		}
+	}
+	return nil
+}
+
 // Filter returns a new slice with only items that match the predicate.
 func Filter[T any](slice []T, predicate func(item T) bool) []T {
 	var result []T

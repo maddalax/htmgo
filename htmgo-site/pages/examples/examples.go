@@ -5,7 +5,7 @@ import "htmgo-site/partials/snippets"
 var FormWithLoadingStateSnippet = Snippet{
 	name:        "Form",
 	description: "A simple form submission example with a loading state",
-	sidebarName: "Form with loading state",
+	sidebarName: "Form With Loading State",
 	path:        "/examples/form",
 	partial:     snippets.FormExample,
 }
@@ -22,16 +22,16 @@ var UserAuthSnippet = Snippet{
 var ChatSnippet = Snippet{
 	name:           "Chat App",
 	description:    "A simple chat application built with htmgo using SSE for real-time updates",
-	sidebarName:    "Chat App",
+	sidebarName:    "Chat App Using SSE",
 	path:           "/examples/chat",
 	externalRoute:  "https://chat-example.htmgo.dev",
 	sourceCodePath: "https://github.com/maddalax/htmgo/tree/master/examples/chat",
 }
 
 var HackerNewsSnippet = Snippet{
-	name:           "Hacker News Clone",
+	name:           "HackerNews Clone",
 	description:    "A hacker news reader clone built with htmgo",
-	sidebarName:    "Hacker News Clone",
+	sidebarName:    "HackerNews Clone",
 	path:           "/examples/hackernews",
 	externalRoute:  "https://hn.htmgo.dev",
 	sourceCodePath: "https://github.com/maddalax/htmgo/tree/master/examples/hackernews",
@@ -55,8 +55,17 @@ var TodoListSnippet = Snippet{
 	sourceCodePath: "https://github.com/maddalax/htmgo/tree/master/examples/todo-list",
 }
 
+var ClickToEditSnippet = Snippet{
+	name:        "Inline Click To Edit",
+	description: "List view of items with a click to edit button and persistence",
+	sidebarName: "Inline click to edit",
+	path:        "/examples/click-to-edit",
+	partial:     snippets.ClickToEdit,
+}
+
 var examples = []Snippet{
 	FormWithLoadingStateSnippet,
+	ClickToEditSnippet,
 	UserAuthSnippet,
 	ChatSnippet,
 	HackerNewsSnippet,

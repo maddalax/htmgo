@@ -17,6 +17,7 @@ func HtmlToGoPage(ctx *h.RequestContext) *h.Page {
 			h.Div(
 				h.Class("h-full w-full flex gap-4 p-8"),
 				partials.HtmlInput(),
+				partials.HiddenCopyOutput(""),
 				partials.GoOutput(""),
 			),
 		),
