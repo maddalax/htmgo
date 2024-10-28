@@ -3,11 +3,12 @@ package dirutil
 import (
 	"fmt"
 	"github.com/bmatcuk/doublestar/v4"
+	"strings"
 )
 
 func matchesAny(patterns []string, path string) bool {
 	for _, pattern := range patterns {
-		matched, err := doublestar.Match(pattern, path)
+		matched, err := doublestar.Match(pattern, strings.ReplaceAll(path, `\`, "/"))
 		if err != nil {
 			fmt.Printf("Error matching pattern: %v\n", err)
 			return false
