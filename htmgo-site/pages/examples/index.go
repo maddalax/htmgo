@@ -98,8 +98,8 @@ func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 			),
 		),
 		h.Div(
-			h.ClassX("border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full", map[string]bool{
-				"mb-6": snippet.externalRoute == "",
+			h.ClassX("", map[string]bool{
+				"mb-6 border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full": snippet.externalRoute == "",
 			}),
 			h.IfElse(
 				snippet.externalRoute != "",
@@ -107,10 +107,10 @@ func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 					h.Class("relative"),
 					h.IFrame(
 						snippet.externalRoute,
-						h.Class("h-full min-h-[800px] w-[50vw]"),
+						h.Class("h-full min-h-[800px] w-[50vw] rounded"),
 					),
 					h.A(
-						h.Class("absolute top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center cursor-pointer"),
+						h.Class("w-[50vw] rounded absolute top-0 left-0 h-full bg-gray-800 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center cursor-pointer"),
 						h.Href(
 							snippet.externalRoute,
 						),
