@@ -1,8 +1,8 @@
 package partials
 
 import (
+	"github.com/maddalax/htmgo/framework/datastructure/orderedmap"
 	"github.com/maddalax/htmgo/framework/h"
-	"htmgo-site/internal/datastructures"
 	"htmgo-site/internal/dirwalk"
 	"strings"
 )
@@ -37,8 +37,8 @@ func partsToName(parts []string) string {
 	return builder.String()
 }
 
-func groupByFirstPart(pages []*dirwalk.Page) *datastructures.OrderedMap[string, []*dirwalk.Page] {
-	grouped := datastructures.NewOrderedMap[string, []*dirwalk.Page]()
+func groupByFirstPart(pages []*dirwalk.Page) *orderedmap.Map[string, []*dirwalk.Page] {
+	grouped := orderedmap.New[string, []*dirwalk.Page]()
 	for _, page := range pages {
 		if len(page.Parts) > 0 {
 			section := page.Parts[0]
@@ -69,7 +69,7 @@ func DocSidebar(pages []*dirwalk.Page) *h.Element {
 			),
 			h.Div(
 				h.Class("flex flex-col gap-4"),
-				h.List(grouped.Entries(), func(entry datastructures.Entry[string, []*dirwalk.Page], index int) *h.Element {
+				h.List(grouped.Entries(), func(entry orderedmap.Entry[string, []*dirwalk.Page], index int) *h.Element {
 					return h.Div(
 						h.P(
 							h.Text(formatPart(entry.Key)),

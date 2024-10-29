@@ -3,6 +3,7 @@ package examples
 import "htmgo-site/partials/snippets"
 
 var FormWithLoadingStateSnippet = Snippet{
+	category:    "Forms",
 	name:        "Form",
 	description: "A simple form submission example with a loading state",
 	sidebarName: "Form With Loading State",
@@ -11,6 +12,7 @@ var FormWithLoadingStateSnippet = Snippet{
 }
 
 var UserAuthSnippet = Snippet{
+	category:       "Projects",
 	name:           "User Authentication",
 	description:    "An example showing basic user registration and login with htmgo",
 	sidebarName:    "User Authentication",
@@ -20,6 +22,7 @@ var UserAuthSnippet = Snippet{
 }
 
 var ChatSnippet = Snippet{
+	category:       "Projects",
 	name:           "Chat App",
 	description:    "A simple chat application built with htmgo using SSE for real-time updates",
 	sidebarName:    "Chat App Using SSE",
@@ -29,6 +32,7 @@ var ChatSnippet = Snippet{
 }
 
 var HackerNewsSnippet = Snippet{
+	category:       "Projects",
 	name:           "HackerNews Clone",
 	description:    "A hacker news reader clone built with htmgo",
 	sidebarName:    "HackerNews Clone",
@@ -38,6 +42,7 @@ var HackerNewsSnippet = Snippet{
 }
 
 var HtmgoSiteSnippet = Snippet{
+	category:       "Projects",
 	name:           "Htmgo Doc Site",
 	description:    "The htmgo site built with htmgo, recursion am I right?",
 	sidebarName:    "Htmgo Doc Site",
@@ -47,6 +52,7 @@ var HtmgoSiteSnippet = Snippet{
 }
 
 var TodoListSnippet = Snippet{
+	category:       "Projects",
 	name:           "Todo List",
 	description:    "A todo list built with htmgo",
 	sidebarName:    "Todo List",
@@ -56,6 +62,7 @@ var TodoListSnippet = Snippet{
 }
 
 var ClickToEditSnippet = Snippet{
+	category:    "Forms",
 	name:        "Inline Click To Edit",
 	description: "List view of items with a click to edit button and persistence",
 	sidebarName: "Inline Click To Edit",

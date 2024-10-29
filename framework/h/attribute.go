@@ -2,16 +2,15 @@ package h
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/maddalax/htmgo/framework/datastructure/orderedmap"
 	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/internal/datastructure"
+	"strings"
 )
 
 type AttributeMap = map[string]any
 
 type AttributeMapOrdered struct {
-	data *datastructure.OrderedMap[string, string]
+	data *orderedmap.Map[string, string]
 }
 
 func (m *AttributeMapOrdered) Set(key string, value any) {
@@ -39,12 +38,12 @@ func (m *AttributeMapOrdered) Each(cb func(key string, value string)) {
 	})
 }
 
-func (m *AttributeMapOrdered) Entries() []datastructure.MapEntry[string, string] {
+func (m *AttributeMapOrdered) Entries() []orderedmap.Entry[string, string] {
 	return m.data.Entries()
 }
 
 func NewAttributeMap(pairs ...string) *AttributeMapOrdered {
-	m := datastructure.NewOrderedMap[string, string]()
+	m := orderedmap.New[string, string]()
 	if len(pairs)%2 == 0 {
 		for i := 0; i < len(pairs); i++ {
 			m.Set(pairs[i], pairs[i+1])

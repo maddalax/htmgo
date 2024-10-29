@@ -10,6 +10,7 @@ type Snippet struct {
 	partial        h.PartialFunc
 	externalRoute  string
 	sourceCodePath string
+	category       string
 }
 
 func SetSnippet(ctx *h.RequestContext, snippet *Snippet) {
