@@ -77,11 +77,11 @@ func TestJsEval(t *testing.T) {
 	}
 
 	compareIgnoreSpaces(t, renderJs(t, EvalJsOnParent("element.style.display = 'none'")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.style.display = 'none'
+		if(self.parentElement) { let element = self.parentElement; element.style.display = 'none' }
 	`)
 
 	compareIgnoreSpaces(t, renderJs(t, EvalJsOnSibling("button", "element.style.display = 'none'")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');siblings.forEach(function(element) {element.style.display = 'none'});
+		if(self.parentElement) { let siblings = self.parentElement.querySelectorAll('button');siblings.forEach(function(element) {element.style.display = 'none'}); }
 	`)
 
 }
@@ -147,13 +147,13 @@ func TestToggleClassOnElement(t *testing.T) {
 
 func TestSetClassOnParent(t *testing.T) {
 	compareIgnoreSpaces(t, renderJs(t, SetClassOnParent("active")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.classList.add('active')
+		if(self.parentElement) { let element = self.parentElement; element.classList.add('active') } 
 	`)
 }
 
 func TestRemoveClassOnParent(t *testing.T) {
 	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnParent("active")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.classList.remove('active')
+		if(self.parentElement) { let element = self.parentElement; element.classList.remove('active') }
 	`)
 }
 
@@ -176,20 +176,28 @@ func TestRemoveClassOnChildren(t *testing.T) {
 }
 
 func TestSetClassOnSibling(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, SetClassOnSibling("button", "selected")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');
-		siblings.forEach(function(element) {
-			element.classList.add('selected')
-		});
+	compareIgnoreSpaces(t, renderJs(t, SetClassOnSibling("button", "selected")),
+		// language=JavaScript
+		`
+		if(self.parentElement) { 
+            let siblings = self.parentElement.querySelectorAll('button');
+			siblings.forEach(function(element) {
+				element.classList.add('selected')
+			}); 
+        }
 	`)
 }
 
 func TestRemoveClassOnSibling(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnSibling("button", "selected")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');
-		siblings.forEach(function(element) {
-			element.classList.remove('selected')
-		});
+	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnSibling("button", "selected")),
+		// language=JavaScript
+		`
+		if(self.parentElement) { 
+			let siblings = self.parentElement.querySelectorAll('button');
+			siblings.forEach(function(element) {
+				element.classList.remove('selected')
+			});
+		}
 	`)
 }
 
@@ -259,14 +267,16 @@ func TestEvalCommands(t *testing.T) {
 		self = element;
 		self.innerText = 'hello'
 		alert('test')
-		if(!self.parentElement) { return; } 
-		element = self.parentElement; 
-		element.classList.add('myclass')
-		if(!self.parentElement) { return; }
-		let siblings = self.parentElement.querySelectorAll('div');
-		siblings.forEach(function(element) {
-			element.classList.add('myclass')
-		});
+		if(self.parentElement) { 
+        	element = self.parentElement; 
+			element.classList.add('myclass')    
+		}
+		if(self.parentElement) { 	
+            let siblings = self.parentElement.querySelectorAll('div');
+			siblings.forEach(function(element) {
+				element.classList.add('myclass')
+			});
+        }
 	`, evalId))
 }
 
@@ -288,15 +298,16 @@ func TestToggleTextOnSibling(t *testing.T) {
 	result := Render(ToggleTextOnSibling("div", "hello", "world"))
 	//language=JavaScript
 	compareIgnoreSpaces(t, result, fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let siblings = self.parentElement.querySelectorAll('div');
-        siblings.forEach(function(element){
-            if(element.innerText === "hello"){
-                element.innerText= "world";
-            } else {
-                element.innerText= "hello";
-            }
-        });
+		if(self.parentElement) { 
+       		 let siblings = self.parentElement.querySelectorAll('div');
+			 siblings.forEach(function(element){
+				if(element.innerText === "hello"){
+					element.innerText= "world";
+				} else {
+					element.innerText= "hello";
+				}
+			 });     
+		 }
 	`))
 }
 
@@ -321,14 +332,15 @@ func TestToggleTextOnParent(t *testing.T) {
 	result := Render(ToggleTextOnParent("hello", "world"))
 	//language=JavaScript
 	compareIgnoreSpaces(t, result, fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let element = self.parentElement;
+		if(self.parentElement) {
+          	 let element = self.parentElement;
         
-		if(element.innerText === "hello") {
-			element.innerText = "world";
-		} else {
-			element.innerText = "hello";
-		}
+			if(element.innerText === "hello") {
+				element.innerText = "world";
+			} else {
+				element.innerText = "hello";
+			}  
+		 }
 	`))
 }
 
@@ -349,9 +361,10 @@ func TestToggleClassOnParent(t *testing.T) {
 	result := Render(ToggleClassOnParent("hidden"))
 	//language=JavaScript
 	compareIgnoreSpaces(t, result, fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let element = self.parentElement;
-        element.classList.toggle('hidden')
+		if(self.parentElement) { 
+			let element = self.parentElement;
+			element.classList.toggle('hidden')    
+		 }
 	`))
 }
 
@@ -360,10 +373,11 @@ func TestToggleClassOnSibling(t *testing.T) {
 	result := Render(ToggleClassOnSibling("div", "hidden"))
 	//language=JavaScript
 	compareIgnoreSpaces(t, result, fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let siblings = self.parentElement.querySelectorAll('div');
-        siblings.forEach(function(element) {
-            element.classList.toggle('hidden')
-        });
+		if(self.parentElement) { 
+      	  	let siblings = self.parentElement.querySelectorAll('div');
+        	siblings.forEach(function(element) {
+            	element.classList.toggle('hidden')
+        	});      
+		 }
 	`))
 }

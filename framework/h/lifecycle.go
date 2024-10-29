@@ -296,9 +296,10 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 func EvalJsOnParent(js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let element = self.parentElement;
-        %s
+		if(self.parentElement) { 
+			let element = self.parentElement;
+			%s     
+		 }
 	`, js))
 }
 
@@ -317,11 +318,12 @@ func EvalJsOnChildren(selector, js string) ComplexJsCommand {
 func EvalJsOnSibling(selector, js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-		let siblings = self.parentElement.querySelectorAll('%s');
-		siblings.forEach(function(element) {
-			%s
-		});
+		if(self.parentElement) { 
+        	let siblings = self.parentElement.querySelectorAll('%s');
+			siblings.forEach(function(element) {
+				%s
+			});    
+		 }
 	`, selector, js))
 }
 
