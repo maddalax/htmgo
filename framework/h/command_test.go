@@ -55,10 +55,12 @@ var re = regexp.MustCompile(`\s+`)
 func compareIgnoreSpaces(t *testing.T, actual, expected string) {
 	expected = strings.ReplaceAll(expected, "\n", "")
 	expected = strings.ReplaceAll(expected, "\t", "")
-	expected = re.ReplaceAllString(expected, " ")
 	actual = strings.ReplaceAll(actual, "\n", "")
 	actual = strings.ReplaceAll(actual, "\t", "")
 	actual = re.ReplaceAllString(actual, " ")
+	spaceRegex := regexp.MustCompile(`\s+`)
+	actual = strings.TrimSpace(spaceRegex.ReplaceAllString(actual, ""))
+	expected = strings.TrimSpace(spaceRegex.ReplaceAllString(expected, ""))
 	assert.Equal(t, expected, actual)
 }
 
@@ -75,11 +77,11 @@ func TestJsEval(t *testing.T) {
 	}
 
 	compareIgnoreSpaces(t, renderJs(t, EvalJsOnParent("element.style.display = 'none'")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.style.display = 'none'
+		if(self.parentElement) { let element = self.parentElement; element.style.display = 'none' }
 	`)
 
 	compareIgnoreSpaces(t, renderJs(t, EvalJsOnSibling("button", "element.style.display = 'none'")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');siblings.forEach(function(element) {element.style.display = 'none'});
+		if(self.parentElement) { let siblings = self.parentElement.querySelectorAll('button');siblings.forEach(function(element) {element.style.display = 'none'}); }
 	`)
 
 }
@@ -145,13 +147,13 @@ func TestToggleClassOnElement(t *testing.T) {
 
 func TestSetClassOnParent(t *testing.T) {
 	compareIgnoreSpaces(t, renderJs(t, SetClassOnParent("active")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.classList.add('active')
+		if(self.parentElement) { let element = self.parentElement; element.classList.add('active') } 
 	`)
 }
 
 func TestRemoveClassOnParent(t *testing.T) {
 	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnParent("active")), `
-		if(!self.parentElement) { return; } let element = self.parentElement; element.classList.remove('active')
+		if(self.parentElement) { let element = self.parentElement; element.classList.remove('active') }
 	`)
 }
 
@@ -174,20 +176,28 @@ func TestRemoveClassOnChildren(t *testing.T) {
 }
 
 func TestSetClassOnSibling(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, SetClassOnSibling("button", "selected")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');
-		siblings.forEach(function(element) {
-			element.classList.add('selected')
-		});
+	compareIgnoreSpaces(t, renderJs(t, SetClassOnSibling("button", "selected")),
+		// language=JavaScript
+		`
+		if(self.parentElement) { 
+            let siblings = self.parentElement.querySelectorAll('button');
+			siblings.forEach(function(element) {
+				element.classList.add('selected')
+			}); 
+        }
 	`)
 }
 
 func TestRemoveClassOnSibling(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnSibling("button", "selected")), `
-		if(!self.parentElement) { return; }let siblings = self.parentElement.querySelectorAll('button');
-		siblings.forEach(function(element) {
-			element.classList.remove('selected')
-		});
+	compareIgnoreSpaces(t, renderJs(t, RemoveClassOnSibling("button", "selected")),
+		// language=JavaScript
+		`
+		if(self.parentElement) { 
+			let siblings = self.parentElement.querySelectorAll('button');
+			siblings.forEach(function(element) {
+				element.classList.remove('selected')
+			});
+		}
 	`)
 }
 
@@ -225,4 +235,149 @@ func TestInjectScriptIfNotExist(t *testing.T) {
 			document.head.appendChild(script);
 		}
 	`)
+}
+
+func TestEvalCommands(t *testing.T) {
+	t.Parallel()
+	div := Div(Id("test"))
+	result := Render(EvalCommands(div,
+		SetText("hello"),
+		EvalJs(`
+			alert('test')
+		`),
+		SetClassOnParent("myclass"),
+		SetClassOnSibling("div", "myclass"),
+	))
+
+	evalId := ""
+	for _, child := range div.children {
+		switch child.(type) {
+		case *AttributeR:
+			attr := child.(*AttributeR)
+			if attr.Name == "data-eval-commands-id" {
+				evalId = attr.Value
+				break
+			}
+		}
+	}
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		let element = document.querySelector("[data-eval-commands-id='%s']");
+        if(!element) {return;} 
+		self = element;
+		self.innerText = 'hello'
+		alert('test')
+		if(self.parentElement) { 
+        	element = self.parentElement; 
+			element.classList.add('myclass')    
+		}
+		if(self.parentElement) { 	
+            let siblings = self.parentElement.querySelectorAll('div');
+			siblings.forEach(function(element) {
+				element.classList.add('myclass')
+			});
+        }
+	`, evalId))
+}
+
+func TestToggleText(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleText("hello", "world"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		if(self.innerText === "hello") {
+			self.innerText = "world";
+		} else {
+			self.innerText = "hello";
+		}
+	`))
+}
+
+func TestToggleTextOnSibling(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleTextOnSibling("div", "hello", "world"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		if(self.parentElement) { 
+       		 let siblings = self.parentElement.querySelectorAll('div');
+			 siblings.forEach(function(element){
+				if(element.innerText === "hello"){
+					element.innerText= "world";
+				} else {
+					element.innerText= "hello";
+				}
+			 });     
+		 }
+	`))
+}
+
+func TestToggleTextOnChildren(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleTextOnChildren("div", "hello", "world"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		let children = self.querySelectorAll('div');
+		children.forEach(function(element) {
+			if(element.innerText === "hello") {
+				element.innerText = "world";
+			} else {
+				element.innerText = "hello";
+			}
+		});
+	`))
+}
+
+func TestToggleTextOnParent(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleTextOnParent("hello", "world"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		if(self.parentElement) {
+          	 let element = self.parentElement;
+        
+			if(element.innerText === "hello") {
+				element.innerText = "world";
+			} else {
+				element.innerText = "hello";
+			}  
+		 }
+	`))
+}
+
+func TestToggleClassOnChildren(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleClassOnChildren("div", "hidden"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		let children = self.querySelectorAll('div');
+		children.forEach(function(element) {
+			element.classList.toggle('hidden')
+		});
+	`))
+}
+
+func TestToggleClassOnParent(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleClassOnParent("hidden"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		if(self.parentElement) { 
+			let element = self.parentElement;
+			element.classList.toggle('hidden')    
+		 }
+	`))
+}
+
+func TestToggleClassOnSibling(t *testing.T) {
+	t.Parallel()
+	result := Render(ToggleClassOnSibling("div", "hidden"))
+	//language=JavaScript
+	compareIgnoreSpaces(t, result, fmt.Sprintf(`
+		if(self.parentElement) { 
+      	  	let siblings = self.parentElement.querySelectorAll('div');
+        	siblings.forEach(function(element) {
+            	element.classList.toggle('hidden')
+        	});      
+		 }
+	`))
 }

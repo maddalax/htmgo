@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/util"
 	"strings"
@@ -233,6 +234,54 @@ func ToggleClass(class string) SimpleJsCommand {
 	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.toggle('%s')", class)}
 }
 
+// ToggleText toggles the given text on the element.
+func ToggleText(text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		if(self.innerText === "%s") {
+			self.innerText = "%s";
+		} else {
+			self.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnSibling toggles the given text on the siblings of the element.
+func ToggleTextOnSibling(selector, text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnSibling(selector, fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnChildren toggles the given text on the children of the element.
+func ToggleTextOnChildren(selector, text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnChildren(selector, fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnParent toggles the given text on the parent of the element.
+func ToggleTextOnParent(text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
 // ToggleClassOnElement toggles the given class on the elements returned by the selector.
 func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 	// language=JavaScript
@@ -247,9 +296,10 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 func EvalJsOnParent(js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let element = self.parentElement;
-        %s
+		if(self.parentElement) { 
+			let element = self.parentElement;
+			%s     
+		 }
 	`, js))
 }
 
@@ -268,30 +318,49 @@ func EvalJsOnChildren(selector, js string) ComplexJsCommand {
 func EvalJsOnSibling(selector, js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-		let siblings = self.parentElement.querySelectorAll('%s');
-		siblings.forEach(function(element) {
-			%s
-		});
+		if(self.parentElement) { 
+        	let siblings = self.parentElement.querySelectorAll('%s');
+			siblings.forEach(function(element) {
+				%s
+			});    
+		 }
 	`, selector, js))
 }
 
-// SetClassOnParent sets the given class on the parent of the element. Reference the element using 'element'.
+// SetClassOnParent sets the given class on the parent of the element.
 func SetClassOnParent(class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnParent(fmt.Sprintf("element.classList.add('%s')", class))
 }
 
-// RemoveClassOnParent removes the given class from the parent of the element. Reference the element using 'element'.
+// RemoveClassOnParent removes the given class from the parent of the element.
 func RemoveClassOnParent(class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnParent(fmt.Sprintf("element.classList.remove('%s')", class))
 }
 
-// SetClassOnChildren sets the given class on the children of the element. Reference the element using 'element'.
+// SetClassOnChildren sets the given class on the children of the element.
 func SetClassOnChildren(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.add('%s')", class))
+}
+
+// ToggleClassOnChildren toggles the given class on the children of the element.
+func ToggleClassOnChildren(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.toggle('%s')", class))
+}
+
+// ToggleClassOnParent toggles the given class on the parent of the element.
+func ToggleClassOnParent(class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf("element.classList.toggle('%s')", class))
+}
+
+// ToggleClassOnSibling toggles the given class on the siblings of the element.
+func ToggleClassOnSibling(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.toggle('%s')", class))
 }
 
 // SetClassOnSibling sets the given class on the siblings of the element. Reference the element using 'element'.
@@ -328,6 +397,36 @@ func Remove() SimpleJsCommand {
 // EvalJs evaluates the given JavaScript code.
 func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
+}
+
+func EvalCommandsOnSelector(selector string, cmds ...Command) ComplexJsCommand {
+	lines := make([]string, len(cmds))
+	for i, cmd := range cmds {
+		lines[i] = Render(cmd)
+		lines[i] = strings.ReplaceAll(lines[i], "this.", "self.")
+		// some commands set the element we need to fix it so we arent redeclaring it
+		lines[i] = strings.ReplaceAll(lines[i], "let element =", "element =")
+	}
+	code := strings.Join(lines, "\n")
+	return EvalJs(fmt.Sprintf(`
+		let element = document.querySelector("%s");
+
+		if(!element) {
+			return;
+		}
+
+        self = element;
+		%s
+	`, selector, code))
+}
+
+func EvalCommands(element *Element, cmds ...Command) ComplexJsCommand {
+	id := strings.ReplaceAll(uuid.NewString(), "-", "")
+	element.AppendChildren(
+		Attribute("data-eval-commands-id", id),
+	)
+	return EvalCommandsOnSelector(
+		fmt.Sprintf(`[data-eval-commands-id='%s']`, id), cmds...)
 }
 
 // PreventDefault prevents the default action of the event.

@@ -70,9 +70,31 @@ var ClickToEditSnippet = Snippet{
 	partial:     snippets.ClickToEdit,
 }
 
+var JsSetTextOnClick = Snippet{
+	category:    "Interactivity (JS)",
+	name:        "Set Element Text On Click",
+	description: "A simple example of how to use htmgo with javascript",
+	sidebarName: "Set Text On Click",
+	path:        "/examples/js-set-text-on-click",
+	partial:     snippets.SetTextOnClick,
+}
+
+var JsHideChildrenOnClick = Snippet{
+	category:    "Interactivity (JS)",
+	name:        "Hide / Show Children On Click",
+	description: "Use JS to hide and show children elements on click",
+	sidebarName: "Hide / Show Children",
+	path:        "/examples/js-hide-children-on-click",
+	partial:     snippets.JsHideChildrenOnClick,
+}
+
 var examples = []Snippet{
 	FormWithLoadingStateSnippet,
 	ClickToEditSnippet,
+
+	JsSetTextOnClick,
+	JsHideChildrenOnClick,
+
 	UserAuthSnippet,
 	ChatSnippet,
 	HackerNewsSnippet,
