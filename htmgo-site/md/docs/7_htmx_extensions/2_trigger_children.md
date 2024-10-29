@@ -7,7 +7,7 @@ This is useful for things such as:
 
 <br>
 
-**Example:** https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go#L17
+**Example:** https://htmgo.dev/examples/form
 
 In this example: The trigger-children extension will trigger **hx-before-request** and **hx-after-request** 
 on all children of the form when the form is submitted, and the button reacts to that by showing a loading state.

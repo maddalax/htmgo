@@ -16,7 +16,7 @@ import (
 )
 
 func GetGithubPath(path string) string {
-	path = strings.ReplaceAll(path, "/partials/examples/", "/partials/snippets/")
+	path = strings.ReplaceAll(path, "/examples/", "/snippets/")
 	return fmt.Sprintf("https://github.com/maddalax/htmgo/tree/master/htmgo-site/partials%s.go", path)
 }
 

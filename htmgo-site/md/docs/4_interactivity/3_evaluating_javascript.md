@@ -49,7 +49,7 @@ js.SetClassOnSibling(string, string)
 js.RemoveClassOnSibling(string, string)
 
 ```
-For more usages: see https://github.com/maddalax/htmgo/blob/master/htmgo-site/pages/form.go
+For more usages: see https://htmgo.dev/examples/form
 
 
 **Example:** Evaluating arbitrary JS

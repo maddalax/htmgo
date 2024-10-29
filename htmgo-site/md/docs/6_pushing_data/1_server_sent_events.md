@@ -3,8 +3,7 @@
 htmgo supports server-sent events (SSE) out of the box. 
 This allows you to push data from the server to the client in real-time. 
 
-Example of this can be found in the [chat-app](https://github.com/maddalax/htmgo/tree/master/examples/chat) example.
-Demo: https://chat-example.htmgo.dev
+Example of this can be found in the [chat-app](https://htmgo.dev/examples/chat) example.
 
 ## How it works ##
 1. The client sends a request to the server to establish a connection.
