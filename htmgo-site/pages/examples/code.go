@@ -65,5 +65,5 @@ func renderCodeToString(snippet *Snippet) *h.Element {
 		source = out.String()
 	}
 
-	return ui.CodeSnippet(source, "border-radius: 0.5rem;")
+	return ui.GoCodeSnippet(source, "border-radius: 0.5rem;")
 }

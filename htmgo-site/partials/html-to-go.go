@@ -10,7 +10,11 @@ func ConvertHtmlToGo(ctx *h.RequestContext) *h.Partial {
 	value := ctx.FormValue("html-input")
 	parsed := string(htmltogo.Parse([]byte(value)))
 
-	formatted := ui.FormatCode(parsed, "height: 100%;")
+	formatted := ui.FormatCode(ui.CodeSnippetProps{
+		Code:         parsed,
+		Lang:         "go",
+		CustomStyles: []string{"height: 100%;"},
+	})
 
 	return h.SwapManyPartial(ctx,
 		GoOutput(formatted),
@@ -53,7 +57,7 @@ func GoOutput(content string) *h.Element {
 			),
 			h.If(
 				content != "",
-				ui.CopyButton("#go-output-raw"),
+				ui.AbsoluteCopyButton("#go-output-raw"),
 			),
 		),
 	)

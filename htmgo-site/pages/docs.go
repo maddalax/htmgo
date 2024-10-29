@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/maddalax/htmgo/framework/h"
 	"htmgo-site/internal/dirwalk"
+	"htmgo-site/pages/base"
 	"htmgo-site/partials"
 	"io/fs"
 )
@@ -11,7 +12,7 @@ func DocsPage(ctx *h.RequestContext) *h.Page {
 	assets := ctx.Get("embeddedMarkdown").(fs.FS)
 	pages := dirwalk.WalkPages("md/docs", assets)
 
-	return RootPage(
+	return base.RootPage(
 		ctx,
 		h.Div(
 			h.Class("flex h-full"),

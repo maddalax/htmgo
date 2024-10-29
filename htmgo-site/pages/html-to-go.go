@@ -2,11 +2,12 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"htmgo-site/pages/base"
 	"htmgo-site/partials"
 )
 
 func HtmlToGoPage(ctx *h.RequestContext) *h.Page {
-	return PageWithNav(
+	return base.PageWithNav(
 		ctx,
 		h.Div(
 			h.Class("flex flex-col h-screen items-center justify-center w-full pt-6"),

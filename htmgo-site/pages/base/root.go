@@ -1,4 +1,4 @@
-package pages
+package base
 
 import (
 	"github.com/google/uuid"

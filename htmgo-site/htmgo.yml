@@ -11,4 +11,4 @@ watch_files: ["**/*.go", "**/*.css", "**/*.md"]
 
 # files or directories to ignore when automatically registering routes for pages
 # supports glob patterns through https://github.com/bmatcuk/doublestar
-automatic_page_routing_ignore: ["root.go"]
+automatic_page_routing_ignore: ["base/root.go", "docs2/base.go"]

@@ -2,11 +2,12 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"htmgo-site/pages/base"
 	"htmgo-site/partials"
 )
 
 func CurrentTimePage(ctx *h.RequestContext) *h.Page {
-	return RootPage(
+	return base.RootPage(
 		ctx,
 		h.GetPartial(
 			partials.CurrentTimePartial,

@@ -6,9 +6,10 @@ import (
 	"github.com/maddalax/htmgo/framework/js"
 )
 
-func CopyButton(selector string) *h.Element {
+func CopyButton(selector string, classes ...string) *h.Element {
+	classes = append(classes, "flex p-2 bg-slate-800 text-white cursor-pointer items-center")
 	return h.Div(
-		h.Class("absolute top-0 right-0 p-2 bg-slate-800 text-white rounded-bl-md cursor-pointer"),
+		h.Class(classes...),
 		h.Text("Copy"),
 		h.OnClick(
 			// language=JavaScript
@@ -25,4 +26,8 @@ func CopyButton(selector string) *h.Element {
 			`, selector)),
 		),
 	)
+}
+
+func AbsoluteCopyButton(selector string) *h.Element {
+	return CopyButton(selector, "absolute top-0 right-0 rounded-bl-md")
 }
