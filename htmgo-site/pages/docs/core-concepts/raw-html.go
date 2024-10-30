@@ -26,7 +26,7 @@ func RawHtml(ctx *h.RequestContext) *h.Page {
 			`),
 			h.P(
 				h.Text("Sanitizing input can be done using "),
-				Link("https://pkg.go.dev/html#EscapeString", "html.EscapeString"),
+				Link("html.EscapeString", "https://pkg.go.dev/html#EscapeString"),
 				h.Text(" or by using "),
 				Link("bluemonday", "https://github.com/microcosm-cc/bluemonday."),
 				h.Text(" for more control over sanitization."),
