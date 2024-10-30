@@ -15,11 +15,11 @@ func RawHtml(ctx *h.RequestContext) *h.Page {
 		    This can be done by using the following methods:
 			`),
 			Text("Rendering raw html:"),
-			ui.GoCodeSnippet(RawHtmlExample),
+			ui.GoCodeSnippetSingleLine(RawHtmlExample),
 			Text("Rendering with formatting:"),
-			ui.GoCodeSnippet(RawHtmlExample2),
+			ui.GoCodeSnippetSingleLine(RawHtmlExample2),
 			Text("Rendering a script:"),
-			ui.GoCodeSnippet(RawHtmlExample3),
+			ui.GoCodeSnippetSingleLine(RawHtmlExample3),
 			Text(`
         Important: Be careful when using these methods, these methods do not escape the HTML content
         and should never be used with user input unless you have sanitized the input.

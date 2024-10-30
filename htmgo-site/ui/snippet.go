@@ -104,6 +104,15 @@ func GoCodeSnippet(code string, customStyles ...string) *h.Element {
 	})
 }
 
+func GoCodeSnippetSingleLine(code string, customStyles ...string) *h.Element {
+	return CodeSnippet(CodeSnippetProps{
+		Code:         code,
+		Lang:         "go",
+		CustomStyles: customStyles,
+		SingleLine:   true,
+	})
+}
+
 func CodeSnippetFromUrl(url string, props CodeSnippetProps) *h.Element {
 	data, err := http.Get(url)
 	if err != nil {

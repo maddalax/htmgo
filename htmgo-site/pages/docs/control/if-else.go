@@ -25,12 +25,12 @@ func IfElse(ctx *h.RequestContext) *h.Page {
 			Text("Example: Rendering a single class based on a condition"),
 			ui.GoCodeSnippet(ClassIfElseExample),
 			Text("Example: Rendering different elements based on a condition"),
-			ui.GoCodeSnippet(IfElseExample2),
+			ui.GoCodeSnippetSingleLine(IfElseExample2),
 			Text(`
 				<b>Note:</b> This will execute both <b>EditTaskForm</b> and <b>ViewTask</b>, no matter if the condition is true or false, since a function is being called here.
 				If you do not want to call the function at all unless the condition is true, use <b>h.IfElseLazy</b>
 			`),
-			ui.GoCodeSnippet(IfElseExample3),
+			ui.GoCodeSnippetSingleLine(IfElseExample3),
 			NextStep(
 				"mt-4",
 				PrevBlock("Raw HTML", DocPath("/core-concepts/raw-html")),
