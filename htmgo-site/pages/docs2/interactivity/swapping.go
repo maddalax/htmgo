@@ -47,7 +47,7 @@ func Swapping(ctx *h.RequestContext) *h.Page {
 			NextStep(
 				"mt-4",
 				PrevBlock("Loops / Dealing With Lists", "/docs2/control/loops"),
-				NextBlock("Conditionals", "/docs2/control/if-else"),
+				NextBlock("Events / Commands", "/docs2/interactivity/events"),
 			),
 		),
 	)

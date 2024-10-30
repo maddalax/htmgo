@@ -22,7 +22,7 @@ func FormatCode(props CodeSnippetProps) string {
 	lexer := lexers.Get(props.Lang)
 	style := styles.Get("github")
 	formatter := html.New(
-		html.WithLineNumbers(!props.SingleLine),
+		html.WithLineNumbers(!props.SingleLine && !props.HideLineNumbers),
 		html.WithCustomCSS(map[chroma.TokenType]string{
 			chroma.PreWrapper: fmt.Sprintf("border-radius: 0.2rem; line-height: 24px; font-size: 14px; padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important; %s", strings.Join(props.CustomStyles, ";")),
 		}))
@@ -35,10 +35,11 @@ func FormatCode(props CodeSnippetProps) string {
 }
 
 type CodeSnippetProps struct {
-	Code         string
-	Lang         string
-	CustomStyles []string
-	SingleLine   bool
+	Code            string
+	Lang            string
+	CustomStyles    []string
+	HideLineNumbers bool
+	SingleLine      bool
 }
 
 func CodeSnippet(props CodeSnippetProps) *h.Element {
