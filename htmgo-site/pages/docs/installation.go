@@ -16,7 +16,7 @@ func Installation(ctx *h.RequestContext) *h.Page {
 				h.Class("list-disc list-inside"),
 				h.Li(
 					Inline(
-						Link("Go 1.23 or above", "https://go.dev/doc/install"),
+						Link("Go 1.2X or above", "https://go.dev/doc/install"),
 					),
 				),
 				h.Li(
