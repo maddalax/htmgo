@@ -34,9 +34,9 @@ func Introduction(ctx *h.RequestContext) *h.Page {
 				We give you the utilities to build html using pure go code in a reusable way (go functions are components) while also providing htmx functions to add interactivity to your app.
 			`),
 			ui.GoCodeSnippet(IntroSnippet),
-			Inline(
+			h.P(
 				Link("The site you are reading now", "https://github.com/maddalax/htmgo/tree/master/htmgo-site"),
-				Text(" was written with htmgo!"),
+				h.Text(" was written with htmgo!"),
 			),
 			NextStep(
 				"mt-4",

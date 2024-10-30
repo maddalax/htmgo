@@ -86,13 +86,6 @@ func Text(text string) *h.Element {
 	)
 }
 
-func Inline(elements ...h.Ren) *h.Element {
-	return h.Div(
-		h.Class("flex gap-1 items-center"),
-		h.Children(elements...),
-	)
-}
-
 func HelpText(text string) *h.Element {
 	return h.Div(
 		h.Class("text-slate-600 text-sm"),

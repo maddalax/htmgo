@@ -15,16 +15,11 @@ func Installation(ctx *h.RequestContext) *h.Page {
 				h.Text("Prerequisites:"),
 				h.Class("list-disc list-inside"),
 				h.Li(
-					Inline(
-						Link("Go 1.2X or above", "https://go.dev/doc/install"),
-					),
+					Link("Go 1.2X or above", "https://go.dev/doc/install"),
 				),
 				h.Li(
-					Inline(
-						Text("Familiarity with "),
-						Link("https://htmx.org", "https://htmx.org"),
-						Text(" and html/hypermedia"),
-					),
+					h.Text("Familiarity with "),
+					Link("https://htmx.org", "https://htmx.org"),
 				),
 			),
 			HelpText("If you have not read the htmx docs, please do so before continuing, many of the concepts htmgo uses will become clearer."),
