@@ -1,6 +1,7 @@
 package docs
 
 import (
+	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"htmgo-site/pages/base"
 	"htmgo-site/partials"
@@ -116,7 +117,7 @@ func DocPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 	for _, section := range sections {
 		for _, page := range section.Pages {
 			if page.Path == ctx.Request.URL.Path {
-				title = page.Title
+				title = fmt.Sprintf("Docs - %s", page.Title)
 				break
 			}
 		}

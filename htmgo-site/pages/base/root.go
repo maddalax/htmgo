@@ -40,6 +40,9 @@ func ConfigurableRootPage(ctx *h.RequestContext, props RootPageProps) *h.Page {
 			h.Head(
 				h.Meta("viewport", "width=device-width, initial-scale=1"),
 				h.Meta("title", title),
+				h.Title(
+					h.Text(title),
+				),
 				h.Link("/public/favicon.ico", "icon"),
 				h.Link("/public/apple-touch-icon.png", "apple-touch-icon"),
 				h.Meta("charset", "utf-8"),
