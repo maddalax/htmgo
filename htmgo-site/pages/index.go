@@ -2,10 +2,11 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"htmgo-site/pages/base"
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
-	return PageWithNav(
+	return base.PageWithNav(
 		ctx,
 		h.Div(
 			h.Class("flex items-center justify-center"),

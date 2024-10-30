@@ -196,6 +196,10 @@ func Hidden() Ren {
 	return Attribute("style", "display:none")
 }
 
+func Controls() Ren {
+	return Attribute("controls", "")
+}
+
 func Class(value ...string) *AttributeR {
 	return Attribute("class", MergeClasses(value...))
 }

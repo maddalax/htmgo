@@ -1,0 +1,11 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "go": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["Class\\(([^)]*)\\)", "[\"`]([^\"`]*)[\"`]"],
+    ["ClassX\\(([^)]*)\\)", "[\"`]([^\"`]*)[\"`]"],
+    ["ClassIf\\(([^)]*)\\)", "[\"`]([^\"`]*)[\"`]"],
+    ["Classes\\(([^)]*)\\)", "[\"`]([^\"`]*)[\"`"]
+  ]
+}
