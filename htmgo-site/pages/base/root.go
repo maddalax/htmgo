@@ -80,6 +80,17 @@ func ConfigurableRootPage(ctx *h.RequestContext, props RootPageProps) *h.Page {
 	)
 }
 
+func RootPageWithTitle(ctx *h.RequestContext, title string, children ...h.Ren) *h.Page {
+	return ConfigurableRootPage(
+		ctx,
+		RootPageProps{
+			Title:       title,
+			Description: "build simple and scalable systems with go + htmx",
+			Children:    h.Fragment(children...),
+		},
+	)
+}
+
 func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 	return ConfigurableRootPage(
 		ctx,

@@ -8,8 +8,9 @@ import (
 
 func Index(ctx *h.RequestContext) *h.Page {
 	snippet := GetSnippet(ctx)
-	return base.RootPage(
+	return base.RootPageWithTitle(
 		ctx,
+		"Examples",
 		h.Div(
 			h.Class("flex h-full"),
 			h.Aside(
