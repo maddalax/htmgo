@@ -111,40 +111,55 @@ func Link(text string, href string, additionalClasses ...string) *h.Element {
 }
 
 func DocPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
-	return base.RootPage(
+
+	title := "htmgo"
+	for _, section := range sections {
+		for _, page := range section.Pages {
+			if page.Path == ctx.Request.URL.Path {
+				title = page.Title
+				break
+			}
+		}
+	}
+
+	return base.ConfigurableRootPage(
 		ctx,
-		h.Div(
-			h.Class("flex h-full"),
-			h.Aside(
-				h.Class("hidden md:block md:min-w-60 text-white overflow-y-auto"),
-				DocSidebar(),
-			),
-			h.Div(
-				h.Class("flex flex-col flex-1 overflow-hidden"),
-				partials.NavBar(ctx, partials.NavBarProps{
-					Expanded:       false,
-					ShowPreRelease: false,
-				}),
-				h.Main(
-					h.Div(
-						h.Class("w-full md:hidden bg-neutral-50 overflow-y-auto mb-4 border-b border-b-slate-300"),
-						DocSidebar(),
-					),
-					h.Class("overflow-y-auto overflow-x-hidden pb-6 items-center w-full"),
-					h.Div(
-						h.Class("flex flex-col mx-auto"),
+		base.RootPageProps{
+			Title:       title,
+			Description: "build simple and scalable systems with go + htmx",
+			Children: h.Div(
+				h.Class("flex h-full"),
+				h.Aside(
+					h.Class("hidden md:block md:min-w-60 text-white overflow-y-auto"),
+					DocSidebar(),
+				),
+				h.Div(
+					h.Class("flex flex-col flex-1 overflow-hidden"),
+					partials.NavBar(ctx, partials.NavBarProps{
+						Expanded:       false,
+						ShowPreRelease: false,
+					}),
+					h.Main(
 						h.Div(
-							h.Class("flex flex-col justify-center items-center md:mt-6 mx-auto"),
+							h.Class("w-full md:hidden bg-neutral-50 overflow-y-auto mb-4 border-b border-b-slate-300"),
+							DocSidebar(),
+						),
+						h.Class("overflow-y-auto overflow-x-hidden pb-6 items-center w-full"),
+						h.Div(
+							h.Class("flex flex-col mx-auto"),
 							h.Div(
-								h.Class(
-									"w-full flex flex-col max-w-[90vw] md:max-w-[65vw] xl:max-w-4xl",
+								h.Class("flex flex-col justify-center items-center md:mt-6 mx-auto"),
+								h.Div(
+									h.Class(
+										"w-full flex flex-col max-w-[90vw] md:max-w-[65vw] xl:max-w-4xl",
+									),
+									h.Children(children...),
 								),
-								h.Children(children...),
 							),
 						),
 					),
 				),
 			),
-		),
+		},
 	)
 }

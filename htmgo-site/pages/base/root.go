@@ -8,9 +8,30 @@ import (
 
 var Version = uuid.NewString()[0:6]
 
-func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
+type RootPageProps struct {
+	Title       string
+	Description string
+	Canonical   string
+	Children    h.Ren
+}
+
+func ConfigurableRootPage(ctx *h.RequestContext, props RootPageProps) *h.Page {
 	title := "htmgo"
 	description := "build simple and scalable systems with go + htmx"
+	canonical := ctx.Request.URL.String()
+
+	if props.Canonical != "" {
+		canonical = props.Canonical
+	}
+
+	if props.Title != "" {
+		title = props.Title
+	}
+
+	if props.Description != "" {
+		description = props.Description
+	}
+
 	return h.NewPage(
 		h.Html(
 			h.HxExtension(
@@ -25,8 +46,8 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 				h.Meta("author", "htmgo"),
 				h.Meta("description", description),
 				h.Meta("og:title", title),
-				h.Meta("og:url", "https://htmgo.dev"),
-				h.Link("canonical", "https://htmgo.dev"),
+				h.Meta("og:url", ctx.Request.URL.String()),
+				h.Link("canonical", canonical),
 				h.Link("https://cdn.jsdelivr.net/npm/@docsearch/css@3", "stylesheet"),
 				h.Meta("og:description", description),
 				h.LinkWithVersion("/public/main.css", "stylesheet", Version),
@@ -39,7 +60,7 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 			),
 			h.Body(
 				h.Class("bg-white h-screen"),
-				h.Fragment(children...),
+				props.Children,
 				h.Script("https://cdn.jsdelivr.net/npm/@docsearch/js@3"),
 				h.UnsafeRawScript(`
 				docsearch({
@@ -53,6 +74,17 @@ func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 			`),
 			),
 		),
+	)
+}
+
+func RootPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
+	return ConfigurableRootPage(
+		ctx,
+		RootPageProps{
+			Title:       "htmgo",
+			Description: "build simple and scalable systems with go + htmx",
+			Children:    h.Fragment(children...),
+		},
 	)
 }
 
