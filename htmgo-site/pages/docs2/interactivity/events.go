@@ -61,7 +61,7 @@ func EventsAndCommands(ctx *h.RequestContext) *h.Page {
 			NextStep(
 				"mt-4",
 				PrevBlock("Tags and Attributes", "/docs2/core-concepts/tags-and-attributes"),
-				NextBlock("Conditionals", "/docs2/control/if-else"),
+				NextBlock("Conditionals", "/docs2/performance/caching-globally"),
 			),
 		),
 	)
