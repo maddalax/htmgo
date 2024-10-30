@@ -67,6 +67,13 @@ func PrevBlock(text string, url string) *h.Element {
 	)
 }
 
+func Image(src string) *h.Element {
+	return h.Img(
+		h.Src(src),
+		h.Class("rounded w-full"),
+	)
+}
+
 func Text(text string) *h.Element {
 	split := strings.Split(text, "\n")
 	return h.Div(
@@ -138,14 +145,14 @@ func DocPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 							),
 						),
 
-						//h.Div(
-						//	h.Class("flex justify-center items-center mt-6"),
-						//	h.A(
-						//		h.Text("Back to Top"),
-						//		h.Class("py-2 px-3 bg-slate-800 rounded text-white"),
-						//		h.Href("#quick-start-introduction"),
-						//	),
-						//),
+					//h.Div(
+					//	h.Class("flex justify-center items-center mt-6"),
+					//	h.A(
+					//		h.Text("Back to Top"),
+					//		h.Class("py-2 px-3 bg-slate-800 rounded text-white"),
+					//		h.Href("#quick-start-introduction"),
+					//	),
+					//),
 					),
 				),
 			),

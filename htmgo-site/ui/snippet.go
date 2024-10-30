@@ -9,6 +9,8 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/h"
+	"io"
+	"net/http"
 	"strings"
 )
 
@@ -100,4 +102,19 @@ func GoCodeSnippet(code string, customStyles ...string) *h.Element {
 		Lang:         "go",
 		CustomStyles: customStyles,
 	})
+}
+
+func CodeSnippetFromUrl(url string, props CodeSnippetProps) *h.Element {
+	data, err := http.Get(url)
+	if err != nil {
+		fmt.Printf("error: %s\n", err.Error())
+		return h.Empty()
+	}
+	defer data.Body.Close()
+	b, err := io.ReadAll(data.Body)
+	if err != nil {
+		return h.Empty()
+	}
+	props.Code = string(b)
+	return CodeSnippet(props)
 }

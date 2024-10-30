@@ -342,6 +342,10 @@ func Img(children ...Ren) *Element {
 	return Tag("img", children...)
 }
 
+func Video(children ...Ren) *Element {
+	return Tag("video", children...)
+}
+
 func Src(src string) *AttributeR {
 	return Attribute("src", src)
 }
