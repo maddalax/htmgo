@@ -31,7 +31,7 @@ func Installation(ctx *h.RequestContext) *h.Page {
 			StepTitle("1. Install htmgo"),
 			ui.SingleLineBashCodeSnippet(`GOPROXY=direct go install github.com/maddalax/htmgo/cli/htmgo@latest`),
 			StepTitle("2. Create new project"),
-			ui.SingleLineBashCodeSnippet(`htmgo template myapp`),
+			ui.SingleLineBashCodeSnippet(`htmgo template`),
 			HelpText("this will ask you for a new app name, and it will clone our starter template to a new directory it creates with your app name."),
 			StepTitle("3. Running the dev server"),
 			ui.SingleLineBashCodeSnippet(`htmgo watch`),
