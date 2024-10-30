@@ -2,17 +2,18 @@ package astgen
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
-	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
-	"github.com/maddalax/htmgo/framework/h"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"golang.org/x/mod/modfile"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/h"
+	"golang.org/x/mod/modfile"
 )
 
 type Page struct {
@@ -390,9 +391,20 @@ func writePagesFile() {
 	})
 }
 
+func HasModuleFile(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
 func GetModuleName() string {
 	wd := process.GetWorkingDir()
 	modPath := filepath.Join(wd, "go.mod")
+
+	if HasModuleFile(modPath) == false {
+		fmt.Fprintf(os.Stderr, "Module not found: go.mod file does not exists.")
+		return ""
+	}
+
 	goModBytes, err := os.ReadFile(modPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading go.mod: %v\n", err)
@@ -400,6 +412,18 @@ func GetModuleName() string {
 	}
 	modName := modfile.ModulePath(goModBytes)
 	return modName
+}
+
+func matchProjectDirectory() bool {
+	wd := process.GetWorkingDir()
+	dirs := strings.Split(wd, "/")
+
+	projectDir := dirs[len(dirs)-1]
+
+	if GetModuleName() == projectDir {
+		return true
+	}
+	return false
 }
 
 func GenAst(flags ...process.RunFlag) error {
@@ -428,6 +452,10 @@ func GenAst(flags ...process.RunFlag) error {
 			}
 		`, ChiModuleName)
 	})
+
+	if matchProjectDirectory() == false {
+		return fmt.Errorf("The project directory does not match with the project name.")
+	}
 
 	return nil
 }
