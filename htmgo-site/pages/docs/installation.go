@@ -13,19 +13,21 @@ func Installation(ctx *h.RequestContext) *h.Page {
 			Title("Getting Started"),
 			h.Ul(
 				h.Text("Prerequisites:"),
-				h.Class("list-disc list-outside"),
+				h.Class("list-disc list-inside"),
 				h.Li(
 					Inline(
 						Link("Go 1.23 or above", "https://go.dev/doc/install"),
 					),
 				),
-				Inline(
-					Text("Familiarity with "),
-					Link("https://htmx.org", "https://htmx.org"),
-					Text(" and html/hypermedia"),
+				h.Li(
+					Inline(
+						Text("Familiarity with "),
+						Link("https://htmx.org", "https://htmx.org"),
+						Text(" and html/hypermedia"),
+					),
 				),
 			),
-			HelpText("If you have not read the htmx docs, please do so before continuing, a lot of concepts below will be much more clear after."),
+			HelpText("If you have not read the htmx docs, please do so before continuing, many of the concepts htmgo uses will become clearer."),
 			StepTitle("1. Install htmgo"),
 			ui.SingleLineBashCodeSnippet(`GOPROXY=direct go install github.com/maddalax/htmgo/cli/htmgo@latest`),
 			StepTitle("2. Create new project"),
