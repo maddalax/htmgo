@@ -51,7 +51,7 @@ func Partials(ctx *h.RequestContext) *h.Page {
 			NextStep(
 				"mt-4",
 				PrevBlock("Getting Started", "/docs2/installation"),
-				NextBlock("Partials", "/docs2/core-concepts/partials"),
+				NextBlock("Components", "/docs2/core-concepts/components"),
 			),
 		),
 	)

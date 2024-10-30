@@ -44,6 +44,9 @@ type CodeSnippetProps struct {
 func CodeSnippet(props CodeSnippetProps) *h.Element {
 	id := fmt.Sprintf("code-snippet-%s", uuid.NewString())
 
+	props.Code = strings.TrimPrefix(props.Code, "\n")
+	props.Code = strings.TrimSuffix(props.Code, "\n")
+
 	if props.SingleLine {
 		return h.Div(
 			h.Class("flex items-center w-full"),

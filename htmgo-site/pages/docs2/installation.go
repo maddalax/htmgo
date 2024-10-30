@@ -11,10 +11,13 @@ func Installation(ctx *h.RequestContext) *h.Page {
 		h.Div(
 			h.Class("flex flex-col gap-3"),
 			Title("Getting Started"),
-			OneDepthUlList(
-				"Prerequisites:",
-				Inline(
-					Link("Go 1.23 or above", "https://go.dev/doc/install"),
+			h.Ul(
+				h.Text("Prerequisites:"),
+				h.Class("list-disc list-outside"),
+				h.Li(
+					Inline(
+						Link("Go 1.23 or above", "https://go.dev/doc/install"),
+					),
 				),
 				Inline(
 					Text("Familiarity with "),

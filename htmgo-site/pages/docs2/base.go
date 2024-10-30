@@ -79,18 +79,6 @@ func Text(text string) *h.Element {
 	)
 }
 
-func OneDepthUlList(text string, items ...h.Ren) *h.Element {
-	return h.Ul(
-		h.Text(text),
-		h.Class("list-disc list-outside"),
-		h.List(items, func(item h.Ren, index int) *h.Element {
-			return h.Li(
-				item,
-			)
-		}),
-	)
-}
-
 func Inline(elements ...h.Ren) *h.Element {
 	return h.Div(
 		h.Class("flex gap-1 items-center"),
@@ -101,7 +89,7 @@ func Inline(elements ...h.Ren) *h.Element {
 func HelpText(text string) *h.Element {
 	return h.Div(
 		h.Class("text-slate-600 text-sm"),
-		h.Text(text),
+		h.UnsafeRaw(text),
 	)
 }
 
@@ -150,14 +138,14 @@ func DocPage(ctx *h.RequestContext, children ...h.Ren) *h.Page {
 							),
 						),
 
-					//h.Div(
-					//	h.Class("flex justify-center items-center mt-6"),
-					//	h.A(
-					//		h.Text("Back to Top"),
-					//		h.Class("py-2 px-3 bg-slate-800 rounded text-white"),
-					//		h.Href("#quick-start-introduction"),
-					//	),
-					//),
+						//h.Div(
+						//	h.Class("flex justify-center items-center mt-6"),
+						//	h.A(
+						//		h.Text("Back to Top"),
+						//		h.Class("py-2 px-3 bg-slate-800 rounded text-white"),
+						//		h.Href("#quick-start-introduction"),
+						//	),
+						//),
 					),
 				),
 			),
