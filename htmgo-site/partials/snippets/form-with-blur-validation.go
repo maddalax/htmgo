@@ -27,6 +27,10 @@ func FormWithBlurValidation(ctx *h.RequestContext) *h.Partial {
 				h.Placeholder("Name"),
 				h.Post(validationPath, hx.BlurEvent),
 			),
+			h.Pf(
+				"type 'htmgo' to see validation errors",
+				h.Class("text-slate-600 text-sm"),
+			),
 			h.Div(
 				h.Id("name-error"),
 				h.Class("text-red-500"),
