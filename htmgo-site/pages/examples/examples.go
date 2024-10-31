@@ -97,6 +97,15 @@ var JsHideChildrenOnClick = Snippet{
 	partial:     snippets.JsHideChildrenOnClick,
 }
 
+var InputComponentSnippet = Snippet{
+	category:    "Components",
+	name:        "Input",
+	description: "An example of how you could build a re-usable input component",
+	sidebarName: "Text Input",
+	path:        "/examples/input-component",
+	partial:     snippets.InputComponent,
+}
+
 var examples = []Snippet{
 	FormWithLoadingStateSnippet,
 	FormWithBlurValidationSnippet,
@@ -110,4 +119,6 @@ var examples = []Snippet{
 	HackerNewsSnippet,
 	TodoListSnippet,
 	HtmgoSiteSnippet,
+
+	InputComponentSnippet,
 }
