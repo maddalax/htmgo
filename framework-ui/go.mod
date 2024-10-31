@@ -2,7 +2,7 @@ module github.com/maddalax/htmgo/framework-ui
 
 go 1.23.0
 
-require github.com/maddalax/htmgo/framework v1.0.3-0.20241031164328-0a4bcfa7a3f6
+require github.com/maddalax/htmgo/framework v1.0.3-0.20241031165923-032159149c63
 
 require (
 	github.com/go-chi/chi/v5 v5.1.0 // indirect

@@ -7,6 +7,7 @@
 ![Build](https://github.com/maddalax/htmgo/actions/workflows/run-framework-tests.yml/badge.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/maddalax/htmgo/framework@v1.0.2/h.svg)](https://htmgo.dev/docs)
 [![codecov](https://codecov.io/github/maddalax/htmgo/graph/badge.svg?token=ANPD11LSGN)](https://codecov.io/github/maddalax/htmgo)
+[![Join Discord](https://img.shields.io/badge/Join%20Discord-gray?style=flat&logo=discord&logoColor=white&link=https://discord.gg/nwQY4h6DtJ)](https://discord.gg/nwQY4h6DtJ)
 
 
 <sup>looking for a python version? check out: https://fastht.ml</sup>
