@@ -2,6 +2,8 @@ package h
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -46,4 +48,29 @@ func TestSetQsOnUrlWithDelete(t *testing.T) {
 	qs := NewQs("a", "b2", "c", "")
 	set := SetQueryParams("https://example.com/path?a=b&c=d", qs)
 	assert.Equal(t, "https://example.com/path?a=b2", set)
+}
+
+func TestGetQueryParam(t *testing.T) {
+	t.Parallel()
+	req, _ := http.NewRequest("GET", "http://localhost/?foo=bar&baz=qux", nil)
+	ctx := &RequestContext{Request: req}
+
+	result := GetQueryParam(ctx, "foo")
+	assert.Equal(t, "bar", result)
+
+	result = GetQueryParam(ctx, "baz")
+	assert.Equal(t, "qux", result)
+
+	result = GetQueryParam(ctx, "missing")
+	assert.Equal(t, "", result)
+
+	ctx.currentBrowserUrl = "http://localhost/?current=value"
+
+	result = GetQueryParam(ctx, "current")
+	assert.Equal(t, "value", result)
+
+	// url params should override browser url
+	req.URL, _ = url.Parse("http://localhost/?foo=override")
+	result = GetQueryParam(ctx, "foo")
+	assert.Equal(t, "override", result)
 }
