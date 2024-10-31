@@ -80,6 +80,10 @@ func Generate(router *chi.Mux) ([]byte, error) {
 		}
 	}
 
+	for i, url := range urls {
+		urls[i].Loc = fmt.Sprintf("%s%s", "https://htmgo.dev", url.Loc)
+	}
+
 	sitemap := NewSitemap(urls)
 	return serialize(sitemap)
 }
