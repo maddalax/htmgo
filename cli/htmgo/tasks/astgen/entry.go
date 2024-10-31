@@ -401,7 +401,7 @@ func GetModuleName() string {
 	modPath := filepath.Join(wd, "go.mod")
 
 	if HasModuleFile(modPath) == false {
-		fmt.Fprintf(os.Stderr, "Module not found: go.mod file does not exists.")
+		fmt.Fprintf(os.Stderr, "Module not found: go.mod file does not exist.")
 		return ""
 	}
 
@@ -412,18 +412,6 @@ func GetModuleName() string {
 	}
 	modName := modfile.ModulePath(goModBytes)
 	return modName
-}
-
-func matchProjectDirectory() bool {
-	wd := process.GetWorkingDir()
-	dirs := strings.Split(wd, "/")
-
-	projectDir := dirs[len(dirs)-1]
-
-	if GetModuleName() == projectDir {
-		return true
-	}
-	return false
 }
 
 func GenAst(flags ...process.RunFlag) error {
@@ -452,10 +440,6 @@ func GenAst(flags ...process.RunFlag) error {
 			}
 		`, ChiModuleName)
 	})
-
-	if matchProjectDirectory() == false {
-		return fmt.Errorf("The project directory does not match with the project name.")
-	}
 
 	return nil
 }
