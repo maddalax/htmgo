@@ -3,7 +3,7 @@ module hackernews
 go 1.23.0
 
 require (
-	github.com/maddalax/htmgo/framework v1.0.3-0.20241031163701-e268a581cedf
+	github.com/maddalax/htmgo/framework v1.0.3-0.20241031164328-0a4bcfa7a3f6
 	github.com/microcosm-cc/bluemonday v1.0.27
 )
 
