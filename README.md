@@ -5,6 +5,7 @@
 -------
 [![Go Report Card](https://goreportcard.com/badge/github.com/maddalax/htmgo)](https://goreportcard.com/report/github.com/maddalax/htmgo)
 ![Build](https://github.com/maddalax/htmgo/actions/workflows/run-framework-tests.yml/badge.svg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/maddalax/htmgo/framework@v1.0.2/h.svg)](https://htmgo.dev/docs)
 
 
 <sup>looking for a python version? check out: https://fastht.ml</sup>
