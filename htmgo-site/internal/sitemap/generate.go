@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"strings"
 )
 
 type URL struct {
@@ -35,8 +37,8 @@ func serialize(sitemap *URLSet) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func Generate() ([]byte, error) {
-
+func Generate(router *chi.Mux) ([]byte, error) {
+	routes := router.Routes()
 	urls := []URL{
 		{
 			Loc:        "/",
@@ -59,6 +61,25 @@ func Generate() ([]byte, error) {
 			ChangeFreq: "weekly",
 		},
 	}
+
+	for _, route := range routes {
+		if strings.HasPrefix(route.Pattern, "/docs/") {
+			urls = append(urls, URL{
+				Loc:        route.Pattern,
+				Priority:   1.0,
+				ChangeFreq: "weekly",
+			})
+		}
+
+		if strings.HasPrefix(route.Pattern, "/examples/") {
+			urls = append(urls, URL{
+				Loc:        route.Pattern,
+				Priority:   0.7,
+				ChangeFreq: "weekly",
+			})
+		}
+	}
+
 	sitemap := NewSitemap(urls)
 	return serialize(sitemap)
 }
