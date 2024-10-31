@@ -11,6 +11,15 @@ var FormWithLoadingStateSnippet = Snippet{
 	partial:     snippets.FormExample,
 }
 
+var FormWithBlurValidationSnippet = Snippet{
+	category:    "Forms",
+	name:        "Form",
+	description: "A simple form submission example with validation on blur",
+	sidebarName: "Form With Blur Validation",
+	path:        "/examples/form-with-blur-validation",
+	partial:     snippets.FormWithBlurValidation,
+}
+
 var UserAuthSnippet = Snippet{
 	category:       "Projects",
 	name:           "User Authentication",
@@ -90,6 +99,7 @@ var JsHideChildrenOnClick = Snippet{
 
 var examples = []Snippet{
 	FormWithLoadingStateSnippet,
+	FormWithBlurValidationSnippet,
 	ClickToEditSnippet,
 
 	JsSetTextOnClick,
