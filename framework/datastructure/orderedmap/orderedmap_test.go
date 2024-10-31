@@ -31,3 +31,33 @@ func TestOrderedMap(t *testing.T) {
 	assert.False(t, ok)
 	assert.Equal(t, 0, value)
 }
+
+func TestOrderedMapEach(t *testing.T) {
+	t.Parallel()
+	om := New[string, int]()
+	om.Set("one", 1)
+	om.Set("two", 2)
+	om.Set("three", 3)
+
+	expected := map[string]int{"one": 1, "two": 2, "three": 3}
+	actual := make(map[string]int)
+
+	om.Each(func(key string, value int) {
+		actual[key] = value
+	})
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestOrderedMapValues(t *testing.T) {
+	t.Parallel()
+	om := New[string, int]()
+	om.Set("first", 10)
+	om.Set("second", 20)
+	om.Set("third", 30)
+
+	values := om.Values()
+	expectedValues := []int{10, 20, 30}
+
+	assert.Equal(t, expectedValues, values)
+}
