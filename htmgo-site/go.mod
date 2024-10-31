@@ -5,8 +5,8 @@ go 1.23.0
 require (
 	github.com/alecthomas/chroma/v2 v2.14.0
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v1.0.3-0.20241030182742-35877a1b2e3b
-	github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241030182742-35877a1b2e3b
+	github.com/maddalax/htmgo/framework v1.0.3-0.20241031144416-f6556b579ffd
+	github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241031144416-f6556b579ffd
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )
