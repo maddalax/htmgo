@@ -443,7 +443,7 @@ func writeAssetsFile() {
 		}
 
 		path = strings.ReplaceAll(path, distAssets, "")
-		httpUrl := fmt.Sprintf("%s%s", config.PublicAssetPath, path)
+		httpUrl := normalizePath(fmt.Sprintf("%s%s", config.PublicAssetPath, path))
 
 		path = normalizePath(path)
 		path = strings.ReplaceAll(path, "/", "_")
