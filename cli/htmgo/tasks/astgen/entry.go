@@ -10,6 +10,7 @@ import (
 	"go/token"
 	"golang.org/x/mod/modfile"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -421,6 +422,9 @@ func writePagesFile() {
 func writeAssetsFile() {
 	cwd := process.GetWorkingDir()
 	config := dirutil.GetConfig()
+
+	slog.Debug("writing assets file", slog.String("cwd", cwd), slog.String("config", config.PublicAssetPath))
+
 	distAssets := filepath.Join(cwd, "assets", "dist")
 	hasAssets := false
 
