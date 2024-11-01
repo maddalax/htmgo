@@ -19,11 +19,13 @@ import (
 	"sync"
 )
 
+const version = "1.0.3"
+
 func main() {
 	needsSignals := true
 
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate", "format"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate", "format", "version"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -100,6 +102,10 @@ func main() {
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
+		if taskName == "version" {
+			fmt.Printf("htmgo cli version %s\n", version)
+			os.Exit(0)
+		}
 		if taskName == "format" {
 			if len(os.Args) < 3 {
 				fmt.Println(fmt.Sprintf("Usage: htmgo format <file>"))
