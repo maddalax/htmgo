@@ -82,6 +82,12 @@ func TestPublicAssetPath(t *testing.T) {
 	assert.Equal(t, "/assets", cfg.PublicAssetPath)
 }
 
+func TestConfigGet(t *testing.T) {
+	t.Parallel()
+	cfg := Get()
+	assert.Equal(t, "/public", cfg.PublicAssetPath)
+}
+
 func writeConfigFile(t *testing.T, content string) string {
 	temp := os.TempDir()
 	os.Mkdir(temp, 0755)
