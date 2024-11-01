@@ -9,10 +9,12 @@ import (
 	"go/parser"
 	"go/token"
 	"golang.org/x/mod/modfile"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 type Page struct {
@@ -36,6 +38,32 @@ const ModuleName = "github.com/maddalax/htmgo/framework/h"
 
 var PackageName = fmt.Sprintf("package %s", GeneratedDirName)
 var GeneratedFileLine = fmt.Sprintf("// Package %s THIS FILE IS GENERATED. DO NOT EDIT.", GeneratedDirName)
+
+func toPascaleCase(input string) string {
+	words := strings.Split(input, "_")
+	for i := range words {
+		words[i] = strings.Title(strings.ToLower(words[i]))
+	}
+	return strings.Join(words, "")
+}
+
+func isValidGoVariableName(name string) bool {
+	// Variable name must not be empty
+	if name == "" {
+		return false
+	}
+	// First character must be a letter or underscore
+	if !unicode.IsLetter(rune(name[0])) && name[0] != '_' {
+		return false
+	}
+	// Remaining characters must be letters, digits, or underscores
+	for _, char := range name[1:] {
+		if !unicode.IsLetter(char) && !unicode.IsDigit(char) && char != '_' {
+			return false
+		}
+	}
+	return true
+}
 
 func normalizePath(path string) string {
 	return strings.ReplaceAll(path, `\`, "/")
@@ -390,6 +418,63 @@ func writePagesFile() {
 	})
 }
 
+func writeAssetsFile() {
+	cwd := process.GetWorkingDir()
+	config := dirutil.GetConfig()
+	distAssets := filepath.Join(cwd, "assets", "dist")
+	hasAssets := false
+
+	builder := strings.Builder{}
+
+	builder.WriteString(`package assets`)
+	builder.WriteString("\n")
+
+	filepath.WalkDir(distAssets, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if strings.HasPrefix(d.Name(), ".") {
+			return nil
+		}
+
+		path = strings.ReplaceAll(path, distAssets, "")
+		httpUrl := fmt.Sprintf("%s%s", config.PublicAssetPath, path)
+
+		path = normalizePath(path)
+		path = strings.ReplaceAll(path, "/", "_")
+		path = strings.ReplaceAll(path, "//", "_")
+
+		name := strings.ReplaceAll(path, ".", "_")
+		name = strings.ReplaceAll(name, "-", "_")
+
+		name = toPascaleCase(name)
+
+		if isValidGoVariableName(name) {
+			builder.WriteString(fmt.Sprintf(`const %s = "%s"`, name, httpUrl))
+			builder.WriteString("\n")
+			hasAssets = true
+		}
+
+		return nil
+	})
+
+	builder.WriteString("\n")
+
+	str := builder.String()
+
+	if hasAssets {
+		WriteFile(filepath.Join(GeneratedDirName, "assets", "assets-generated.go"), func(content *ast.File) string {
+			return str
+		})
+	}
+
+}
+
 func GetModuleName() string {
 	wd := process.GetWorkingDir()
 	modPath := filepath.Join(wd, "go.mod")
@@ -411,6 +496,7 @@ func GenAst(flags ...process.RunFlag) error {
 	}
 	writePartialsFile()
 	writePagesFile()
+	writeAssetsFile()
 
 	WriteFile("__htmgo/setup-generated.go", func(content *ast.File) string {
 

@@ -61,20 +61,3 @@ h.JoinExtensions(
     h.HxExtension("my-extension"),
 )
 `
-
-const htmxExtensions = `
-h.HxOnLoad
-h.HxOnAfterSwap
-h.OnClick
-h.OnSubmit
-h.HxBeforeSseMessage
-h.HxAfterSseMessage
-h.OnClick
-h.OnSubmit
-h.HxOnSseError
-h.HxOnSseClose
-h.HxOnSseConnecting
-h.HxOnSseOpen
-h.HxAfterRequest
-h.HxOnMutationError
-`

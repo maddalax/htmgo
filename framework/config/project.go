@@ -14,6 +14,7 @@ type ProjectConfig struct {
 	WatchFiles                    []string `yaml:"watch_files"`
 	AutomaticPageRoutingIgnore    []string `yaml:"automatic_page_routing_ignore"`
 	AutomaticPartialRoutingIgnore []string `yaml:"automatic_partial_routing_ignore"`
+	PublicAssetPath               string   `yaml:"public_asset_path"`
 }
 
 func DefaultProjectConfig() *ProjectConfig {
@@ -25,6 +26,7 @@ func DefaultProjectConfig() *ProjectConfig {
 		WatchFiles: []string{
 			"**/*.go", "**/*.html", "**/*.css", "**/*.js", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.md",
 		},
+		PublicAssetPath: "/public",
 	}
 }
 
@@ -57,7 +59,20 @@ func (cfg *ProjectConfig) Enhance() *ProjectConfig {
 		}
 	}
 
+	if cfg.PublicAssetPath == "" {
+		cfg.PublicAssetPath = "/public"
+	}
+
 	return cfg
+}
+
+func Get() *ProjectConfig {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return DefaultProjectConfig()
+	}
+	config := FromConfigFile(cwd)
+	return config
 }
 
 func FromConfigFile(workingDir string) *ProjectConfig {
