@@ -50,6 +50,7 @@ var sections = []Section{
 			{Title: "Swapping", Path: DocPath("/interactivity/swapping")},
 			{Title: "Events", Path: DocPath("/interactivity/events")},
 			{Title: "Evaluating Javascript", Path: DocPath("/interactivity/events")},
+			{Title: "Eval Commands", Path: DocPath("/interactivity/eval-commands")},
 		},
 	},
 	{

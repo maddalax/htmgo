@@ -61,7 +61,7 @@ func EventsAndCommands(ctx *h.RequestContext) *h.Page {
 			NextStep(
 				"mt-4",
 				PrevBlock("Swapping", DocPath("/interactivity/swapping")),
-				NextBlock("Caching Components", DocPath("/performance/caching-globally")),
+				NextBlock("Eval Commands", DocPath("/interactivity/eval-commands")),
 			),
 		),
 	)

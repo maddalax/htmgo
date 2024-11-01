@@ -42,7 +42,7 @@ func CachingGlobally(ctx *h.RequestContext) *h.Page {
 			`),
 			NextStep(
 				"mt-4",
-				PrevBlock("Events", DocPath("/interactivity/events")),
+				PrevBlock("Eval Commands", DocPath("/interactivity/eval-commands")),
 				NextBlock("Caching Per Key", DocPath("/performance/caching-per-key")),
 			),
 		),
