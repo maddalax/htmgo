@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"gopkg.in/yaml.v3"
 	"log/slog"
 	"os"
@@ -68,7 +67,10 @@ func (cfg *ProjectConfig) Enhance() *ProjectConfig {
 }
 
 func Get() *ProjectConfig {
-	cwd := process.GetWorkingDir()
+	cwd, err := os.Getwd()
+	if err != nil {
+		return DefaultProjectConfig()
+	}
 	config := FromConfigFile(cwd)
 	return config
 }
