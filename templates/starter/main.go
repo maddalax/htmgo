@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/maddalax/htmgo/framework/config"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"io/fs"
@@ -10,6 +12,7 @@ import (
 
 func main() {
 	locator := service.NewLocator()
+	cfg := config.Get()
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,
@@ -23,7 +26,10 @@ func main() {
 
 			http.FileServerFS(sub)
 
-			app.Router.Handle("/public/*", http.StripPrefix("/public", http.FileServerFS(sub)))
+			// change this in htmgo.yml (public_asset_path)
+			app.Router.Handle(fmt.Sprintf("%s/*", cfg.PublicAssetPath),
+				http.StripPrefix(cfg.PublicAssetPath, http.FileServerFS(sub)))
+
 			__htmgo.Register(app.Router)
 		},
 	})

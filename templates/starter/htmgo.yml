@@ -16,3 +16,6 @@ automatic_page_routing_ignore: ["root.go"]
 # files or directories to ignore when automatically registering routes for partials
 # supports glob patterns through https://github.com/bmatcuk/doublestar
 automatic_partial_routing_ignore: []
+
+# url path of where the public assets are located
+public_asset_path: "/public"

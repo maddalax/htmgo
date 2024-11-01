@@ -73,6 +73,15 @@ func TestShouldPrefixAutomaticPartialRoutingIgnore_1(t *testing.T) {
 	assert.Equal(t, []string{"partials/somefile/*"}, cfg.AutomaticPartialRoutingIgnore)
 }
 
+func TestPublicAssetPath(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultProjectConfig()
+	assert.Equal(t, "/public", cfg.PublicAssetPath)
+
+	cfg.PublicAssetPath = "/assets"
+	assert.Equal(t, "/assets", cfg.PublicAssetPath)
+}
+
 func writeConfigFile(t *testing.T, content string) string {
 	temp := os.TempDir()
 	os.Mkdir(temp, 0755)

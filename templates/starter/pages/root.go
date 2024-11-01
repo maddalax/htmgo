@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
+	"starter-template/__htmgo/assets"
 )
 
 func RootPage(children ...h.Ren) *h.Page {
@@ -20,8 +21,8 @@ func RootPage(children ...h.Ren) *h.Page {
 					h.Text(title),
 				),
 				h.Meta("viewport", "width=device-width, initial-scale=1"),
-				h.Link("/public/favicon.ico", "icon"),
-				h.Link("/public/apple-touch-icon.png", "apple-touch-icon"),
+				h.Link(assets.FaviconIco, "icon"),
+				h.Link(assets.AppleTouchIconPng, "apple-touch-icon"),
 				h.Meta("title", title),
 				h.Meta("charset", "utf-8"),
 				h.Meta("author", author),
@@ -30,8 +31,8 @@ func RootPage(children ...h.Ren) *h.Page {
 				h.Meta("og:url", url),
 				h.Link("canonical", url),
 				h.Meta("og:description", description),
-				h.Link("/public/main.css", "stylesheet"),
-				h.Script("/public/htmgo.js"),
+				h.Link(assets.MainCss, "stylesheet"),
+				h.Script(assets.HtmgoJs),
 			),
 			h.Body(
 				h.Div(
