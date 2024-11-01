@@ -16,7 +16,6 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-	"sync"
 )
 
 const version = "1.0.3"
@@ -79,21 +78,9 @@ func main() {
 		fmt.Printf("Generating CSS...\n")
 		css.GenerateCss(process.ExitOnError)
 
-		wg := sync.WaitGroup{}
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			astgen.GenAst(process.ExitOnError)
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			run.EntGenerate()
-		}()
-
-		wg.Wait()
+		// generate ast needs to be run after css generation
+		astgen.GenAst(process.ExitOnError)
+		run.EntGenerate()
 
 		fmt.Printf("Starting server...\n")
 		process.KillAll()
@@ -131,6 +118,7 @@ func main() {
 		} else if taskName == "css" {
 			_ = css.GenerateCss(process.ExitOnError)
 		} else if taskName == "ast" {
+			css.GenerateCss(process.ExitOnError)
 			_ = astgen.GenAst(process.ExitOnError)
 		} else if taskName == "run" {
 			run.MakeBuildable()
