@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/framework/session"
+	"log/slog"
 	"sync"
 )
 
@@ -78,6 +79,7 @@ func (h *MessageHandler) OnDomElementRemoved(handlerId string) {
 }
 
 func (h *MessageHandler) OnSocketDisconnected(event wsutil.SocketEvent) {
+	slog.Info("ws-extension: socket disconnected", slog.String("socketId", event.SessionId))
 	sessionId := session.Id(event.SessionId)
 	hashes, ok := sessionIdToHashes.Load(sessionId)
 	if ok {

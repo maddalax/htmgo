@@ -6,7 +6,11 @@ func OnClick(ctx *h.RequestContext, handler Handler) *h.AttributeMapOrdered {
 	return AddClientSideHandler(ctx, "click", handler)
 }
 
-func OnServerSideEvent(ctx *h.RequestContext, eventName string, handler Handler) h.Ren {
+func OnClientEvent(ctx *h.RequestContext, eventName string, handler Handler) *h.AttributeMapOrdered {
+	return AddClientSideHandler(ctx, eventName, handler)
+}
+
+func OnServerEvent(ctx *h.RequestContext, eventName string, handler Handler) h.Ren {
 	AddServerSideHandler(ctx, eventName, handler)
 	return h.Attribute("data-handler-id", "")
 }

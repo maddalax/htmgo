@@ -31,13 +31,18 @@ func repeaterItem(ctx *h.RequestContext, item *h.Element, index int, props *Repe
 		h.Class("flex gap-2 items-center"),
 		h.Id(id),
 		item,
-		props.RemoveButton(index,
+		props.RemoveButton(
+			index,
 			h.ClassIf(index == 0, "opacity-0 disabled"),
-			h.If(index == 0, h.Disabled()),
+			h.If(
+				index == 0,
+				h.Disabled(),
+			),
 			ws.OnClick(ctx, func(data ws.HandlerData) {
 				props.OnRemove(data, index)
 				props.currentIndex--
-				ws.PushElement(data,
+				ws.PushElement(
+					data,
 					h.Div(
 						h.Attribute("hx-swap-oob", fmt.Sprintf("delete:#%s", id)),
 						h.Div(),
@@ -63,7 +68,8 @@ func Repeater(ctx *h.RequestContext, props RepeaterProps) *h.Element {
 			props.AddButton,
 			ws.OnClick(ctx, func(data ws.HandlerData) {
 				props.OnAdd(data)
-				ws.PushElement(data,
+				ws.PushElement(
+					data,
 					h.Div(
 						h.Attribute("hx-swap-oob", "beforebegin:#"+props.addButtonId()),
 						repeaterItem(

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/datastructure/orderedmap"
 	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/internal/datastructure"
 	"github.com/maddalax/htmgo/framework/internal/util"
 	"strings"
 )

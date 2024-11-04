@@ -59,11 +59,11 @@ func CounterForm(ctx *h.RequestContext, props CounterProps) *h.Element {
 			h.Class("bg-rose-400 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded"),
 			h.Type("submit"),
 			h.Text("Increment"),
-			ws.OnServerSideEvent(ctx, "increment", func(data ws.HandlerData) {
+			ws.OnServerEvent(ctx, "increment", func(data ws.HandlerData) {
 				counter.Increment()
 				ws.PushElement(data, CounterForm(ctx, props))
 			}),
-			ws.OnServerSideEvent(ctx, "decrement", func(data ws.HandlerData) {
+			ws.OnServerEvent(ctx, "decrement", func(data ws.HandlerData) {
 				counter.Decrement()
 				ws.PushElement(data, CounterForm(ctx, props))
 			}),

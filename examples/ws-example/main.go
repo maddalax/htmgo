@@ -5,6 +5,7 @@ import (
 	ws2 "github.com/maddalax/htmgo/extensions/websocket/opts"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
+	"github.com/maddalax/htmgo/framework/session"
 	"io/fs"
 	"net/http"
 	"ws-example/__htmgo"
@@ -17,6 +18,11 @@ func main() {
 		ServiceLocator: locator,
 		LiveReload:     true,
 		Register: func(app *h.App) {
+
+			app.Use(func(ctx *h.RequestContext) {
+				session.CreateSession(ctx)
+			})
+
 			websocket.EnableExtension(app, ws2.ExtensionOpts{
 				WsPath: "/ws",
 				SessionId: func(ctx *h.RequestContext) string {

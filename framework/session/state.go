@@ -22,13 +22,18 @@ func NewState(ctx *h.RequestContext) *State {
 	}
 }
 
+func CreateSession(ctx *h.RequestContext) Id {
+	sessionId := fmt.Sprintf("session-id-%s", h.GenId(30))
+	ctx.Set("session-id", sessionId)
+	return Id(sessionId)
+}
+
 func GetSessionId(ctx *h.RequestContext) Id {
 	sessionIdRaw := ctx.Get("session-id")
 	sessionId := ""
 
 	if sessionIdRaw == "" || sessionIdRaw == nil {
-		sessionId = fmt.Sprintf("session-id-%s", h.GenId(30))
-		ctx.Set("session-id", sessionId)
+		panic("session id is not set, please use session.CreateSession(ctx) in middleware to create a session id")
 	} else {
 		sessionId = sessionIdRaw.(string)
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/opts"
 	"github.com/puzpuzpuz/xsync/v3"
+	"log/slog"
 	"strings"
 	"time"
 )
@@ -139,13 +140,25 @@ func (manager *SocketManager) OnClose(id string) {
 	if socket == nil {
 		return
 	}
+	slog.Debug("ws-extension: removing socket from manager", slog.String("socketId", id))
 	manager.dispatch(SocketEvent{
 		SessionId: id,
 		Type:      DisconnectedEvent,
 		RoomId:    socket.RoomId,
 		Payload:   map[string]any{},
 	})
-	manager.sockets.Delete(id)
+	roomId, ok := manager.idToRoom.Load(id)
+	if !ok {
+		return
+	}
+	sockets, ok := manager.sockets.Load(roomId)
+	if !ok {
+		return
+	}
+	sockets.Delete(id)
+	manager.idToRoom.Delete(id)
+	slog.Debug("ws-extension: removed socket from manager", slog.String("socketId", id))
+
 }
 
 func (manager *SocketManager) CloseWithMessage(id string, message string) {
@@ -178,11 +191,12 @@ func (manager *SocketManager) Get(id string) *SocketConnection {
 	return &conn
 }
 
-func (manager *SocketManager) Ping(id string) {
+func (manager *SocketManager) Ping(id string) bool {
 	conn := manager.Get(id)
 	if conn != nil {
-		manager.writeText(*conn, "ping")
+		return manager.writeText(*conn, "ping")
 	}
+	return false
 }
 
 func (manager *SocketManager) writeCloseRaw(writer WriterChan, message string) {
@@ -198,11 +212,12 @@ func (manager *SocketManager) writeTextRaw(writer WriterChan, message string) {
 	}
 }
 
-func (manager *SocketManager) writeText(socket SocketConnection, message string) {
+func (manager *SocketManager) writeText(socket SocketConnection, message string) bool {
 	if socket.Writer == nil {
-		return
+		return false
 	}
 	manager.writeTextRaw(socket.Writer, message)
+	return true
 }
 
 func (manager *SocketManager) BroadcastText(roomId string, message string, predicate func(conn SocketConnection) bool) {
@@ -220,19 +235,21 @@ func (manager *SocketManager) BroadcastText(roomId string, message string, predi
 	})
 }
 
-func (manager *SocketManager) SendHtml(id string, message string) {
+func (manager *SocketManager) SendHtml(id string, message string) bool {
 	conn := manager.Get(id)
 	minified := strings.ReplaceAll(message, "\n", "")
 	minified = strings.ReplaceAll(minified, "\t", "")
 	minified = strings.TrimSpace(minified)
 	if conn != nil {
-		manager.writeText(*conn, minified)
+		return manager.writeText(*conn, minified)
 	}
+	return false
 }
 
-func (manager *SocketManager) SendText(id string, message string) {
+func (manager *SocketManager) SendText(id string, message string) bool {
 	conn := manager.Get(id)
 	if conn != nil {
-		manager.writeText(*conn, message)
+		return manager.writeText(*conn, message)
 	}
+	return false
 }
