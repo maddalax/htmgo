@@ -61,6 +61,9 @@ func List(metrics ws.Metrics) *h.Element {
 			h.Dl(
 				h.Class("-my-3 divide-y divide-gray-100 text-sm"),
 				ListItem("Current Time", time.Now().Format("15:04:05")),
+				ListItem("Seconds Elapsed", fmt.Sprintf("%d", metrics.Manager.SecondsElapsed)),
+				ListItem("Total Messages", fmt.Sprintf("%d", metrics.Manager.TotalMessages)),
+				ListItem("Messages Per Second", fmt.Sprintf("%d", metrics.Manager.MessagesPerSecond)),
 				ListItem("Total Goroutines For ws.Every", fmt.Sprintf("%d", metrics.Manager.RunningGoroutines)),
 				ListItem("Total Goroutines In System", fmt.Sprintf("%d", runtime.NumGoroutine())),
 				ListItem("Sockets", fmt.Sprintf("%d", metrics.Manager.TotalSockets)),

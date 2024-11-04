@@ -29,10 +29,10 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 				partials.Repeater(ctx, partials.RepeaterProps{
 					Id: "repeater-1",
 					OnAdd: func(data ws.HandlerData) {
-						ws.BroadcastServerSideEvent("increment", map[string]any{})
+						//ws.BroadcastServerSideEvent("increment", map[string]any{})
 					},
 					OnRemove: func(data ws.HandlerData, index int) {
-						ws.BroadcastServerSideEvent("decrement", map[string]any{})
+						//ws.BroadcastServerSideEvent("decrement", map[string]any{})
 					},
 					AddButton: h.Button(
 						h.Text("+ Add Item"),

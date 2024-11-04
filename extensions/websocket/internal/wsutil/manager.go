@@ -49,6 +49,9 @@ type ManagerMetrics struct {
 	TotalListeners      int
 	SocketsPerRoomCount map[string]int
 	SocketsPerRoom      map[string][]string
+	TotalMessages       int64
+	MessagesPerSecond   int
+	SecondsElapsed      int
 }
 
 type SocketManager struct {
@@ -58,6 +61,22 @@ type SocketManager struct {
 	goroutinesRunning atomic.Int32
 	opts              *opts.ExtensionOpts
 	lock              sync.Mutex
+	totalMessages     atomic.Int64
+	messagesPerSecond int
+	secondsElapsed    int
+}
+
+func (manager *SocketManager) StartMetrics() {
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			manager.lock.Lock()
+			manager.secondsElapsed++
+			totalMessages := manager.totalMessages.Load()
+			manager.messagesPerSecond = int(float64(totalMessages) / float64(manager.secondsElapsed))
+			manager.lock.Unlock()
+		}
+	}()
 }
 
 func (manager *SocketManager) Metrics() ManagerMetrics {
@@ -71,6 +90,9 @@ func (manager *SocketManager) Metrics() ManagerMetrics {
 		TotalListeners:      len(manager.listeners),
 		SocketsPerRoom:      make(map[string][]string),
 		SocketsPerRoomCount: make(map[string]int),
+		TotalMessages:       manager.totalMessages.Load(),
+		MessagesPerSecond:   manager.messagesPerSecond,
+		SecondsElapsed:      manager.secondsElapsed,
 	}
 
 	roomMap := make(map[string]int)
@@ -164,7 +186,6 @@ func (manager *SocketManager) Listen(listener chan SocketEvent) {
 }
 
 func (manager *SocketManager) dispatch(event SocketEvent) {
-	fmt.Printf("dispatching event: %s\n", event.Type)
 	done := make(chan struct{}, 1)
 	go func() {
 		for {
@@ -187,17 +208,14 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 	if socket == nil {
 		return
 	}
+
+	manager.totalMessages.Add(1)
 	manager.dispatch(SocketEvent{
 		SessionId: id,
 		Type:      MessageEvent,
 		Payload:   message,
 		RoomId:    socket.RoomId,
 	})
-
-	if message["message"] == "ping" {
-		manager.Ping(id)
-	}
-
 }
 
 func (manager *SocketManager) Add(roomId string, id string, writer WriterChan, done DoneChan) {

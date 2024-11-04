@@ -22,7 +22,9 @@ func EnableExtension(app *h.App, opts opts.ExtensionOpts) {
 	}
 
 	service.Set[wsutil.SocketManager](app.Opts.ServiceLocator, service.Singleton, func() *wsutil.SocketManager {
-		return wsutil.NewSocketManager(&opts)
+		manager := wsutil.NewSocketManager(&opts)
+		manager.StartMetrics()
+		return manager
 	})
 	ws.StartListener(app.Opts.ServiceLocator)
 	app.Router.Handle(opts.WsPath, wsutil.WsHttpHandler(&opts))
