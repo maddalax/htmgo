@@ -66,7 +66,7 @@ func (manager *SocketManager) Metrics() ManagerMetrics {
 	count := manager.goroutinesRunning.Load()
 	metrics := ManagerMetrics{
 		RunningGoroutines:   count,
-		TotalSockets:        manager.sockets.Size(),
+		TotalSockets:        0,
 		TotalRooms:          0,
 		TotalListeners:      len(manager.listeners),
 		SocketsPerRoom:      make(map[string][]string),
@@ -89,6 +89,7 @@ func (manager *SocketManager) Metrics() ManagerMetrics {
 				metrics.SocketsPerRoom[roomId] = []string{}
 			}
 			metrics.SocketsPerRoom[roomId] = append(metrics.SocketsPerRoom[roomId], socketId)
+			metrics.TotalSockets++
 			return true
 		})
 		return true
@@ -169,7 +170,6 @@ func (manager *SocketManager) dispatch(event SocketEvent) {
 		for {
 			select {
 			case <-done:
-				fmt.Printf("dispatched event: %s\n", event.Type)
 				return
 			case <-time.After(5 * time.Second):
 				fmt.Printf("havent dispatched event after 5s, chan blocked: %s\n", event.Type)
@@ -193,6 +193,11 @@ func (manager *SocketManager) OnMessage(id string, message map[string]any) {
 		Payload:   message,
 		RoomId:    socket.RoomId,
 	})
+
+	if message["message"] == "ping" {
+		manager.Ping(id)
+	}
+
 }
 
 func (manager *SocketManager) Add(roomId string, id string, writer WriterChan, done DoneChan) {

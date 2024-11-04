@@ -79,7 +79,7 @@ func (manager *SocketManager) dispatch(event SocketEvent) {
 				fmt.Printf("dispatched event: %s\n", event.Type)
 				return
 			case <-time.After(5 * time.Second):
-				fmt.Printf("havent dispatched event after 5s, chan blocked: %s\n", event.Type)
+				fmt.Printf("havent dispatched listener event after 5s, chan blocked: %s\n", event.Type)
 			}
 		}
 	}()
