@@ -5,14 +5,17 @@ import (
 )
 
 func RootPage(children ...h.Ren) h.Ren {
-	banner := h.A(h.Class("bg-neutral-200 text-neutral-600 text-center p-2 flex items-center justify-center"),
+	banner := h.A(
+		h.Class("bg-neutral-200 text-neutral-600 text-center p-2 flex items-center justify-center"),
 		h.Href("https://github.com/maddalax/htmgo"),
 		h.Attribute("target", "_blank"),
 		h.Text("Built with htmgo.dev"),
 	)
 
 	return h.Html(
-		h.HxExtensions(h.BaseExtensions()),
+		h.HxExtensions(
+			h.BaseExtensions(),
+		),
 		h.Head(
 			h.Meta("viewport", "width=device-width, initial-scale=1"),
 			h.Link("/public/favicon.ico", "icon"),

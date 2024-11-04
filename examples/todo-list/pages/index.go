@@ -10,7 +10,10 @@ import (
 func TaskListPage(ctx *h.RequestContext) *h.Page {
 
 	title := h.Div(
-		h.H1(h.Class("text-7xl font-extralight text-rose-500 tracking-wide"), h.Text("todos")),
+		h.H1(
+			h.Class("text-7xl font-extralight text-rose-500 tracking-wide"),
+			h.Text("todos"),
+		),
 	)
 
 	return h.NewPage(base.RootPage(
@@ -21,7 +24,9 @@ func TaskListPage(ctx *h.RequestContext) *h.Page {
 				title,
 				task.Card(ctx),
 				h.Children(
-					h.Div(h.Text("Double-click to edit a todo")),
+					h.Div(
+						h.Text("Double-click to edit a todo"),
+					),
 				),
 			),
 		),

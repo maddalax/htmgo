@@ -9,20 +9,22 @@ import (
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/copyassets"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/css"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/downloadtemplate"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/formatter"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/reloader"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/run"
 	"log/slog"
 	"os"
 	"strings"
-	"sync"
 )
 
+const version = "1.0.4"
+
 func main() {
-	done := RegisterSignals()
+	needsSignals := true
 
 	commandMap := make(map[string]*flag.FlagSet)
-	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate"}
+	commands := []string{"template", "run", "watch", "build", "setup", "css", "schema", "generate", "format", "version"}
 
 	for _, command := range commands {
 		commandMap[command] = flag.NewFlagSet(command, flag.ExitOnError)
@@ -56,6 +58,15 @@ func main() {
 	slog.Debug("Running task:", slog.String("task", taskName))
 	slog.Debug("working dir:", slog.String("dir", process.GetWorkingDir()))
 
+	if taskName == "format" {
+		needsSignals = false
+	}
+
+	done := make(chan bool, 1)
+	if needsSignals {
+		done = RegisterSignals()
+	}
+
 	if taskName == "watch" {
 		fmt.Printf("Running in watch mode\n")
 		os.Setenv("ENV", "development")
@@ -67,21 +78,9 @@ func main() {
 		fmt.Printf("Generating CSS...\n")
 		css.GenerateCss(process.ExitOnError)
 
-		wg := sync.WaitGroup{}
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			astgen.GenAst(process.ExitOnError)
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			run.EntGenerate()
-		}()
-
-		wg.Wait()
+		// generate ast needs to be run after css generation
+		astgen.GenAst(process.ExitOnError)
+		run.EntGenerate()
 
 		fmt.Printf("Starting server...\n")
 		process.KillAll()
@@ -90,7 +89,22 @@ func main() {
 		}()
 		startWatcher(reloader.OnFileChange)
 	} else {
-		if taskName == "schema" {
+		if taskName == "version" {
+			fmt.Printf("htmgo cli version %s\n", version)
+			os.Exit(0)
+		}
+		if taskName == "format" {
+			if len(os.Args) < 3 {
+				fmt.Println(fmt.Sprintf("Usage: htmgo format <file>"))
+				os.Exit(1)
+			}
+			file := os.Args[2]
+			if file == "." {
+				formatter.FormatDir(process.GetWorkingDir())
+			} else {
+				formatter.FormatFile(os.Args[2])
+			}
+		} else if taskName == "schema" {
 			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("Enter entity name:")
 			text, _ := reader.ReadString('\n')
@@ -104,10 +118,10 @@ func main() {
 		} else if taskName == "css" {
 			_ = css.GenerateCss(process.ExitOnError)
 		} else if taskName == "ast" {
+			css.GenerateCss(process.ExitOnError)
 			_ = astgen.GenAst(process.ExitOnError)
 		} else if taskName == "run" {
-			_ = astgen.GenAst(process.ExitOnError)
-			_ = css.GenerateCss(process.ExitOnError)
+			run.MakeBuildable()
 			_ = run.Server(process.ExitOnError)
 		} else if taskName == "template" {
 			name := ""

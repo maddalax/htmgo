@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/util"
 	"strings"
@@ -30,7 +31,6 @@ func validateCommands(cmds []Command) {
 			panic(fmt.Sprintf("element is not allowed in lifecycle events. Got: %v", t))
 		default:
 			panic(fmt.Sprintf("type is not allowed in lifecycle events. Got: %v", t))
-
 		}
 	}
 }
@@ -51,7 +51,8 @@ func (l *LifeCycle) OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return l
 }
 
-// OnLoad This will work on any element because of the htmgo htmx extension to trigger it, instead of the browser.
+// OnLoad executes the given commands when the element is loaded into the DOM, it also executes when the element is replaced / swapped in.
+// This will work on any element because of the htmgo htmx extension to trigger it, instead of the browser.
 func OnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadDomEvent, cmd...)
 }
@@ -61,58 +62,73 @@ func (l *LifeCycle) HxBeforeRequest(cmd ...Command) *LifeCycle {
 	return l
 }
 
+// HxOnLoad executes the given commands when the element is loaded into the DOM.
+// Deprecated: Use OnLoad instead.
 func HxOnLoad(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.LoadEvent, cmd...)
 }
 
+// HxOnAfterSwap executes the given commands when the element is swapped in.
 func HxOnAfterSwap(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.AfterSwapEvent, cmd...)
 }
 
+// OnClick executes the given commands when the element is clicked.
 func OnClick(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.ClickEvent, cmd...)
 }
 
+// OnEvent executes the given commands when the given event is triggered.
 func OnEvent(event hx.Event, cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(event, cmd...)
 }
 
+// HxBeforeSseMessage executes the given commands when a message is received from the server via SSE, but before it is processed.
 func HxBeforeSseMessage(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseBeforeMessageEvent, cmd...)
 }
 
+// HxAfterSseMessage executes the given commands when a message is received from the server via SSE, and after it is processed.
 func HxAfterSseMessage(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseAfterMessageEvent, cmd...)
 }
 
+// OnSubmit executes the given commands when the form is submitted.
 func OnSubmit(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SubmitEvent, cmd...)
 }
 
+// HxOnSseError executes the given commands when an error occurs while connecting to the server via SSE.
 func HxOnSseError(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseErrorEvent, cmd...)
 }
 
+// HxOnSseClose executes the given commands when the connection to the server via SSE is closed.
 func HxOnSseClose(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseClosedEvent, cmd...)
 }
 
+// HxOnSseConnecting executes the given commands when the connection to the server via SSE is being established.
 func HxOnSseConnecting(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseConnectingEvent, cmd...)
 }
 
+// HxOnSseOpen executes the given commands when the connection to the server via SSE is established.
 func HxOnSseOpen(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().OnEvent(hx.SseConnectedEvent, cmd...)
 }
 
+// HxBeforeRequest executes the given commands before the request is sent.
 func HxBeforeRequest(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().HxBeforeRequest(cmd...)
 }
 
+// HxAfterRequest executes the given commands after the request is sent.
 func HxAfterRequest(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().HxAfterRequest(cmd...)
 }
 
+// HxOnMutationError executes the given commands when a mutation error of a request occurs.
 func HxOnMutationError(cmd ...Command) *LifeCycle {
 	return NewLifeCycle().HxOnMutationError(cmd...)
 }
@@ -138,16 +154,19 @@ type ComplexJsCommand struct {
 	TempFuncName string
 }
 
+// NewComplexJsCommand creates a new complex JavaScript command.
 func NewComplexJsCommand(command string) ComplexJsCommand {
 	name := fmt.Sprintf("__eval_%s", util.RandSeq(6))
 	return ComplexJsCommand{Command: command, TempFuncName: name}
 }
 
+// SetText sets the inner text of the element.
 func SetText(text string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = '%s'", text)}
 }
 
+// SetTextOnChildren sets the inner text of all the children of the element that match the selector.
 func SetTextOnChildren(selector, text string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
@@ -158,26 +177,31 @@ func SetTextOnChildren(selector, text string) ComplexJsCommand {
 	`, selector, text))
 }
 
+// Increment increments the inner text of the element by the given amount.
 func Increment(amount int) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = parseInt(this.innerText) + %d", amount)}
 }
 
+// SetInnerHtml sets the inner HTML of the element.
 func SetInnerHtml(r Ren) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", Render(r))}
 }
 
+// SetOuterHtml sets the outer HTML of the element.
 func SetOuterHtml(r Ren) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", Render(r))}
 }
 
+// AddAttribute adds the given attribute to the element.
 func AddAttribute(name, value string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.setAttribute('%s', '%s')", name, value)}
 }
 
+// SetDisabled sets the disabled attribute on the element.
 func SetDisabled(disabled bool) SimpleJsCommand {
 	if disabled {
 		return AddAttribute("disabled", "true")
@@ -186,26 +210,79 @@ func SetDisabled(disabled bool) SimpleJsCommand {
 	}
 }
 
+// RemoveAttribute removes the given attribute from the element.
 func RemoveAttribute(name string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.removeAttribute('%s')", name)}
 }
 
+// AddClass adds the given class to the element.
 func AddClass(class string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.add('%s')", class)}
 }
 
+// RemoveClass removes the given class from the element.
 func RemoveClass(class string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.remove('%s')", class)}
 }
 
+// ToggleClass toggles the given class on the element.
 func ToggleClass(class string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.toggle('%s')", class)}
 }
 
+// ToggleText toggles the given text on the element.
+func ToggleText(text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJs(fmt.Sprintf(`
+		if(self.innerText === "%s") {
+			self.innerText = "%s";
+		} else {
+			self.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnSibling toggles the given text on the siblings of the element.
+func ToggleTextOnSibling(selector, text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnSibling(selector, fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnChildren toggles the given text on the children of the element.
+func ToggleTextOnChildren(selector, text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnChildren(selector, fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleTextOnParent toggles the given text on the parent of the element.
+func ToggleTextOnParent(text string, textTwo string) Command {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf(`
+		if(element.innerText === "%s") {
+			element.innerText = "%s";
+		} else {
+			element.innerText = "%s";
+		}
+	`, text, textTwo, text))
+}
+
+// ToggleClassOnElement toggles the given class on the elements returned by the selector.
 func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
@@ -215,15 +292,18 @@ func ToggleClassOnElement(selector, class string) ComplexJsCommand {
 	))
 }
 
+// EvalJsOnParent evaluates the given JavaScript code on the parent of the element. Reference the element using 'element'.
 func EvalJsOnParent(js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-        let element = self.parentElement;
-        %s
+		if(self.parentElement) { 
+			let element = self.parentElement;
+			%s     
+		 }
 	`, js))
 }
 
+// EvalJsOnChildren evaluates the given JavaScript code on the children of the element. Reference the element using 'element'.
 func EvalJsOnChildren(selector, js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
@@ -234,77 +314,140 @@ func EvalJsOnChildren(selector, js string) ComplexJsCommand {
 	`, selector, js))
 }
 
+// EvalJsOnSibling evaluates the given JavaScript code on the siblings of the element. Reference the element using 'element'.
 func EvalJsOnSibling(selector, js string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`
-		if(!self.parentElement) { return; }
-		let siblings = self.parentElement.querySelectorAll('%s');
-		siblings.forEach(function(element) {
-			%s
-		});
+		if(self.parentElement) { 
+        	let siblings = self.parentElement.querySelectorAll('%s');
+			siblings.forEach(function(element) {
+				%s
+			});    
+		 }
 	`, selector, js))
 }
 
+// SetClassOnParent sets the given class on the parent of the element.
 func SetClassOnParent(class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnParent(fmt.Sprintf("element.classList.add('%s')", class))
 }
 
+// RemoveClassOnParent removes the given class from the parent of the element.
 func RemoveClassOnParent(class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnParent(fmt.Sprintf("element.classList.remove('%s')", class))
 }
 
+// SetClassOnChildren sets the given class on the children of the element.
 func SetClassOnChildren(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.add('%s')", class))
 }
 
+// ToggleClassOnChildren toggles the given class on the children of the element.
+func ToggleClassOnChildren(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.toggle('%s')", class))
+}
+
+// ToggleClassOnParent toggles the given class on the parent of the element.
+func ToggleClassOnParent(class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnParent(fmt.Sprintf("element.classList.toggle('%s')", class))
+}
+
+// ToggleClassOnSibling toggles the given class on the siblings of the element.
+func ToggleClassOnSibling(selector, class string) ComplexJsCommand {
+	// language=JavaScript
+	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.toggle('%s')", class))
+}
+
+// SetClassOnSibling sets the given class on the siblings of the element. Reference the element using 'element'.
 func SetClassOnSibling(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.add('%s')", class))
 }
 
+// RemoveClassOnSibling removes the given class from the siblings of the element. Reference the element using 'element'.
 func RemoveClassOnSibling(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnSibling(selector, fmt.Sprintf("element.classList.remove('%s')", class))
 
 }
 
+// RemoveClassOnChildren removes the given class from the children of the element. Reference the element using 'element'.
 func RemoveClassOnChildren(selector, class string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJsOnChildren(selector, fmt.Sprintf("element.classList.remove('%s')", class))
 }
 
+// Alert displays an alert dialog with the given text.
 func Alert(text string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("alert('%s')", text)}
 }
 
+// Remove removes the element from the DOM.
 func Remove() SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: "this.remove()"}
 }
 
+// EvalJs evaluates the given JavaScript code.
 func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
 }
 
+func EvalCommandsOnSelector(selector string, cmds ...Command) ComplexJsCommand {
+	lines := make([]string, len(cmds))
+	for i, cmd := range cmds {
+		lines[i] = Render(cmd)
+		lines[i] = strings.ReplaceAll(lines[i], "this.", "self.")
+		// some commands set the element we need to fix it so we arent redeclaring it
+		lines[i] = strings.ReplaceAll(lines[i], "let element =", "element =")
+	}
+	code := strings.Join(lines, "\n")
+	return EvalJs(fmt.Sprintf(`
+		let element = document.querySelector("%s");
+
+		if(!element) {
+			return;
+		}
+
+        self = element;
+		%s
+	`, selector, code))
+}
+
+func EvalCommands(element *Element, cmds ...Command) ComplexJsCommand {
+	id := strings.ReplaceAll(uuid.NewString(), "-", "")
+	element.AppendChildren(
+		Attribute("data-eval-commands-id", id),
+	)
+	return EvalCommandsOnSelector(
+		fmt.Sprintf(`[data-eval-commands-id='%s']`, id), cmds...)
+}
+
+// PreventDefault prevents the default action of the event.
 func PreventDefault() SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: "event.preventDefault()"}
 }
 
+// ConsoleLog logs a message to the console.
 func ConsoleLog(text string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("console.log('%s')", text)}
 }
 
+// SetValue sets the value of the element.
 func SetValue(value string) SimpleJsCommand {
 	// language=JavaScript
 	return SimpleJsCommand{Command: fmt.Sprintf("this.value = '%s'", value)}
 }
 
+// SubmitFormOnEnter submits the form when the user presses the enter key.
 func SubmitFormOnEnter() ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(`
@@ -312,6 +455,7 @@ func SubmitFormOnEnter() ComplexJsCommand {
 	`)
 }
 
+// InjectScript injects a script tag into the document.
 func InjectScript(src string) ComplexJsCommand {
 	// language=JavaScript
 	return NewComplexJsCommand(fmt.Sprintf(`
@@ -322,6 +466,7 @@ func InjectScript(src string) ComplexJsCommand {
 	`, src))
 }
 
+// InjectScriptIfNotExist injects a script tag into the document if it does not already exist.
 func InjectScriptIfNotExist(src string) ComplexJsCommand {
 	// language=JavaScript
 	return EvalJs(fmt.Sprintf(`

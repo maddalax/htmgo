@@ -2,6 +2,8 @@ package markdown
 
 import (
 	"bytes"
+	"github.com/alecthomas/chroma/v2"
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
@@ -9,10 +11,12 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 	"io"
 	"io/fs"
+	"sync"
 )
 
 type Renderer struct {
 	cache map[string]string
+	lock  sync.Mutex
 }
 
 func NewRenderer() *Renderer {
@@ -20,6 +24,8 @@ func NewRenderer() *Renderer {
 }
 
 func (r *Renderer) RenderFile(source string, system fs.FS) string {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	if val, ok := r.cache[source]; ok {
 		return val
 	}
@@ -49,9 +55,16 @@ func RenderMarkdown(reader io.Reader) bytes.Buffer {
 		),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
+			html.WithHardWraps(),
 		),
 		goldmark.WithExtensions(
 			highlighting.NewHighlighting(
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+					chromahtml.WithCustomCSS(map[chroma.TokenType]string{
+						chroma.PreWrapper: "font-size: 14px; padding: 12px; overflow: auto; background-color: rgb(245, 245, 245) !important;",
+					}),
+				),
 				highlighting.WithStyle("github"),
 			),
 		),

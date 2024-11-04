@@ -5,12 +5,16 @@ import (
 	"log/slog"
 	"os"
 	"path"
+	"strings"
 )
 
 type ProjectConfig struct {
-	Tailwind    bool     `yaml:"tailwind"`
-	WatchIgnore []string `yaml:"watch_ignore"`
-	WatchFiles  []string `yaml:"watch_files"`
+	Tailwind                      bool     `yaml:"tailwind"`
+	WatchIgnore                   []string `yaml:"watch_ignore"`
+	WatchFiles                    []string `yaml:"watch_files"`
+	AutomaticPageRoutingIgnore    []string `yaml:"automatic_page_routing_ignore"`
+	AutomaticPartialRoutingIgnore []string `yaml:"automatic_partial_routing_ignore"`
+	PublicAssetPath               string   `yaml:"public_asset_path"`
 }
 
 func DefaultProjectConfig() *ProjectConfig {
@@ -22,10 +26,11 @@ func DefaultProjectConfig() *ProjectConfig {
 		WatchFiles: []string{
 			"**/*.go", "**/*.html", "**/*.css", "**/*.js", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.md",
 		},
+		PublicAssetPath: "/public",
 	}
 }
 
-func (cfg *ProjectConfig) EnhanceWithDefaults() *ProjectConfig {
+func (cfg *ProjectConfig) Enhance() *ProjectConfig {
 	defaultCfg := DefaultProjectConfig()
 	if len(cfg.WatchFiles) == 0 {
 		cfg.WatchFiles = defaultCfg.WatchFiles
@@ -33,7 +38,41 @@ func (cfg *ProjectConfig) EnhanceWithDefaults() *ProjectConfig {
 	if len(cfg.WatchIgnore) == 0 {
 		cfg.WatchIgnore = defaultCfg.WatchIgnore
 	}
+
+	for i, s := range cfg.AutomaticPartialRoutingIgnore {
+		parts := strings.Split(s, string(os.PathSeparator))
+		if len(parts) == 0 {
+			continue
+		}
+		if parts[0] != "partials" {
+			cfg.AutomaticPartialRoutingIgnore[i] = path.Join("partials", s)
+		}
+	}
+
+	for i, s := range cfg.AutomaticPageRoutingIgnore {
+		parts := strings.Split(s, string(os.PathSeparator))
+		if len(parts) == 0 {
+			continue
+		}
+		if parts[0] != "pages" {
+			cfg.AutomaticPageRoutingIgnore[i] = path.Join("pages", s)
+		}
+	}
+
+	if cfg.PublicAssetPath == "" {
+		cfg.PublicAssetPath = "/public"
+	}
+
 	return cfg
+}
+
+func Get() *ProjectConfig {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return DefaultProjectConfig()
+	}
+	config := FromConfigFile(cwd)
+	return config
 }
 
 func FromConfigFile(workingDir string) *ProjectConfig {
@@ -50,7 +89,7 @@ func FromConfigFile(workingDir string) *ProjectConfig {
 					slog.Error("Error parsing config file", slog.String("file", filePath), slog.String("error", err.Error()))
 					os.Exit(1)
 				}
-				return cfg.EnhanceWithDefaults()
+				return cfg.Enhance()
 			}
 		}
 	}

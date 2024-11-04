@@ -2,6 +2,7 @@ package h
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/framework/datastructure/orderedmap"
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/datastructure"
 	"github.com/maddalax/htmgo/framework/internal/util"
@@ -11,7 +12,7 @@ import (
 type AttributeMap = map[string]any
 
 type AttributeMapOrdered struct {
-	data *datastructure.OrderedMap[string, string]
+	data *orderedmap.Map[string, string]
 }
 
 func (m *AttributeMapOrdered) Set(key string, value any) {
@@ -39,12 +40,12 @@ func (m *AttributeMapOrdered) Each(cb func(key string, value string)) {
 	})
 }
 
-func (m *AttributeMapOrdered) Entries() []datastructure.MapEntry[string, string] {
+func (m *AttributeMapOrdered) Entries() []orderedmap.Entry[string, string] {
 	return m.data.Entries()
 }
 
 func NewAttributeMap(pairs ...string) *AttributeMapOrdered {
-	m := datastructure.NewOrderedMap[string, string]()
+	m := orderedmap.New[string, string]()
 	if len(pairs)%2 == 0 {
 		for i := 0; i < len(pairs); i++ {
 			m.Set(pairs[i], pairs[i+1])
@@ -90,9 +91,7 @@ func Checked() Ren {
 }
 
 func Id(value string) Ren {
-	if strings.HasPrefix(value, "#") {
-		value = value[1:]
-	}
+	value = strings.TrimPrefix(value, "#")
 	return Attribute("id", value)
 }
 
@@ -121,27 +120,34 @@ func HxIndicator(tag string) *AttributeR {
 	return Attribute(hx.IndicatorAttr, tag)
 }
 
+// TriggerChildren Adds the hx-extension="trigger-children" to an element
+// See https://htmgo.dev/docs#htmx-extensions-trigger-children
 func TriggerChildren() *AttributeR {
 	return HxExtension("trigger-children")
 }
 
+// HxTriggerString Adds a hx-trigger to an element based on a string of triggers
 func HxTriggerString(triggers ...string) *AttributeR {
 	trigger := hx.NewStringTrigger(strings.Join(triggers, ", "))
 	return Attribute(hx.TriggerAttr, trigger.ToString())
 }
 
+// HxTrigger Adds a hx-trigger to an element
 func HxTrigger(opts ...hx.TriggerEvent) *AttributeR {
 	return Attribute(hx.TriggerAttr, hx.NewTrigger(opts...).ToString())
 }
 
+// HxTriggerClick Adds a hx-trigger="click" to an element
 func HxTriggerClick(opts ...hx.Modifier) *AttributeR {
 	return HxTrigger(hx.OnClick(opts...))
 }
 
+// HxExtension Adds a hx-ext to an element
 func HxExtension(value string) *AttributeR {
 	return Attribute(hx.ExtAttr, value)
 }
 
+// HxExtensions Adds multiple hx-ext to an element, separated by commas
 func HxExtensions(value ...string) Ren {
 	return Attribute(hx.ExtAttr, strings.Join(value, ","))
 }
@@ -150,6 +156,8 @@ func JoinExtensions(attrs ...*AttributeR) Ren {
 	return JoinAttributes(", ", attrs...)
 }
 
+// JoinAttributes joins multiple attributes into a single attribute string based on a separator
+// Example: JoinAttributes(", ", Attribute("hx-extension", "one"), Attribute("hx-extension", "two")) = hx-extension="one,two"
 func JoinAttributes(sep string, attrs ...*AttributeR) *AttributeR {
 	values := make([]string, 0, len(attrs))
 	for _, a := range attrs {
@@ -190,10 +198,23 @@ func Hidden() Ren {
 	return Attribute("style", "display:none")
 }
 
+func Controls() Ren {
+	return Attribute("controls", "")
+}
+
 func Class(value ...string) *AttributeR {
 	return Attribute("class", MergeClasses(value...))
 }
 
+// ClassF is a helper function to create a class attribute with the given format string and arguments
+func ClassF(format string, args ...interface{}) *AttributeR {
+	atr := fmt.Sprintf(format, args...)
+	return Attribute("class", atr)
+}
+
+// ClassX conditionally renders a class based on a map of class names and boolean values
+// value is any non-conditional class name you'd like to add
+// m is a map of class names and boolean values
 func ClassX(value string, m ClassMap) Ren {
 	builder := strings.Builder{}
 	builder.WriteString(value)
@@ -207,6 +228,7 @@ func ClassX(value string, m ClassMap) Ren {
 	return Class(builder.String())
 }
 
+// MergeClasses merges multiple classes into a single class string
 func MergeClasses(classes ...string) string {
 	if len(classes) == 1 {
 		return classes[0]

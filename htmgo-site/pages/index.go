@@ -6,15 +6,19 @@ import (
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(
-		base.PageWithNav(ctx, h.Div(
+	return base.PageWithNav(
+		ctx,
+		h.Div(
 			h.Class("flex items-center justify-center"),
 			h.Div(
 				h.Class("w-full px-4 flex flex-col prose md:max-w-3xl mt-6 mx-auto"),
 				h.Div(
 					h.Class("flex flex-col mb-6 md:mb-0 md:flex-row justify-between items-center"),
 					h.Div(
-						h.H1F("htmgo", h.Class("text-center md:text-left")),
+						h.H1F(
+							"htmgo",
+							h.Class("text-center md:text-left"),
+						),
 						h.H3F(
 							"build simple and scalable systems with %s",
 							"go + htmx",
@@ -37,7 +41,7 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 						MarkdownPage(ctx, "md/index.md", ""),
 					),
 				),
-			)),
+			),
 		),
 	)
 }

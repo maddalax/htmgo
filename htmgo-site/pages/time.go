@@ -7,11 +7,10 @@ import (
 )
 
 func CurrentTimePage(ctx *h.RequestContext) *h.Page {
-	return h.NewPage(
-		base.RootPage(
-			ctx,
-			h.GetPartial(
-				partials.CurrentTimePartial,
-				"load, every 1s"),
-		))
+	return base.RootPage(
+		ctx,
+		h.GetPartial(
+			partials.CurrentTimePartial,
+			"load, every 1s"),
+	)
 }

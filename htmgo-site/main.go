@@ -37,7 +37,7 @@ func main() {
 			http.FileServerFS(sub)
 
 			app.Router.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				s, err := sitemap.Generate()
+				s, err := sitemap.Generate(app.Router)
 				if err != nil {
 					http.Error(w, "failed to generate sitemap", http.StatusInternalServerError)
 					return

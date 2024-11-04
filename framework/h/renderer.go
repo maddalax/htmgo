@@ -35,9 +35,15 @@ var voidTags = map[string]bool{
 	"wbr":    true,
 }
 
+type ScriptEntry struct {
+	Body    string
+	ChildOf *Element
+}
+
 type RenderContext struct {
-	builder *strings.Builder
-	scripts []string
+	builder        *strings.Builder
+	scripts        []ScriptEntry
+	currentElement *Element
 }
 
 func (ctx *RenderContext) AddScript(funcName string, body string) {
@@ -48,13 +54,19 @@ func (ctx *RenderContext) AddScript(funcName string, body string) {
 				%s
 		}
 	</script>`, funcName, funcName, body)
-	ctx.scripts = append(ctx.scripts, script)
+
+	ctx.scripts = append(ctx.scripts, ScriptEntry{
+		Body:    script,
+		ChildOf: ctx.currentElement,
+	})
 }
 
 func (node *Element) Render(context *RenderContext) {
 	if node == nil {
 		return
 	}
+
+	context.currentElement = node
 
 	if node.tag == CachedNodeTag {
 		meta := node.meta.(*CachedNode)
@@ -147,7 +159,7 @@ func (node *Element) Render(context *RenderContext) {
 	}
 
 	if node.tag != "" {
-		renderScripts(context)
+		renderScripts(context, node)
 		if !voidTags[node.tag] {
 			context.builder.WriteString("</")
 			context.builder.WriteString(node.tag)
@@ -156,11 +168,19 @@ func (node *Element) Render(context *RenderContext) {
 	}
 }
 
-func renderScripts(context *RenderContext) {
-	for _, script := range context.scripts {
-		context.builder.WriteString(script)
+func renderScripts(context *RenderContext, parent *Element) {
+	if len(context.scripts) == 0 {
+		return
 	}
-	context.scripts = []string{}
+	notWritten := make([]ScriptEntry, 0)
+	for _, script := range context.scripts {
+		if script.ChildOf == parent {
+			context.builder.WriteString(script.Body)
+		} else {
+			notWritten = append(notWritten, script)
+		}
+	}
+	context.scripts = notWritten
 }
 
 func (a *AttributeR) Render(context *RenderContext) {

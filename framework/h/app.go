@@ -3,9 +3,6 @@ package h
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/maddalax/htmgo/framework/hx"
-	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,6 +10,10 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/service"
 )
 
 type RequestContext struct {
@@ -31,6 +32,37 @@ type RequestContext struct {
 
 func GetRequestContext(r *http.Request) *RequestContext {
 	return r.Context().Value(RequestContextKey).(*RequestContext)
+}
+
+func (c *RequestContext) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(c.Response, cookie)
+}
+
+func (c *RequestContext) Redirect(path string, code int) {
+	if code == 0 {
+		code = http.StatusTemporaryRedirect
+	}
+	if code < 300 || code > 399 {
+		code = http.StatusTemporaryRedirect
+	}
+	c.Response.Header().Set("Location", path)
+	c.Response.WriteHeader(code)
+}
+
+func (c *RequestContext) IsHttpPost() bool {
+	return c.Request.Method == http.MethodPost
+}
+
+func (c *RequestContext) IsHttpGet() bool {
+	return c.Request.Method == http.MethodGet
+}
+
+func (c *RequestContext) IsHttpPut() bool {
+	return c.Request.Method == http.MethodPut
+}
+
+func (c *RequestContext) IsHttpDelete() bool {
+	return c.Request.Method == http.MethodDelete
 }
 
 func (c *RequestContext) FormValue(key string) string {
@@ -91,6 +123,10 @@ func (c *RequestContext) Get(key string) interface{} {
 	return c.kv[key]
 }
 
+// ServiceLocator returns the service locator to register and retrieve services
+// Usage:
+// service.Set[db.Queries](locator, service.Singleton, db.Provide)
+// service.Get[db.Queries](locator)
 func (c *RequestContext) ServiceLocator() *service.Locator {
 	return c.locator
 }
@@ -106,6 +142,7 @@ type App struct {
 	Router *chi.Mux
 }
 
+// Start starts the htmgo server
 func Start(opts AppOpts) {
 	router := chi.NewRouter()
 	instance := App{
@@ -182,10 +219,9 @@ func (app *App) start() {
 	}
 
 	port := ":3000"
-	slog.Info(fmt.Sprintf("Server started on port %s", port))
-	err := http.ListenAndServe(port, app.Router)
+	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
 
-	if err != nil {
+	if err := http.ListenAndServe(port, app.Router); err != nil {
 		// If we are in watch mode, just try to kill any processes holding that port
 		// and try again
 		if IsDevelopment() && IsWatchMode() {
@@ -197,29 +233,42 @@ func (app *App) start() {
 				cmd := exec.Command("bash", "-c", fmt.Sprintf("kill -9 $(lsof -ti%s)", port))
 				cmd.Run()
 			}
+
 			time.Sleep(time.Millisecond * 50)
-			err = http.ListenAndServe(":3000", app.Router)
-			if err != nil {
+
+			// Try to start server again
+			if err := http.ListenAndServe(port, app.Router); err != nil {
+				slog.Error("Failed to restart server", "error", err)
 				panic(err)
 			}
-		} else {
-			panic(err)
 		}
+
 		panic(err)
 	}
 }
 
 func writeHtml(w http.ResponseWriter, element Ren) error {
-	w.Header().Set("Content-Type", "text/html")
-	_, err := fmt.Fprint(w, Render(element))
+	if element == nil {
+		return nil
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, err := fmt.Fprint(w, Render(element, WithDocType()))
 	return err
 }
 
 func HtmlView(w http.ResponseWriter, page *Page) error {
+	// if the page is nil, do nothing, this can happen if custom response is written, such as a 302 redirect
+	if page == nil {
+		return nil
+	}
 	return writeHtml(w, page.Root)
 }
 
 func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)
@@ -236,6 +285,10 @@ func PartialViewWithHeaders(w http.ResponseWriter, headers *Headers, partial *Pa
 }
 
 func PartialView(w http.ResponseWriter, partial *Partial) error {
+	if partial == nil {
+		return nil
+	}
+
 	if partial.Headers != nil {
 		for s, a := range *partial.Headers {
 			w.Header().Set(s, a)

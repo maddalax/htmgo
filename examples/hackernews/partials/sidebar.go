@@ -6,6 +6,7 @@ import (
 	"hackernews/components"
 	"hackernews/internal/news"
 	"hackernews/internal/parse"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"time"
 )
@@ -57,13 +58,18 @@ func StorySidebar(ctx *h.RequestContext) *h.Partial {
 
 	page := parse.MustParseInt(pageRaw, 0)
 
-	fetchMorePath := h.GetPartialPathWithQs(StorySidebar, h.NewQs("mode", "infinite", "page", fmt.Sprintf("%d", page+1), "category", category))
+	fetchMorePath := h.GetPartialPathWithQs(
+		StorySidebar,
+		h.NewQs("mode", "infinite", "page", fmt.Sprintf("%d", page+1), "category", category),
+	)
 
 	list := CachedStoryList(category, page, 50, fetchMorePath)
 
 	body := h.Aside(
 		h.Id("story-sidebar"),
-		h.JoinExtensions(h.TriggerChildren()),
+		h.JoinExtensions(
+			h.TriggerChildren(),
+		),
 		h.Class("sticky top-0 h-screen p-1 bg-gray-100 overflow-y-auto max-w-80 min-w-80"),
 		h.Div(
 			h.Class("flex flex-col gap-1"),
@@ -99,7 +105,9 @@ func SidebarTitle(defaultCategory string) *h.Element {
 			h.Text("Hacker News"),
 		),
 		h.Div(
-			h.OnLoad(h.EvalJs(ScrollJs)),
+			h.OnLoad(
+				h.EvalJs(ScrollJs),
+			),
 			h.Class("scroll-container mt-2 flex gap-1 no-scrollbar overflow-y-hidden whitespace-nowrap overflow-x-auto"),
 			h.List(news.Categories, func(item news.Category, index int) *h.Element {
 				return CategoryBadge(defaultCategory, item)
@@ -114,7 +122,13 @@ func CategoryBadge(defaultCategory string, category news.Category) *h.Element {
 		category.Name,
 		selected,
 		h.Attribute("hx-swap", "none"),
-		h.If(!selected, h.PostPartialOnClickQs(StorySidebar, h.NewQs("category", category.Path))),
+		h.If(
+			!selected,
+			h.PostPartialOnClickQs(
+				StorySidebar,
+				h.NewQs("category", category.Path),
+			),
+		),
 	)
 }
 
@@ -129,7 +143,7 @@ var CachedStoryList = h.CachedPerKeyT4(time.Minute*5, func(category string, page
 				h.Class("block p-2 bg-white rounded-md shadow cursor-pointer"),
 				h.Div(
 					h.Class("font-bold"),
-					h.UnsafeRaw(item.Title),
+					h.UnsafeRaw(sanitize.Sanitize(item.Title)),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),

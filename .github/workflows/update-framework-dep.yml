@@ -6,7 +6,8 @@ on:
     branches:
       - master         # Trigger on pushes to master
     paths:
-      - 'framework/**'  # Trigger only if files in this directory change
+      - 'framework/**'
+      - 'tools/html-to-htmgo/**'
 
 jobs:
   update-htmgo-dep:

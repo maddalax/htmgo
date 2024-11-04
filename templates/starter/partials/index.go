@@ -26,7 +26,8 @@ func CounterForm(count int) *h.Element {
 		h.Class("flex flex-col gap-3 items-center"),
 		h.Id("counter-form"),
 		h.PostPartial(CounterPartial),
-		h.Input("text",
+		h.Input(
+			"text",
 			h.Class("hidden"),
 			h.Value(count),
 			h.Name("count"),

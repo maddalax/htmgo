@@ -2,15 +2,20 @@ package astgen
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/h"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"golang.org/x/mod/modfile"
+	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 type Page struct {
@@ -24,6 +29,7 @@ type Partial struct {
 	FuncName string
 	Package  string
 	Import   string
+	Path     string
 }
 
 const GeneratedDirName = "__htmgo"
@@ -33,6 +39,36 @@ const ModuleName = "github.com/maddalax/htmgo/framework/h"
 
 var PackageName = fmt.Sprintf("package %s", GeneratedDirName)
 var GeneratedFileLine = fmt.Sprintf("// Package %s THIS FILE IS GENERATED. DO NOT EDIT.", GeneratedDirName)
+
+func toPascaleCase(input string) string {
+	words := strings.Split(input, "_")
+	for i := range words {
+		words[i] = strings.Title(strings.ToLower(words[i]))
+	}
+	return strings.Join(words, "")
+}
+
+func isValidGoVariableName(name string) bool {
+	// Variable name must not be empty
+	if name == "" {
+		return false
+	}
+	// First character must be a letter or underscore
+	if !unicode.IsLetter(rune(name[0])) && name[0] != '_' {
+		return false
+	}
+	// Remaining characters must be letters, digits, or underscores
+	for _, char := range name[1:] {
+		if !unicode.IsLetter(char) && !unicode.IsDigit(char) && char != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+func normalizePath(path string) string {
+	return strings.ReplaceAll(path, `\`, "/")
+}
 
 func sliceCommonPrefix(dir1, dir2 string) string {
 	// Use filepath.Clean to normalize the paths
@@ -59,9 +95,9 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 
 	// Return the longer one
 	if len(slicedDir1) > len(slicedDir2) {
-		return slicedDir1
+		return normalizePath(slicedDir1)
 	}
-	return slicedDir2
+	return normalizePath(slicedDir2)
 }
 
 func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial) bool) ([]Partial, error) {
@@ -103,7 +139,8 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 										if selectorExpr.Sel.Name == "Partial" {
 											p := Partial{
 												Package:  node.Name.Name,
-												Import:   sliceCommonPrefix(cwd, strings.ReplaceAll(filepath.Dir(path), `\`, `/`)),
+												Path:     normalizePath(sliceCommonPrefix(cwd, path)),
+												Import:   sliceCommonPrefix(cwd, normalizePath(filepath.Dir(path))),
 												FuncName: funcDecl.Name.Name,
 											}
 											if predicate(p) {
@@ -169,8 +206,8 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 										if selectorExpr.Sel.Name == "Page" {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
-												Import:   strings.ReplaceAll(filepath.Dir(path), `\`, `/`),
-												Path:     path,
+												Import:   normalizePath(filepath.Dir(path)),
+												Path:     normalizePath(path),
 												FuncName: funcDecl.Name.Name,
 											})
 											break
@@ -254,10 +291,16 @@ func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
 }
 
 func writePartialsFile() {
+	config := dirutil.GetConfig()
+
 	cwd := process.GetWorkingDir()
 	partialPath := filepath.Join(cwd, "partials")
 	partials, err := findPublicFuncsReturningHPartial(partialPath, func(partial Partial) bool {
 		return partial.FuncName != "GetPartialFromContext"
+	})
+
+	partials = h.Filter(partials, func(partial Partial) bool {
+		return !dirutil.IsGlobExclude(partial.Path, config.AutomaticPartialRoutingIgnore)
 	})
 
 	if err != nil {
@@ -317,6 +360,7 @@ func formatRoute(path string) string {
 }
 
 func writePagesFile() {
+	config := dirutil.GetConfig()
 
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(GeneratedFileLine)
@@ -325,6 +369,10 @@ func writePagesFile() {
 	builder.AddImport(ChiModuleName)
 
 	pages, _ := findPublicFuncsReturningHPage("pages")
+
+	pages = h.Filter(pages, func(page Page) bool {
+		return !dirutil.IsGlobExclude(page.Path, config.AutomaticPageRoutingIgnore)
+	})
 
 	if len(pages) > 0 {
 		builder.AddImport(ModuleName)
@@ -371,6 +419,66 @@ func writePagesFile() {
 	})
 }
 
+func writeAssetsFile() {
+	cwd := process.GetWorkingDir()
+	config := dirutil.GetConfig()
+
+	slog.Debug("writing assets file", slog.String("cwd", cwd), slog.String("config", config.PublicAssetPath))
+
+	distAssets := filepath.Join(cwd, "assets", "dist")
+	hasAssets := false
+
+	builder := strings.Builder{}
+
+	builder.WriteString(`package assets`)
+	builder.WriteString("\n")
+
+	filepath.WalkDir(distAssets, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if strings.HasPrefix(d.Name(), ".") {
+			return nil
+		}
+
+		path = strings.ReplaceAll(path, distAssets, "")
+		httpUrl := normalizePath(fmt.Sprintf("%s%s", config.PublicAssetPath, path))
+
+		path = normalizePath(path)
+		path = strings.ReplaceAll(path, "/", "_")
+		path = strings.ReplaceAll(path, "//", "_")
+
+		name := strings.ReplaceAll(path, ".", "_")
+		name = strings.ReplaceAll(name, "-", "_")
+
+		name = toPascaleCase(name)
+
+		if isValidGoVariableName(name) {
+			builder.WriteString(fmt.Sprintf(`const %s = "%s"`, name, httpUrl))
+			builder.WriteString("\n")
+			hasAssets = true
+		}
+
+		return nil
+	})
+
+	builder.WriteString("\n")
+
+	str := builder.String()
+
+	if hasAssets {
+		WriteFile(filepath.Join(GeneratedDirName, "assets", "assets-generated.go"), func(content *ast.File) string {
+			return str
+		})
+	}
+
+}
+
 func GetModuleName() string {
 	wd := process.GetWorkingDir()
 	modPath := filepath.Join(wd, "go.mod")
@@ -392,6 +500,7 @@ func GenAst(flags ...process.RunFlag) error {
 	}
 	writePartialsFile()
 	writePagesFile()
+	writeAssetsFile()
 
 	WriteFile("__htmgo/setup-generated.go", func(content *ast.File) string {
 

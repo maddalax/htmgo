@@ -5,6 +5,7 @@ import (
 	"github.com/maddalax/htmgo/framework/h"
 	"hackernews/internal/batch"
 	"hackernews/internal/news"
+	"hackernews/internal/sanitize"
 	"hackernews/internal/timeformat"
 	"strings"
 	"time"
@@ -13,7 +14,12 @@ import (
 func StoryComments(ctx *h.RequestContext) *h.Partial {
 	return h.NewPartial(
 		h.Fragment(
-			h.OobSwap(ctx, h.Div(h.Id("comments-loader"))),
+			h.OobSwap(
+				ctx,
+				h.Div(
+					h.Id("comments-loader"),
+				),
+			),
 			h.Div(
 				h.Class("flex flex-col gap-3 prose max-w-none"),
 				CachedStoryComments(news.MustItemId(ctx)),
@@ -57,14 +63,20 @@ func Comment(item news.Comment, nesting int) *h.Element {
 			"border-b border-gray-200": nesting == 0,
 			"border-l border-gray-200": nesting > 0,
 		}),
-		h.If(nesting > 0, h.Attribute("style", fmt.Sprintf("margin-left: %dpx", (nesting-1)*15))),
+		h.If(
+			nesting > 0,
+			h.Attribute("style", fmt.Sprintf("margin-left: %dpx", (nesting-1)*15)),
+		),
 		h.Div(
-			h.If(nesting > 0, h.Class("pl-4")),
+			h.If(
+				nesting > 0,
+				h.Class("pl-4"),
+			),
 			h.Div(
 				h.Class("flex gap-1 items-center"),
 				h.Div(
 					h.Class("font-bold text-rose-500"),
-					h.UnsafeRaw(item.By),
+					h.UnsafeRaw(sanitize.Sanitize(item.By)),
 				),
 				h.Div(
 					h.Class("text-sm text-gray-600"),
@@ -74,15 +86,18 @@ func Comment(item news.Comment, nesting int) *h.Element {
 			),
 			h.Div(
 				h.Class("text-sm text-gray-600"),
-				h.UnsafeRaw(strings.TrimSpace(item.Text)),
+				h.UnsafeRaw(sanitize.Sanitize(strings.TrimSpace(item.Text))),
 			),
 		),
-		h.If(len(children) > 0, h.List(
-			children, func(child news.Comment, index int) *h.Element {
-				return h.Div(
-					Comment(child, nesting+1),
-				)
-			},
-		)),
+		h.If(
+			len(children) > 0,
+			h.List(
+				children, func(child news.Comment, index int) *h.Element {
+					return h.Div(
+						Comment(child, nesting+1),
+					)
+				},
+			),
+		),
 	)
 }

@@ -8,16 +8,23 @@ import (
 
 func ConvertHtmlToGo(ctx *h.RequestContext) *h.Partial {
 	value := ctx.FormValue("html-input")
-	parsed := htmltogo.Parse([]byte(value))
+	parsed := string(htmltogo.Parse([]byte(value)))
 
-	formatted := ui.FormatCode(string(parsed), "height: 100%;")
+	formatted := ui.FormatCode(ui.CodeSnippetProps{
+		Code:         parsed,
+		Lang:         "go",
+		CustomStyles: []string{"height: 100%;"},
+	})
 
-	return h.SwapPartial(ctx, GoOutput(formatted))
+	return h.SwapManyPartial(ctx,
+		GoOutput(formatted),
+		HiddenCopyOutput(parsed),
+	)
 }
 
 func HtmlInput() *h.Element {
 	return h.Div(
-		h.Class("h-[90%] w-1/2 min-w-1/2"),
+		h.Class("h-full w-1/2 min-w-1/2"),
 		h.TextArea(
 			h.Name("html-input"),
 			h.MaxLength(500*1000),
@@ -29,13 +36,29 @@ func HtmlInput() *h.Element {
 	)
 }
 
+func HiddenCopyOutput(content string) *h.Element {
+	return h.Div(
+		h.Class("hidden"),
+		h.Id("go-output-raw"),
+		h.UnsafeRaw(content),
+	)
+}
+
 func GoOutput(content string) *h.Element {
 	return h.Div(
-		h.Class("h-[90%] w-1/2 min-w-1/2"),
+		h.Class("h-full w-1/2 min-w-1/2"),
 		h.Id("go-output"),
 		h.Div(
-			h.Class("h-[90%] w-full rounded border border-slate-200"),
-			h.UnsafeRaw(content),
+			h.Class("h-[90%] w-full rounded border border-slate-200 relative"),
+			h.Div(
+				h.Class("h-full"),
+				h.Id("go-output-content"),
+				h.UnsafeRaw(content),
+			),
+			h.If(
+				content != "",
+				ui.AbsoluteCopyButton("#go-output-raw"),
+			),
 		),
 	)
 }

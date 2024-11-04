@@ -38,6 +38,14 @@ func TextF(format string, args ...interface{}) *TextContent {
 	return Text(fmt.Sprintf(format, args...))
 }
 
+func Details(children ...Ren) *Element {
+	return Tag("details", children...)
+}
+
+func Summary(children ...Ren) *Element {
+	return Tag("summary", children...)
+}
+
 func Text(text string) *TextContent {
 	return NewTextContent(text)
 }
@@ -268,9 +276,7 @@ func TagF(tag string, format string, args ...interface{}) *Element {
 		case *AttributeMapOrdered:
 			children = append(children, d)
 		case *ChildList:
-			for _, child := range d.Children {
-				children = append(children, child)
-			}
+			children = append(children, d.Children...)
 		case *AttributeR:
 			children = append(children, d)
 		default:
@@ -336,6 +342,10 @@ func Img(children ...Ren) *Element {
 	return Tag("img", children...)
 }
 
+func Video(children ...Ren) *Element {
+	return Tag("video", children...)
+}
+
 func Src(src string) *AttributeR {
 	return Attribute("src", src)
 }
@@ -366,8 +376,8 @@ func Label(children ...Ren) *Element {
 	return Tag("label", children...)
 }
 
-func IFrame(src string) *Element {
-	return Tag("iframe", Src(src))
+func IFrame(src string, children ...Ren) *Element {
+	return Tag("iframe", children...).AppendChildren(Src(src))
 }
 
 func Address(children ...Ren) *Element {

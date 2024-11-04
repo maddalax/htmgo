@@ -20,7 +20,6 @@ func MyComponent() *h.Element {
 	if err != nil {
 		return string(b)
 	}
-
 	return string(dist)
 }
 
