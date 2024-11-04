@@ -5,23 +5,11 @@ import (
 	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/session"
-	"time"
 	"ws-example/partials"
 )
 
 func IndexPage(ctx *h.RequestContext) *h.Page {
 	sessionId := session.GetSessionId(ctx)
-
-	ws.Every(ctx, time.Second, func() bool {
-		return ws.PushElementCtx(
-			ctx,
-			h.Div(
-				h.Attribute("hx-swap-oob", "true"),
-				h.Id("current-time"),
-				h.TextF("Current time: %s", time.Now().Format("15:04:05")),
-			),
-		)
-	})
 
 	return h.NewPage(
 		RootPage(
@@ -35,7 +23,7 @@ func IndexPage(ctx *h.RequestContext) *h.Page {
 					h.Class("text-2xl"),
 				),
 				h.Div(
-					h.Id("current-time"),
+					h.Id("ws-metrics"),
 				),
 				partials.CounterForm(ctx, partials.CounterProps{Id: "counter-1"}),
 				partials.Repeater(ctx, partials.RepeaterProps{

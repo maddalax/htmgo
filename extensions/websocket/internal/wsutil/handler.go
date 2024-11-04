@@ -15,6 +15,13 @@ import (
 )
 
 func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
+
+	if opts.RoomName == nil {
+		opts.RoomName = func(ctx *h.RequestContext) string {
+			return "all"
+		}
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 		locator := cc.ServiceLocator()
@@ -32,6 +39,8 @@ func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 			slog.Info("failed to upgrade", slog.String("error", err.Error()))
 			return
 		}
+
+		roomId := opts.RoomName(cc)
 		/*
 			Large buffer in case the client disconnects while we are writing
 			we don't want to block the writer
@@ -41,7 +50,7 @@ func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 
 		wg := sync.WaitGroup{}
 
-		manager.Add("all", sessionId, writer, done)
+		manager.Add(roomId, sessionId, writer, done)
 
 		/*
 		 * This goroutine is responsible for writing messages to the client

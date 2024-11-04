@@ -25,6 +25,9 @@ func main() {
 
 			websocket.EnableExtension(app, ws2.ExtensionOpts{
 				WsPath: "/ws",
+				RoomName: func(ctx *h.RequestContext) string {
+					return "all"
+				},
 				SessionId: func(ctx *h.RequestContext) string {
 					return ctx.QueryParam("sessionId")
 				},

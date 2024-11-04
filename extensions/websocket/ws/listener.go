@@ -1,26 +1,15 @@
 package ws
 
 import (
-	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/framework/service"
 	"github.com/maddalax/htmgo/framework/session"
-	"time"
 )
 
 func StartListener(locator *service.Locator) {
 	manager := service.Get[wsutil.SocketManager](locator)
 	manager.Listen(socketMessageListener)
 	handler := NewMessageHandler(manager)
-
-	go func() {
-		for {
-			fmt.Printf("total handlers: %d\n", handlers.Size())
-			fmt.Printf("total serverEventNamesToHash: %d\n", serverEventNamesToHash.Size())
-			fmt.Printf("total sessionIdToHashes: %d\n", sessionIdToHashes.Size())
-			time.Sleep(5 * time.Second)
-		}
-	}()
 
 	go func() {
 		for {

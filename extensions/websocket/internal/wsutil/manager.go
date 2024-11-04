@@ -3,9 +3,13 @@ package wsutil
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/extensions/websocket/opts"
+	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/service"
 	"github.com/puzpuzpuz/xsync/v3"
 	"log/slog"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -38,18 +42,72 @@ type SocketConnection struct {
 	Writer WriterChan
 }
 
+type ManagerMetrics struct {
+	RunningGoroutines   int32
+	TotalSockets        int
+	TotalRooms          int
+	TotalListeners      int
+	SocketsPerRoomCount map[string]int
+	SocketsPerRoom      map[string][]string
+}
+
 type SocketManager struct {
-	sockets   *xsync.MapOf[string, *xsync.MapOf[string, SocketConnection]]
-	idToRoom  *xsync.MapOf[string, string]
-	listeners []chan SocketEvent
-	opts      *opts.ExtensionOpts
+	sockets           *xsync.MapOf[string, *xsync.MapOf[string, SocketConnection]]
+	idToRoom          *xsync.MapOf[string, string]
+	listeners         []chan SocketEvent
+	goroutinesRunning atomic.Int32
+	opts              *opts.ExtensionOpts
+	lock              sync.Mutex
+}
+
+func (manager *SocketManager) Metrics() ManagerMetrics {
+	manager.lock.Lock()
+	defer manager.lock.Unlock()
+	count := manager.goroutinesRunning.Load()
+	metrics := ManagerMetrics{
+		RunningGoroutines:   count,
+		TotalSockets:        manager.sockets.Size(),
+		TotalRooms:          0,
+		TotalListeners:      len(manager.listeners),
+		SocketsPerRoom:      make(map[string][]string),
+		SocketsPerRoomCount: make(map[string]int),
+	}
+
+	roomMap := make(map[string]int)
+
+	manager.idToRoom.Range(func(socketId string, roomId string) bool {
+		roomMap[roomId]++
+		return true
+	})
+
+	metrics.TotalRooms = len(roomMap)
+
+	manager.sockets.Range(func(roomId string, sockets *xsync.MapOf[string, SocketConnection]) bool {
+		metrics.SocketsPerRoomCount[roomId] = sockets.Size()
+		sockets.Range(func(socketId string, conn SocketConnection) bool {
+			if metrics.SocketsPerRoom[roomId] == nil {
+				metrics.SocketsPerRoom[roomId] = []string{}
+			}
+			metrics.SocketsPerRoom[roomId] = append(metrics.SocketsPerRoom[roomId], socketId)
+			return true
+		})
+		return true
+	})
+
+	return metrics
+}
+
+func SocketManagerFromCtx(ctx *h.RequestContext) *SocketManager {
+	locator := ctx.ServiceLocator()
+	return service.Get[SocketManager](locator)
 }
 
 func NewSocketManager(opts *opts.ExtensionOpts) *SocketManager {
 	return &SocketManager{
-		sockets:  xsync.NewMapOf[string, *xsync.MapOf[string, SocketConnection]](),
-		idToRoom: xsync.NewMapOf[string, string](),
-		opts:     opts,
+		sockets:           xsync.NewMapOf[string, *xsync.MapOf[string, SocketConnection]](),
+		idToRoom:          xsync.NewMapOf[string, string](),
+		opts:              opts,
+		goroutinesRunning: atomic.Int32{},
 	}
 }
 
@@ -62,6 +120,37 @@ func (manager *SocketManager) ForEachSocket(roomId string, cb func(conn SocketCo
 		cb(conn)
 		return true
 	})
+}
+
+func (manager *SocketManager) RunIntervalWithSocket(socketId string, interval time.Duration, cb func() bool) {
+	socketIdSlog := slog.String("socketId", socketId)
+	slog.Debug("ws-extension: starting every loop", socketIdSlog, slog.Duration("duration", interval))
+
+	go func() {
+		manager.goroutinesRunning.Add(1)
+		defer manager.goroutinesRunning.Add(-1)
+		tries := 0
+		for {
+			socket := manager.Get(socketId)
+			// This can run before the socket is established, lets try a few times and kill it if socket isn't connected after a bit.
+			if socket == nil {
+				if tries > 200 {
+					slog.Debug("ws-extension: socket disconnected, killing goroutine", socketIdSlog)
+					return
+				} else {
+					time.Sleep(time.Millisecond * 15)
+					tries++
+					slog.Debug("ws-extension: socket not connected yet, trying again", socketIdSlog, slog.Int("attempt", tries))
+					continue
+				}
+			}
+			success := cb()
+			if !success {
+				return
+			}
+			time.Sleep(interval)
+		}
+	}()
 }
 
 func (manager *SocketManager) Listen(listener chan SocketEvent) {

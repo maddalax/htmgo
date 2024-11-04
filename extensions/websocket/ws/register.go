@@ -34,6 +34,21 @@ var serverSideMessageListener = make(chan ServerSideEvent, 100)
 var lock = sync.Mutex{}
 var callingHandler = atomic.Bool{}
 
+type HandlerMetrics struct {
+	TotalHandlers               int
+	ServerEventNamesToHashCount int
+	SessionIdToHashesCount      int
+}
+
+func GetHandlerMetics() HandlerMetrics {
+	metrics := HandlerMetrics{
+		TotalHandlers:               handlers.Size(),
+		ServerEventNamesToHashCount: serverEventNamesToHash.Size(),
+		SessionIdToHashesCount:      sessionIdToHashes.Size(),
+	}
+	return metrics
+}
+
 func makeId() string {
 	return h.GenId(30)
 }
