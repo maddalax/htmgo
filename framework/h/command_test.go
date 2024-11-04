@@ -381,3 +381,18 @@ func TestToggleClassOnSibling(t *testing.T) {
 		 }
 	`))
 }
+
+func TestPreventDefault(t *testing.T) {
+	t.Parallel()
+	compareIgnoreSpaces(t, renderJs(t, PreventDefault()), "event.preventDefault();")
+}
+
+func TestConsoleLog(t *testing.T) {
+	t.Parallel()
+	compareIgnoreSpaces(t, renderJs(t, ConsoleLog("Log Message")), "console.log('Log Message');")
+}
+
+func TestSetValue(t *testing.T) {
+	t.Parallel()
+	compareIgnoreSpaces(t, renderJs(t, SetValue("New Value")), "this.value = 'New Value';")
+}

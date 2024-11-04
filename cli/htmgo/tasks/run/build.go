@@ -11,8 +11,8 @@ import (
 
 func MakeBuildable() {
 	copyassets.CopyAssets()
-	astgen.GenAst(process.ExitOnError)
 	css.GenerateCss(process.ExitOnError)
+	astgen.GenAst(process.ExitOnError)
 }
 
 func Build() {

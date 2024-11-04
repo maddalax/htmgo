@@ -2,14 +2,15 @@ package examples
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
-	"htmgo-site/pages"
+	"htmgo-site/pages/base"
 	"htmgo-site/partials"
 )
 
 func Index(ctx *h.RequestContext) *h.Page {
 	snippet := GetSnippet(ctx)
-	return pages.RootPage(
+	return base.RootPageWithTitle(
 		ctx,
+		"Examples",
 		h.Div(
 			h.Class("flex h-full"),
 			h.Aside(

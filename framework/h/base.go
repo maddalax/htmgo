@@ -71,8 +71,12 @@ func SwapPartial(ctx *RequestContext, swap *Element) *Partial {
 		SwapMany(ctx, swap))
 }
 
+func IsEmptyPartial(partial *Partial) bool {
+	return partial.Root.tag == "" && len(partial.Root.children) == 0
+}
+
 func EmptyPartial() *Partial {
-	return NewPartial(Fragment())
+	return NewPartial(Empty())
 }
 
 func SwapManyPartial(ctx *RequestContext, swaps ...*Element) *Partial {

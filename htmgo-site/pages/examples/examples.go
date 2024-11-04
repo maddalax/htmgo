@@ -11,6 +11,15 @@ var FormWithLoadingStateSnippet = Snippet{
 	partial:     snippets.FormExample,
 }
 
+var FormWithBlurValidationSnippet = Snippet{
+	category:    "Forms",
+	name:        "Form",
+	description: "A simple form submission example with validation on blur",
+	sidebarName: "Form With Blur Validation",
+	path:        "/examples/form-with-blur-validation",
+	partial:     snippets.FormWithBlurValidation,
+}
+
 var UserAuthSnippet = Snippet{
 	category:       "Projects",
 	name:           "User Authentication",
@@ -88,8 +97,18 @@ var JsHideChildrenOnClick = Snippet{
 	partial:     snippets.JsHideChildrenOnClick,
 }
 
+var InputComponentSnippet = Snippet{
+	category:    "Components",
+	name:        "Input",
+	description: "An example of how you could build a re-usable input component",
+	sidebarName: "Text Input",
+	path:        "/examples/input-component",
+	partial:     snippets.InputComponent,
+}
+
 var examples = []Snippet{
 	FormWithLoadingStateSnippet,
+	FormWithBlurValidationSnippet,
 	ClickToEditSnippet,
 
 	JsSetTextOnClick,
@@ -100,4 +119,6 @@ var examples = []Snippet{
 	HackerNewsSnippet,
 	TodoListSnippet,
 	HtmgoSiteSnippet,
+
+	InputComponentSnippet,
 }

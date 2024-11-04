@@ -3,10 +3,11 @@ package pages
 import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
+	"htmgo-site/pages/base"
 )
 
 func TestFormatPage(ctx *h.RequestContext) *h.Page {
-	return RootPage(
+	return base.RootPage(
 		ctx,
 		h.Div(
 			h.P(
@@ -30,7 +31,7 @@ func notPage() int {
 }
 
 func TestOtherPage(ctx *h.RequestContext) *h.Page {
-	return RootPage(
+	return base.RootPage(
 		ctx,
 		h.Div(
 			h.Id("test"),
