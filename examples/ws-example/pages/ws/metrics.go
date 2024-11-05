@@ -75,12 +75,18 @@ func List(metrics ws.Metrics) *h.Element {
 				h.IterMap(metrics.Manager.SocketsPerRoom, func(key string, value []string) *h.Element {
 					return ListBlock(
 						fmt.Sprintf("Sockets In Room - %s", key),
-						h.Div(
-							h.List(value, func(item string, index int) *h.Element {
-								return h.Div(
-									h.Pf("%s", item),
-								)
-							}),
+						h.IfElse(
+							len(value) > 100,
+							h.Div(
+								h.Pf("%d total sockets", len(value)),
+							),
+							h.Div(
+								h.List(value, func(item string, index int) *h.Element {
+									return h.Div(
+										h.Pf("%s", item),
+									)
+								}),
+							),
 						),
 					)
 				}),

@@ -243,8 +243,6 @@ func (manager *SocketManager) Add(roomId string, id string, writer WriterChan, d
 		RoomId:    s.RoomId,
 		Payload:   map[string]any{},
 	})
-
-	fmt.Printf("User %s connected to %s\n", id, roomId)
 }
 
 func (manager *SocketManager) OnClose(id string) {

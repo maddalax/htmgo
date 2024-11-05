@@ -61,7 +61,6 @@ func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 			defer wg.Done()
 
 			defer func() {
-				fmt.Printf("empting channels\n")
 				for len(writer) > 0 {
 					<-writer
 				}
