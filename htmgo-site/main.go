@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"htmgo-site/__htmgo"
@@ -18,6 +19,8 @@ func main() {
 
 	service.Set(locator, service.Singleton, markdown.NewRenderer)
 	service.Set(locator, service.Singleton, cache.NewSimpleCache)
+
+	fmt.Printf("starting up\n")
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,
