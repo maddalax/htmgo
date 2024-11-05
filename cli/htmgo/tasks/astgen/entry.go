@@ -5,7 +5,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"golang.org/x/mod/modfile"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+
+	"golang.org/x/mod/modfile"
 
 	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
 	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
@@ -425,6 +426,22 @@ func HasModuleFile(path string) bool {
 	return !os.IsNotExist(err)
 }
 
+func CheckProjectDirectories(path string) error {
+	pagesPath := filepath.Join(path, "pages")
+	_, err := os.Stat(pagesPath)
+	if err != nil {
+		return fmt.Errorf("The directory pages does not exist.")
+	}
+
+	partialsPath := filepath.Join(path, "partials")
+	_, err = os.Stat(partialsPath)
+	if err != nil {
+		return fmt.Errorf("The directory partials does not exist.")
+	}
+
+	return nil
+}
+
 func writeAssetsFile() {
 	cwd := process.GetWorkingDir()
 	config := dirutil.GetConfig()
@@ -491,6 +508,12 @@ func GetModuleName() string {
 
 	if HasModuleFile(modPath) == false {
 		fmt.Fprintf(os.Stderr, "Module not found: go.mod file does not exist.")
+		return ""
+	}
+
+	checkDir := CheckProjectDirectories(wd)
+	if checkDir != nil {
+		fmt.Fprintf(os.Stderr, checkDir.Error())
 		return ""
 	}
 
