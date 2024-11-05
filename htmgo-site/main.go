@@ -20,7 +20,7 @@ func main() {
 	service.Set(locator, service.Singleton, markdown.NewRenderer)
 	service.Set(locator, service.Singleton, cache.NewSimpleCache)
 
-	fmt.Printf("starting up server\n")
+	fmt.Printf("starting up server2\n")
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,
