@@ -161,6 +161,18 @@ func Div(children ...Ren) *Element {
 	return Tag("div", children...)
 }
 
+func Dl(children ...Ren) *Element {
+	return Tag("dl", children...)
+}
+
+func Dt(children ...Ren) *Element {
+	return Tag("dt", children...)
+}
+
+func Dd(children ...Ren) *Element {
+	return Tag("dd", children...)
+}
+
 func Article(children ...Ren) *Element {
 	return Tag("article", children...)
 }
