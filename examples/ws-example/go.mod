@@ -3,12 +3,12 @@ module ws-example
 go 1.23.0
 
 require (
-	github.com/go-chi/chi/v5 v5.1.0
-	github.com/maddalax/htmgo/extensions/websocket v0.0.0-20241104193946-1ddeceaa8286
-	github.com/maddalax/htmgo/framework v1.0.3-0.20241104193946-1ddeceaa8286
+	github.com/maddalax/htmgo/extensions/websocket v0.0.0-20241109180553-34e816ff7c8a
+	github.com/maddalax/htmgo/framework v1.0.3-0.20241109180553-34e816ff7c8a
 )
 
 require (
+	github.com/go-chi/chi/v5 v5.1.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
