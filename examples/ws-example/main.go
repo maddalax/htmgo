@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/maddalax/htmgo/extensions/websocket"
 	ws2 "github.com/maddalax/htmgo/extensions/websocket/opts"
+	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
-	"github.com/maddalax/htmgo/framework/session"
 	"io/fs"
 	"net/http"
 	"ws-example/__htmgo"

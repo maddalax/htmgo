@@ -1,9 +1,9 @@
 package partials
 
 import (
+	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
-	"github.com/maddalax/htmgo/framework/session"
 )
 
 type Counter struct {

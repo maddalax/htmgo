@@ -6,7 +6,12 @@ import (
 
 func RootPage(ctx *h.RequestContext, children ...h.Ren) h.Ren {
 	return h.Html(
-		h.HxExtension(h.BaseExtensions()),
+		h.JoinExtensions(
+			h.HxExtension(
+				h.BaseExtensions(),
+			),
+			h.HxExtension("ws"),
+		),
 		h.Head(
 			h.Link("/public/main.css", "stylesheet"),
 			h.Script("/public/htmgo.js"),
