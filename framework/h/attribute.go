@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/maddalax/htmgo/framework/datastructure/orderedmap"
 	"github.com/maddalax/htmgo/framework/hx"
+	"github.com/maddalax/htmgo/framework/internal/util"
 	"strings"
 )
 
@@ -357,4 +358,8 @@ func AriaHidden(value bool) *AttributeR {
 
 func TabIndex(value int) *AttributeR {
 	return Attribute("tabindex", fmt.Sprintf("%d", value))
+}
+
+func GenId(len int) string {
+	return util.RandSeq(len)
 }

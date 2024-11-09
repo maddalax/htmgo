@@ -174,6 +174,16 @@ func (app *App) UseWithContext(h func(w http.ResponseWriter, r *http.Request, co
 	})
 }
 
+func (app *App) Use(h func(ctx *RequestContext)) {
+	app.Router.Use(func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cc := r.Context().Value(RequestContextKey).(*RequestContext)
+			h(cc)
+			handler.ServeHTTP(w, r)
+		})
+	})
+}
+
 func GetLogLevel() slog.Level {
 	// Get the log level from the environment variable
 	logLevel := os.Getenv("LOG_LEVEL")

@@ -50,7 +50,6 @@ func Handle() http.HandlerFunc {
 			defer manager.Disconnect(sessionId)
 
 			defer func() {
-				fmt.Printf("empting channels\n")
 				for len(writer) > 0 {
 					<-writer
 				}
