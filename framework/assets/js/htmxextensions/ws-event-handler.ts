@@ -1,13 +1,9 @@
 import {ws} from "./ws";
+import {hasExtension} from "./extension";
 
 window.onload = function () {
-    const elements = document.querySelectorAll("[hx-extension]");
-    for (let element of Array.from(elements)) {
-        const value = element.getAttribute("hx-extension");
-        if(value != null && value.split(" ").includes("ws")) {
-            addWsEventHandlers()
-            break;
-        }
+    if(hasExtension("ws")) {
+        addWsEventHandlers()
     }
 };
 
