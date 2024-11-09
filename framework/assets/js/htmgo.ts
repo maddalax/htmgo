@@ -46,7 +46,6 @@ function onUrlChange(newUrl: string) {
       for (let [key, values] of url.searchParams) {
         let eventName = "qs:" + key;
         if (triggers.includes(eventName)) {
-          console.log("triggering", eventName);
           htmx.trigger(element, eventName, null);
           break;
         }

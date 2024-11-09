@@ -54,7 +54,6 @@ function connectWs(ele: Element, url: string, attempt: number = 0) {
     ws.addEventListener("close", function(event) {
         htmx.trigger(ele, "htmx:wsClose", {event: event});
         const delay = exponentialBackoff(attempt);
-        console.info(`ws closed, reconnecting in ${delay}ms`)
         setTimeout(() => {
             connectWs(ele, url, attempt + 1)
         }, delay)
@@ -69,7 +68,6 @@ function connectWs(ele: Element, url: string, attempt: number = 0) {
     })
 
     ws.addEventListener("message", function(event) {
-        console.debug('ws message:', event.data)
         const settleInfo = api.makeSettleInfo(ele);
         htmx.trigger(ele, "htmx:wsBeforeMessage", {event: event});
         const response = event.data

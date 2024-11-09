@@ -1,6 +1,15 @@
 import {ws} from "./ws";
 
-window.onload = addWsEventHandlers;
+window.onload = function () {
+    const elements = document.querySelectorAll("[hx-extension]");
+    for (let element of Array.from(elements)) {
+        const value = element.getAttribute("hx-extension");
+        if(value != null && value.split(" ").includes("ws")) {
+            addWsEventHandlers()
+            break;
+        }
+    }
+};
 
 function sendWs(message: Record<string, any>) {
     if(ws != null && ws.readyState === WebSocket.OPEN) {
@@ -16,20 +25,16 @@ function walk(node: Node, cb: (node: Node) => void) {
 }
 
 export function addWsEventHandlers() {
-    console.log('add ws event handlers')
     const observer = new MutationObserver(register)
     observer.observe(document.body, {childList: true, subtree: true})
 
     let added = new Set<string>();
 
     function register(mutations: MutationRecord[]) {
-        console.log(mutations)
-
         for (let mutation of mutations) {
             for (let removedNode of Array.from(mutation.removedNodes)) {
                 walk(removedNode, (node) => {
                     if (node instanceof HTMLElement) {
-                        console.log('removing', node.innerHTML)
                         const handlerId = node.getAttribute("data-handler-id")
                         if(handlerId) {
                             added.delete(handlerId)
@@ -53,11 +58,9 @@ export function addWsEventHandlers() {
 
             ids.add(id);
             if (added.has(id)) {
-                console.debug('already added, skipping', id)
                 return;
             }
             added.add(id);
-            console.debug('adding event listener for ws send', id, event)
             element.addEventListener(event, (e) => {
                 sendWs({id, event})
             });
