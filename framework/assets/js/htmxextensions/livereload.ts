@@ -1,24 +1,18 @@
 import htmx from "htmx.org";
+import {hasExtension} from "./extension";
 
 let lastVersion = "";
 
 htmx.defineExtension("livereload", {
     init: function () {
 
-        let enabled = false
-        for (const element of Array.from(htmx.findAll("[hx-ext]"))) {
-            const value = element.getAttribute("hx-ext");
-            if(value?.split(" ").includes("livereload")) {
-                enabled = true
-                break;
-            }
-        }
+        let enabled = hasExtension("livereload")
 
         if(!enabled) {
             return
         }
 
-        console.log('livereload extension initialized.');
+        console.info('livereload extension initialized.');
         // Create a new EventSource object and point it to your SSE endpoint
         const eventSource = new EventSource('/dev/livereload');
         // Listen for messages from the server
