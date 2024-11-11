@@ -294,7 +294,7 @@ func writePartialsFile() {
 	config := dirutil.GetConfig()
 
 	cwd := process.GetWorkingDir()
-	partialPath := filepath.Join(cwd, "partials")
+	partialPath := filepath.Join(cwd)
 	partials, err := findPublicFuncsReturningHPartial(partialPath, func(partial Partial) bool {
 		return partial.FuncName != "GetPartialFromContext"
 	})
