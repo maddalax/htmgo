@@ -1,5 +1,6 @@
 coverage:
   paths:
     - "tasks/astgen/**"
+    - "framework/**"
   ignore:
     - "**"
