@@ -233,10 +233,6 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 }
 
 func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
-	if len(partials) == 0 {
-		return
-	}
-
 	moduleName := GetModuleName()
 
 	var routerHandlerMethod = func(path string, caller string) string {
@@ -290,9 +286,12 @@ func writePartialsFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(GeneratedFileLine)
 	builder.AppendLine(PackageName)
-	builder.AddImport(ModuleName)
-	builder.AddImport(HttpModuleName)
 	builder.AddImport(ChiModuleName)
+
+	if len(partials) > 0 {
+		builder.AddImport(ModuleName)
+		builder.AddImport(HttpModuleName)
+	}
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
