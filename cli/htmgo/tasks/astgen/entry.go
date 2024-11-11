@@ -100,6 +100,32 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 	return normalizePath(slicedDir2)
 }
 
+func hasOnlyReqContextParam(funcType *ast.FuncType) bool {
+	if len(funcType.Params.List) != 1 {
+		return false
+	}
+	if funcType.Params.List[0].Names == nil {
+		return false
+	}
+	if len(funcType.Params.List[0].Names) != 1 {
+		return false
+	}
+	t := funcType.Params.List[0].Type
+	name, ok := t.(*ast.StarExpr)
+	if !ok {
+		return false
+	}
+	selectorExpr, ok := name.X.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+	ident, ok := selectorExpr.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	return ident.Name == "h" && selectorExpr.Sel.Name == "RequestContext"
+}
+
 func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial) bool) ([]Partial, error) {
 	var partials []Partial
 	cwd := process.GetWorkingDir()
@@ -136,7 +162,7 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 								if selectorExpr, ok := starExpr.X.(*ast.SelectorExpr); ok {
 									// Check if the package name is 'h' and type is 'Partial'.
 									if ident, ok := selectorExpr.X.(*ast.Ident); ok && ident.Name == "h" {
-										if selectorExpr.Sel.Name == "Partial" {
+										if selectorExpr.Sel.Name == "Partial" && hasOnlyReqContextParam(funcDecl.Type) {
 											p := Partial{
 												Package:  node.Name.Name,
 												Path:     normalizePath(sliceCommonPrefix(cwd, path)),
@@ -203,7 +229,7 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 								if selectorExpr, ok := starExpr.X.(*ast.SelectorExpr); ok {
 									// Check if the package name is 'h' and type is 'Partial'.
 									if ident, ok := selectorExpr.X.(*ast.Ident); ok && ident.Name == "h" {
-										if selectorExpr.Sel.Name == "Page" {
+										if selectorExpr.Sel.Name == "Page" && hasOnlyReqContextParam(funcDecl.Type) {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
 												Import:   normalizePath(filepath.Dir(path)),

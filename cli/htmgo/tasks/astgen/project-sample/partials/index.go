@@ -9,3 +9,10 @@ func CountersPartial(ctx *h.RequestContext) *h.Partial {
 		),
 	)
 }
+
+func SwapFormError(ctx *h.RequestContext, error string) *h.Partial {
+	return h.SwapPartial(
+		ctx,
+		h.Div(),
+	)
+}
