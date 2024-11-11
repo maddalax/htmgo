@@ -1,0 +1,21 @@
+# htmgo configuration
+
+# if tailwindcss is enabled, htmgo will automatically compile your tailwind and output it to assets/dist
+tailwind: true
+
+# which directories to ignore when watching for changes, supports glob patterns through https://github.com/bmatcuk/doublestar
+watch_ignore: [".git", "node_modules", "dist/*"]
+
+# files to watch for changes, supports glob patterns through https://github.com/bmatcuk/doublestar
+watch_files: ["**/*.go", "**/*.css", "**/*.md"]
+
+# files or directories to ignore when automatically registering routes for pages
+# supports glob patterns through https://github.com/bmatcuk/doublestar
+automatic_page_routing_ignore: ["root.go"]
+
+# files or directories to ignore when automatically registering routes for partials
+# supports glob patterns through https://github.com/bmatcuk/doublestar
+automatic_partial_routing_ignore: []
+
+# url path of where the public assets are located
+public_asset_path: "/public"

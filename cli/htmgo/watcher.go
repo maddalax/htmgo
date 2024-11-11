@@ -89,7 +89,7 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 				if !ok {
 					return
 				}
-				slog.Error("error:", err.Error())
+				slog.Error("error:", slog.String("error", err.Error()))
 			}
 		}
 	}()
@@ -118,7 +118,7 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		if info.IsDir() {
 			err = watcher.Add(path)
 			if err != nil {
-				slog.Error("Error adding directory to watcher:", err)
+				slog.Error("Error adding directory to watcher:", slog.String("error", err.Error()))
 			} else {
 				slog.Debug("Watching directory:", slog.String("path", path))
 			}
