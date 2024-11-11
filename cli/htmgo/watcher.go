@@ -1,17 +1,18 @@
 package main
 
 import (
-	"github.com/fsnotify/fsnotify"
-	"github.com/google/uuid"
-	"github.com/maddalax/htmgo/cli/htmgo/internal"
-	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
-	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
 	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/google/uuid"
+	"github.com/maddalax/htmgo/cli/htmgo/internal"
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/module"
 )
 
 func startWatcher(cb func(version string, file []*fsnotify.Event)) {
@@ -118,7 +119,7 @@ func startWatcher(cb func(version string, file []*fsnotify.Event)) {
 		if info.IsDir() {
 			err = watcher.Add(path)
 			if err != nil {
-				slog.Error("Error adding directory to watcher:", err)
+				slog.Error("Error adding directory to watcher:", err.Error())
 			} else {
 				slog.Debug("Watching directory:", slog.String("path", path))
 			}
