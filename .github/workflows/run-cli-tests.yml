@@ -25,7 +25,7 @@ jobs:
         run: cd ./cli/htmgo && go mod download
 
       - name: Run Go tests
-        run: cd ./cli/htmgo && go test ./... -coverprofile=coverage.txt
+        run: cd ./cli/htmgo/tasks/astgen && go test ./... -coverprofile=coverage.txt
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4

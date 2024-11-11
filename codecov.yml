@@ -1,3 +1,0 @@
-ignore:
-  - "cli/htmgo/tasks/**"
-  - "!cli/htmgo/tasks/astgen/**"
