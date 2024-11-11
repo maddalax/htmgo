@@ -1,6 +1,3 @@
-coverage:
-  paths:
-    - "tasks/astgen/**"
-    - "framework/**"
-  ignore:
-    - "**"
+ignore:
+  - "cli/htmgo/tasks/**"
+  - "!cli/htmgo/tasks/astgen/**"
