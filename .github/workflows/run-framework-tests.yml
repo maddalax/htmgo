@@ -3,7 +3,7 @@ name: Framework Tests
 on:
   push:
     branches:
-      - '**' # Runs on any branch push
+      - master
   pull_request:
     branches:
       - '**' # Runs on any pull request to any branch
