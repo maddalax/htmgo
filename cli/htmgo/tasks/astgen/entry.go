@@ -233,59 +233,38 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 }
 
 func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
-	fName := "GetPartialFromContext"
-
-	body := `
-		path := r.URL.Path
-	`
-
 	if len(partials) == 0 {
-		body = ""
+		return
 	}
 
 	moduleName := GetModuleName()
-	for _, f := range partials {
-		if f.FuncName == fName {
-			continue
-		}
-		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
-		path := fmt.Sprintf("/%s/%s.%s", moduleName, f.Import, f.FuncName)
 
-		body += fmt.Sprintf(`
-			if path == "%s" || path == "%s" {
-				cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
-				return %s(cc)
-			}
-		`, f.FuncName, path, caller)
-	}
-
-	body += "return nil"
-
-	f := Function{
-		Name: fName,
-		Parameters: []NameType{
-			{Name: "r", Type: "*http.Request"},
-		},
-		Return: []ReturnType{
-			{Type: "*h.Partial"},
-		},
-		Body: body,
-	}
-
-	builder.Append(builder.BuildFunction(f))
-
-	registerFunction := fmt.Sprintf(`
-		func RegisterPartials(router *chi.Mux) {
-				router.Handle("/%s/partials*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					partial := GetPartialFromContext(r)
+	var routerHandlerMethod = func(path string, caller string) string {
+		return fmt.Sprintf(`
+			router.Handle("%s", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		     cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)					
+         partial := %s(cc)
 					if partial == nil {
 						w.WriteHeader(404)	
 						return
 					}		
 					h.PartialView(w, partial)	
-			}))
+			}))`, path, caller)
+	}
+
+	handlerMethods := make([]string, 0)
+
+	for _, f := range partials {
+		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
+		path := fmt.Sprintf("/%s/%s.%s", moduleName, f.Import, f.FuncName)
+		handlerMethods = append(handlerMethods, routerHandlerMethod(path, caller))
+	}
+
+	registerFunction := fmt.Sprintf(`
+		func RegisterPartials(router *chi.Mux) {
+				%s
 		}
-	`, moduleName)
+	`, strings.Join(handlerMethods, "\n"))
 
 	builder.AppendLine(registerFunction)
 }
