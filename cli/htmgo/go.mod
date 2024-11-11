@@ -7,9 +7,15 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/maddalax/htmgo/framework v1.0.3-0.20241109183230-b234ead96499
 	github.com/maddalax/htmgo/tools/html-to-htmgo v0.0.0-20241109183230-b234ead96499
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/mod v0.21.0
 	golang.org/x/sys v0.26.0
 	golang.org/x/tools v0.25.0
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
 require (
