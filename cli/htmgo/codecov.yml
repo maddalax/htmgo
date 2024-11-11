@@ -1,0 +1,5 @@
+coverage:
+  paths:
+    - "tasks/astgen/**"
+  ignore:
+    - "**"

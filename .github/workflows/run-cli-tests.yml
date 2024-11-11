@@ -1,4 +1,4 @@
-name: Framework Tests
+name: CLI Tests
 
 on:
   push:
@@ -22,10 +22,10 @@ jobs:
           go-version: '1.23' # Specify the Go version you need
 
       - name: Install dependencies
-        run: cd ./framework && go mod download
+        run: cd ./cli/htmgo && go mod download
 
       - name: Run Go tests
-        run: cd ./framework && go test ./... -coverprofile=coverage.txt
+        run: cd ./cli/htmgo && go test ./... -coverprofile=coverage.txt
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
