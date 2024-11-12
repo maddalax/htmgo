@@ -6,6 +6,7 @@ import (
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 	ws2 "github.com/maddalax/htmgo/extensions/websocket/opts"
+	ws3 "github.com/maddalax/htmgo/extensions/websocket/ws"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
 	"log/slog"
@@ -25,7 +26,7 @@ func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
 		locator := cc.ServiceLocator()
-		manager := service.Get[SocketManager](locator)
+		manager := service.Get[ws3.SocketManager](locator)
 
 		sessionId := opts.SessionId(cc)
 
@@ -46,7 +47,7 @@ func WsHttpHandler(opts *ws2.ExtensionOpts) http.HandlerFunc {
 			we don't want to block the writer
 		*/
 		done := make(chan bool, 1000)
-		writer := make(WriterChan, 1000)
+		writer := make(ws3.WriterChan, 1000)
 
 		wg := sync.WaitGroup{}
 

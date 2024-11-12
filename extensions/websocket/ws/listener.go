@@ -1,13 +1,12 @@
 package ws
 
 import (
-	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/framework/service"
 )
 
 func StartListener(locator *service.Locator) {
-	manager := service.Get[wsutil.SocketManager](locator)
+	manager := service.Get[SocketManager](locator)
 	manager.Listen(socketMessageListener)
 	handler := NewMessageHandler(manager)
 	go func() {
@@ -23,9 +22,9 @@ func handle(handler *MessageHandler) {
 		handler.OnServerSideEvent(event)
 	case event := <-socketMessageListener:
 		switch event.Type {
-		case wsutil.DisconnectedEvent:
+		case DisconnectedEvent:
 			handler.OnSocketDisconnected(event)
-		case wsutil.MessageEvent:
+		case MessageEvent:
 
 			handlerId, ok := event.Payload["id"].(string)
 			eventName, ok2 := event.Payload["event"].(string)

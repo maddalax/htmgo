@@ -1,4 +1,4 @@
-package wsutil
+package ws
 
 import (
 	ws2 "github.com/maddalax/htmgo/extensions/websocket/opts"

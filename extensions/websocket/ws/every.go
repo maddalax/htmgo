@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
@@ -12,7 +11,7 @@ import (
 func Every(ctx *h.RequestContext, interval time.Duration, cb func() bool) {
 	socketId := session.GetSessionId(ctx)
 	locator := ctx.ServiceLocator()
-	manager := service.Get[wsutil.SocketManager](locator)
+	manager := service.Get[SocketManager](locator)
 	manager.RunIntervalWithSocket(string(socketId), interval, cb)
 }
 

@@ -21,8 +21,8 @@ func EnableExtension(app *h.App, opts opts.ExtensionOpts) {
 		panic("websocket: SessionId func is required")
 	}
 
-	service.Set[wsutil.SocketManager](app.Opts.ServiceLocator, service.Singleton, func() *wsutil.SocketManager {
-		manager := wsutil.NewSocketManager(&opts)
+	service.Set[ws.SocketManager](app.Opts.ServiceLocator, service.Singleton, func() *ws.SocketManager {
+		manager := ws.NewSocketManager(&opts)
 		manager.StartMetrics()
 		return manager
 	})

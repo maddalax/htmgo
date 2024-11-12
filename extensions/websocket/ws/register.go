@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/puzpuzpuz/xsync/v3"
@@ -11,8 +10,8 @@ import (
 
 type HandlerData struct {
 	SessionId session.Id
-	Socket    *wsutil.SocketConnection
-	Manager   *wsutil.SocketManager
+	Socket    *SocketConnection
+	Manager   *SocketManager
 }
 
 type Handler func(data HandlerData)
@@ -29,7 +28,7 @@ var sessionIdToHashes = xsync.NewMapOf[session.Id, map[KeyHash]bool]()
 var hashesToSessionId = xsync.NewMapOf[KeyHash, session.Id]()
 var serverEventNamesToHash = xsync.NewMapOf[string, map[KeyHash]bool]()
 
-var socketMessageListener = make(chan wsutil.SocketEvent, 100)
+var socketMessageListener = make(chan SocketEvent, 100)
 var serverSideMessageListener = make(chan ServerSideEvent, 100)
 var lock = sync.Mutex{}
 var callingHandler = atomic.Bool{}
