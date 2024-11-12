@@ -185,6 +185,17 @@ func (manager *SocketManager) Listen(listener chan SocketEvent) {
 	}
 }
 
+func (manager *SocketManager) RemoveListener(listener chan SocketEvent) {
+	for i, l := range manager.listeners {
+		if l == listener {
+			slog.Debug("ws-extension: removed listener from manager")
+			manager.listeners = append(manager.listeners[:i], manager.listeners[i+1:]...)
+			slog.Debug("ws-extension: total listeners", slog.Int("count", len(manager.listeners)))
+			return
+		}
+	}
+}
+
 func (manager *SocketManager) dispatch(event SocketEvent) {
 	done := make(chan struct{}, 1)
 	go func() {
