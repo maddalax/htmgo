@@ -2,15 +2,16 @@ package ws
 
 import (
 	"fmt"
+	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"sync"
 )
 
 type MessageHandler struct {
-	manager *SocketManager
+	manager *wsutil.SocketManager
 }
 
-func NewMessageHandler(manager *SocketManager) *MessageHandler {
+func NewMessageHandler(manager *wsutil.SocketManager) *MessageHandler {
 	return &MessageHandler{manager: manager}
 }
 
@@ -76,7 +77,7 @@ func (h *MessageHandler) OnDomElementRemoved(handlerId string) {
 	handlers.Delete(handlerId)
 }
 
-func (h *MessageHandler) OnSocketDisconnected(event SocketEvent) {
+func (h *MessageHandler) OnSocketDisconnected(event wsutil.SocketEvent) {
 	sessionId := session.Id(event.SessionId)
 	hashes, ok := sessionIdToHashes.Load(sessionId)
 	if ok {
