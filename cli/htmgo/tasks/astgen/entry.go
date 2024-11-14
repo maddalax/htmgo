@@ -485,17 +485,11 @@ func HasModuleFile(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func CheckProjectDirectories(path string) error {
+func CheckPagesDirectory(path string) error {
 	pagesPath := filepath.Join(path, "pages")
 	_, err := os.Stat(pagesPath)
 	if err != nil {
 		return fmt.Errorf("The directory pages does not exist.")
-	}
-
-	partialsPath := filepath.Join(path, "partials")
-	_, err = os.Stat(partialsPath)
-	if err != nil {
-		return fmt.Errorf("The directory partials does not exist.")
 	}
 
 	return nil
@@ -510,7 +504,7 @@ func GetModuleName() string {
 		return ""
 	}
 
-	checkDir := CheckProjectDirectories(wd)
+	checkDir := CheckPagesDirectory(wd)
 	if checkDir != nil {
 		fmt.Fprintf(os.Stderr, checkDir.Error())
 		return ""
