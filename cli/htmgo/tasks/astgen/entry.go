@@ -101,6 +101,32 @@ func sliceCommonPrefix(dir1, dir2 string) string {
 	return normalizePath(slicedDir2)
 }
 
+func hasOnlyReqContextParam(funcType *ast.FuncType) bool {
+	if len(funcType.Params.List) != 1 {
+		return false
+	}
+	if funcType.Params.List[0].Names == nil {
+		return false
+	}
+	if len(funcType.Params.List[0].Names) != 1 {
+		return false
+	}
+	t := funcType.Params.List[0].Type
+	name, ok := t.(*ast.StarExpr)
+	if !ok {
+		return false
+	}
+	selectorExpr, ok := name.X.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+	ident, ok := selectorExpr.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	return ident.Name == "h" && selectorExpr.Sel.Name == "RequestContext"
+}
+
 func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial) bool) ([]Partial, error) {
 	var partials []Partial
 	cwd := process.GetWorkingDir()
@@ -137,7 +163,7 @@ func findPublicFuncsReturningHPartial(dir string, predicate func(partial Partial
 								if selectorExpr, ok := starExpr.X.(*ast.SelectorExpr); ok {
 									// Check if the package name is 'h' and type is 'Partial'.
 									if ident, ok := selectorExpr.X.(*ast.Ident); ok && ident.Name == "h" {
-										if selectorExpr.Sel.Name == "Partial" {
+										if selectorExpr.Sel.Name == "Partial" && hasOnlyReqContextParam(funcDecl.Type) {
 											p := Partial{
 												Package:  node.Name.Name,
 												Path:     normalizePath(sliceCommonPrefix(cwd, path)),
@@ -204,7 +230,7 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 								if selectorExpr, ok := starExpr.X.(*ast.SelectorExpr); ok {
 									// Check if the package name is 'h' and type is 'Partial'.
 									if ident, ok := selectorExpr.X.(*ast.Ident); ok && ident.Name == "h" {
-										if selectorExpr.Sel.Name == "Page" {
+										if selectorExpr.Sel.Name == "Page" && hasOnlyReqContextParam(funcDecl.Type) {
 											pages = append(pages, Page{
 												Package:  node.Name.Name,
 												Import:   normalizePath(filepath.Dir(path)),
@@ -234,59 +260,34 @@ func findPublicFuncsReturningHPage(dir string) ([]Page, error) {
 }
 
 func buildGetPartialFromContext(builder *CodeBuilder, partials []Partial) {
-	fName := "GetPartialFromContext"
-
-	body := `
-		path := r.URL.Path
-	`
-
-	if len(partials) == 0 {
-		body = ""
-	}
-
 	moduleName := GetModuleName()
-	for _, f := range partials {
-		if f.FuncName == fName {
-			continue
-		}
-		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
-		path := fmt.Sprintf("/%s/%s.%s", moduleName, f.Import, f.FuncName)
 
-		body += fmt.Sprintf(`
-			if path == "%s" || path == "%s" {
-				cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)
-				return %s(cc)
-			}
-		`, f.FuncName, path, caller)
-	}
-
-	body += "return nil"
-
-	f := Function{
-		Name: fName,
-		Parameters: []NameType{
-			{Name: "r", Type: "*http.Request"},
-		},
-		Return: []ReturnType{
-			{Type: "*h.Partial"},
-		},
-		Body: body,
-	}
-
-	builder.Append(builder.BuildFunction(f))
-
-	registerFunction := fmt.Sprintf(`
-		func RegisterPartials(router *chi.Mux) {
-				router.Handle("/%s/partials*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					partial := GetPartialFromContext(r)
+	var routerHandlerMethod = func(path string, caller string) string {
+		return fmt.Sprintf(`
+			router.Handle("%s", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		     cc := r.Context().Value(h.RequestContextKey).(*h.RequestContext)					
+         partial := %s(cc)
 					if partial == nil {
 						w.WriteHeader(404)	
 						return
 					}		
 					h.PartialView(w, partial)	
-			}))
+			}))`, path, caller)
+	}
+
+	handlerMethods := make([]string, 0)
+
+	for _, f := range partials {
+		caller := fmt.Sprintf("%s.%s", f.Package, f.FuncName)
+		path := fmt.Sprintf("/%s/%s.%s", moduleName, f.Import, f.FuncName)
+		handlerMethods = append(handlerMethods, routerHandlerMethod(path, caller))
+	}
+
+	registerFunction := fmt.Sprintf(`
+		func RegisterPartials(router *chi.Mux) {
+				%s
 		}
-	`, moduleName)
+	`, strings.Join(handlerMethods, "\n"))
 
 	builder.AppendLine(registerFunction)
 }
@@ -295,7 +296,7 @@ func writePartialsFile() {
 	config := dirutil.GetConfig()
 
 	cwd := process.GetWorkingDir()
-	partialPath := filepath.Join(cwd, "partials")
+	partialPath := filepath.Join(cwd)
 	partials, err := findPublicFuncsReturningHPartial(partialPath, func(partial Partial) bool {
 		return partial.FuncName != "GetPartialFromContext"
 	})
@@ -312,9 +313,12 @@ func writePartialsFile() {
 	builder := NewCodeBuilder(nil)
 	builder.AppendLine(GeneratedFileLine)
 	builder.AppendLine(PackageName)
-	builder.AddImport(ModuleName)
-	builder.AddImport(HttpModuleName)
 	builder.AddImport(ChiModuleName)
+
+	if len(partials) > 0 {
+		builder.AddImport(ModuleName)
+		builder.AddImport(HttpModuleName)
+	}
 
 	moduleName := GetModuleName()
 	for _, partial := range partials {
