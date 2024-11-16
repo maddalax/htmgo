@@ -6,6 +6,7 @@ import (
 	"github.com/maddalax/htmgo/framework/hx"
 	"github.com/maddalax/htmgo/framework/internal/util"
 	"strings"
+	"time"
 )
 
 type LifeCycle struct {
@@ -163,7 +164,7 @@ func NewComplexJsCommand(command string) ComplexJsCommand {
 // SetText sets the inner text of the element.
 func SetText(text string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = '%s'", text)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).innerText = '%s'", text)}
 }
 
 // SetTextOnChildren sets the inner text of all the children of the element that match the selector.
@@ -180,25 +181,25 @@ func SetTextOnChildren(selector, text string) ComplexJsCommand {
 // Increment increments the inner text of the element by the given amount.
 func Increment(amount int) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.innerText = parseInt(this.innerText) + %d", amount)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).innerText = parseInt((self || this).innerText) + %d", amount)}
 }
 
 // SetInnerHtml sets the inner HTML of the element.
 func SetInnerHtml(r Ren) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.innerHTML = `%s`", Render(r))}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).innerHTML = `%s`", Render(r))}
 }
 
 // SetOuterHtml sets the outer HTML of the element.
 func SetOuterHtml(r Ren) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.outerHTML = `%s`", Render(r))}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).outerHTML = `%s`", Render(r))}
 }
 
 // AddAttribute adds the given attribute to the element.
 func AddAttribute(name, value string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.setAttribute('%s', '%s')", name, value)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).setAttribute('%s', '%s')", name, value)}
 }
 
 // SetDisabled sets the disabled attribute on the element.
@@ -213,25 +214,25 @@ func SetDisabled(disabled bool) SimpleJsCommand {
 // RemoveAttribute removes the given attribute from the element.
 func RemoveAttribute(name string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.removeAttribute('%s')", name)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).removeAttribute('%s')", name)}
 }
 
 // AddClass adds the given class to the element.
 func AddClass(class string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.add('%s')", class)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).classList.add('%s')", class)}
 }
 
 // RemoveClass removes the given class from the element.
 func RemoveClass(class string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.remove('%s')", class)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).classList.remove('%s')", class)}
 }
 
 // ToggleClass toggles the given class on the element.
 func ToggleClass(class string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.classList.toggle('%s')", class)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).classList.toggle('%s')", class)}
 }
 
 // ToggleText toggles the given text on the element.
@@ -391,7 +392,7 @@ func Alert(text string) SimpleJsCommand {
 // Remove removes the element from the DOM.
 func Remove() SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: "this.remove()"}
+	return SimpleJsCommand{Command: "(self || this).remove()"}
 }
 
 // EvalJs evaluates the given JavaScript code.
@@ -399,15 +400,21 @@ func EvalJs(js string) ComplexJsCommand {
 	return NewComplexJsCommand(js)
 }
 
-func EvalCommandsOnSelector(selector string, cmds ...Command) ComplexJsCommand {
+func CombineCommands(cmds ...Command) string {
 	lines := make([]string, len(cmds))
 	for i, cmd := range cmds {
 		lines[i] = Render(cmd)
+		lines[i] = strings.ReplaceAll(lines[i], "(self || this).", "self.")
 		lines[i] = strings.ReplaceAll(lines[i], "this.", "self.")
 		// some commands set the element we need to fix it so we arent redeclaring it
 		lines[i] = strings.ReplaceAll(lines[i], "let element =", "element =")
 	}
 	code := strings.Join(lines, "\n")
+	return code
+}
+
+func EvalCommandsOnSelector(selector string, cmds ...Command) ComplexJsCommand {
+	code := CombineCommands(cmds...)
 	return EvalJs(fmt.Sprintf(`
 		let element = document.querySelector("%s");
 
@@ -444,7 +451,7 @@ func ConsoleLog(text string) SimpleJsCommand {
 // SetValue sets the value of the element.
 func SetValue(value string) SimpleJsCommand {
 	// language=JavaScript
-	return SimpleJsCommand{Command: fmt.Sprintf("this.value = '%s'", value)}
+	return SimpleJsCommand{Command: fmt.Sprintf("(self || this).value = '%s'", value)}
 }
 
 // SubmitFormOnEnter submits the form when the user presses the enter key.
@@ -477,4 +484,32 @@ func InjectScriptIfNotExist(src string) ComplexJsCommand {
 			document.head.appendChild(script);
 		}
 	`, src, src))
+}
+
+func RunOnInterval(time time.Duration, cmds ...Command) ComplexJsCommand {
+	code := strings.Builder{}
+
+	for _, cmd := range cmds {
+		code.WriteString(fmt.Sprintf(`
+		setInterval(function() {
+			%s
+		}, %d)
+	`, Render(cmd), time.Milliseconds()))
+	}
+
+	return EvalJs(code.String())
+}
+
+func RunAfterTimeout(time time.Duration, cmds ...Command) ComplexJsCommand {
+	code := strings.Builder{}
+
+	for _, cmd := range cmds {
+		code.WriteString(fmt.Sprintf(`
+		setTimeout(function() {
+			%s
+		}, %d)
+	`, Render(cmd), time.Milliseconds()))
+	}
+
+	return EvalJs(code.String())
 }

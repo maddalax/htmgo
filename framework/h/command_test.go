@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 )
 
 func findScriptById(n *html.Node, id string) *html.Node {
@@ -87,7 +88,7 @@ func TestJsEval(t *testing.T) {
 }
 
 func TestSetText(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, SetText("Hello World")), "this.innerText = 'Hello World';")
+	compareIgnoreSpaces(t, renderJs(t, SetText("Hello World")), "(self||this).innerText = 'Hello World';")
 }
 
 func TestSetTextOnChildren(t *testing.T) {
@@ -100,42 +101,42 @@ func TestSetTextOnChildren(t *testing.T) {
 }
 
 func TestIncrement(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, Increment(5)), "this.innerText = parseInt(this.innerText) + 5;")
+	compareIgnoreSpaces(t, renderJs(t, Increment(5)), "(self||this).innerText = parseInt((self||this).innerText) + 5;")
 }
 
 func TestSetInnerHtml(t *testing.T) {
 	htmlContent := Div(Span(UnsafeRaw("inner content")))
-	compareIgnoreSpaces(t, renderJs(t, SetInnerHtml(htmlContent)), "this.innerHTML = `<div><span>inner content</span></div>`;")
+	compareIgnoreSpaces(t, renderJs(t, SetInnerHtml(htmlContent)), "(self||this).innerHTML = `<div><span>inner content</span></div>`;")
 }
 
 func TestSetOuterHtml(t *testing.T) {
 	htmlContent := Div(Span(UnsafeRaw("outer content")))
-	compareIgnoreSpaces(t, renderJs(t, SetOuterHtml(htmlContent)), "this.outerHTML = `<div><span>outer content</span></div>`;")
+	compareIgnoreSpaces(t, renderJs(t, SetOuterHtml(htmlContent)), "(self||this).outerHTML = `<div><span>outer content</span></div>`;")
 }
 
 func TestAddAttribute(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, AddAttribute("data-id", "123")), "this.setAttribute('data-id', '123');")
+	compareIgnoreSpaces(t, renderJs(t, AddAttribute("data-id", "123")), "(self||this).setAttribute('data-id', '123');")
 }
 
 func TestSetDisabled(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, SetDisabled(true)), "this.setAttribute('disabled', 'true');")
-	compareIgnoreSpaces(t, renderJs(t, SetDisabled(false)), "this.removeAttribute('disabled');")
+	compareIgnoreSpaces(t, renderJs(t, SetDisabled(true)), "(self||this).setAttribute('disabled', 'true');")
+	compareIgnoreSpaces(t, renderJs(t, SetDisabled(false)), "(self||this).removeAttribute('disabled');")
 }
 
 func TestRemoveAttribute(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, RemoveAttribute("data-id")), "this.removeAttribute('data-id');")
+	compareIgnoreSpaces(t, renderJs(t, RemoveAttribute("data-id")), "(self||this).removeAttribute('data-id');")
 }
 
 func TestAddClass(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, AddClass("active")), "this.classList.add('active');")
+	compareIgnoreSpaces(t, renderJs(t, AddClass("active")), "(self||this).classList.add('active');")
 }
 
 func TestRemoveClass(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, RemoveClass("active")), "this.classList.remove('active');")
+	compareIgnoreSpaces(t, renderJs(t, RemoveClass("active")), "(self||this).classList.remove('active');")
 }
 
 func TestToggleClass(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, ToggleClass("hidden")), "this.classList.toggle('hidden');")
+	compareIgnoreSpaces(t, renderJs(t, ToggleClass("hidden")), "(self||this).classList.toggle('hidden');")
 }
 
 func TestToggleClassOnElement(t *testing.T) {
@@ -206,7 +207,7 @@ func TestAlert(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	compareIgnoreSpaces(t, renderJs(t, Remove()), "this.remove();")
+	compareIgnoreSpaces(t, renderJs(t, Remove()), "(self||this).remove();")
 }
 
 func TestSubmitFormOnEnter(t *testing.T) {
@@ -394,5 +395,23 @@ func TestConsoleLog(t *testing.T) {
 
 func TestSetValue(t *testing.T) {
 	t.Parallel()
-	compareIgnoreSpaces(t, renderJs(t, SetValue("New Value")), "this.value = 'New Value';")
+	compareIgnoreSpaces(t, renderJs(t, SetValue("New Value")), "(self||this).value = 'New Value';")
+}
+
+func TestRunAfterTimeout(t *testing.T) {
+	t.Parallel()
+	compareIgnoreSpaces(t, renderJs(t, RunAfterTimeout(time.Second*5, SetText("Hello"))), `
+		setTimeout(function() {
+			(self||this).innerText = 'Hello'
+		}, 5000)
+	`)
+}
+
+func TestRunOnInterval(t *testing.T) {
+	t.Parallel()
+	compareIgnoreSpaces(t, renderJs(t, RunOnInterval(time.Second, SetText("Hello"))), `
+		setInterval(function() {
+			(self||this).innerText = 'Hello'
+		}, 1000)
+	`)
 }
