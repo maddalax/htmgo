@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"github.com/maddalax/htmgo/extensions/websocket/internal/wsutil"
 	"github.com/maddalax/htmgo/extensions/websocket/session"
 	"github.com/maddalax/htmgo/framework/h"
 	"github.com/maddalax/htmgo/framework/service"
@@ -32,7 +33,7 @@ func PushElement(data HandlerData, el *h.Element) bool {
 // PushElementCtx sends an element to the current session and swaps it into the page
 func PushElementCtx(ctx *h.RequestContext, el *h.Element) bool {
 	locator := ctx.ServiceLocator()
-	socketManager := service.Get[SocketManager](locator)
+	socketManager := service.Get[wsutil.SocketManager](locator)
 	socketId := session.GetSessionId(ctx)
 	socket := socketManager.Get(string(socketId))
 	if socket == nil {

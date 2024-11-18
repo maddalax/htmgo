@@ -47,3 +47,5 @@ var ToggleText = h.ToggleText
 var ToggleTextOnSibling = h.ToggleTextOnSibling
 var ToggleTextOnChildren = h.ToggleTextOnChildren
 var ToggleTextOnParent = h.ToggleTextOnParent
+var RunAfterTimeout = h.RunAfterTimeout
+var RunOnInterval = h.RunOnInterval

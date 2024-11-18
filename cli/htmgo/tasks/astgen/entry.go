@@ -2,13 +2,9 @@ package astgen
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
-	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
-	"github.com/maddalax/htmgo/framework/h"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"golang.org/x/mod/modfile"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -16,6 +12,11 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+
+	"github.com/maddalax/htmgo/cli/htmgo/internal/dirutil"
+	"github.com/maddalax/htmgo/cli/htmgo/tasks/process"
+	"github.com/maddalax/htmgo/framework/h"
+	"golang.org/x/mod/modfile"
 )
 
 type Page struct {
@@ -483,9 +484,36 @@ func writeAssetsFile() {
 
 }
 
+func HasModuleFile(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func CheckPagesDirectory(path string) error {
+	pagesPath := filepath.Join(path, "pages")
+	_, err := os.Stat(pagesPath)
+	if err != nil {
+		return fmt.Errorf("The directory pages does not exist.")
+	}
+
+	return nil
+}
+
 func GetModuleName() string {
 	wd := process.GetWorkingDir()
 	modPath := filepath.Join(wd, "go.mod")
+
+	if HasModuleFile(modPath) == false {
+		fmt.Fprintf(os.Stderr, "Module not found: go.mod file does not exist.")
+		return ""
+	}
+
+	checkDir := CheckPagesDirectory(wd)
+	if checkDir != nil {
+		fmt.Fprintf(os.Stderr, checkDir.Error())
+		return ""
+	}
+
 	goModBytes, err := os.ReadFile(modPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading go.mod: %v\n", err)
