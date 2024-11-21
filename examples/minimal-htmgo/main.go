@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-chi/chi/v5"
-	"minimal-htmgo/pages"
 	"net/http"
 )
 
@@ -13,11 +12,11 @@ func main() {
 	router.Handle("/public/*", fileServer)
 
 	router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
-		RenderPage(request, writer, pages.Index)
+		RenderPage(request, writer, Index)
 	})
 
 	router.Get("/current-time", func(writer http.ResponseWriter, request *http.Request) {
-		RenderPartial(request, writer, pages.CurrentTime)
+		RenderPartial(request, writer, CurrentTime)
 	})
 
 	http.ListenAndServe(":3000", router)

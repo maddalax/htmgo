@@ -1,4 +1,4 @@
-package pages
+package main
 
 import (
 	"github.com/maddalax/htmgo/framework/h"
