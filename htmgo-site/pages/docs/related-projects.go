@@ -27,8 +27,8 @@ func RelatedProjects(ctx *h.RequestContext) *h.Page {
 			),
 			NextStep(
 				"mt-4",
-				PrevBlock("Tailwind Intellisense", "/docs/misc/tailwind-intellisense"),
-				NextBlock("Adding Interactivity", "/docs/interactivity/swapping"),
+				PrevBlock("Introduction", DocPath("/introduction")),
+				NextBlock("Core Concepts", DocPath("/core-concepts/pages")),
 			),
 		),
 	)

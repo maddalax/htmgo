@@ -25,6 +25,7 @@ var sections = []Section{
 			{Title: "Introduction", Path: DocPath("/introduction")},
 			{Title: "Quick Start", Path: DocPath("/installation")},
 			{Title: "Related Projects", Path: DocPath("/related-projects")},
+			{Title: "Minimal Htmgo", Path: DocPath("/misc/minimal-htmgo")},
 		},
 	},
 	{
