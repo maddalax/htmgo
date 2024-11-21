@@ -8,7 +8,7 @@ import (
 func main() {
 	router := chi.NewRouter()
 
-	fileServer := http.StripPrefix("/public", http.FileServer(http.Dir("./assets/dist")))
+	fileServer := http.StripPrefix("/public", http.FileServer(http.Dir("./assets/public")))
 	router.Handle("/public/*", fileServer)
 
 	router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
