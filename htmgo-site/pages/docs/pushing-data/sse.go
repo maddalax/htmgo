@@ -18,7 +18,7 @@ func ServerSentEvents(ctx *h.RequestContext) *h.Page {
 			`),
 			h.P(
 				h.Text("Example of this can be found in the "),
-				Link("examples/chat", "examples/chat"),
+				Link("examples/chat", "/examples/chat"),
 				h.Text(" project."),
 			),
 			SubTitle("How it works"),
