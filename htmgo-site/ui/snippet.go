@@ -68,7 +68,7 @@ func CodeSnippet(props CodeSnippetProps) *h.Element {
 	}
 
 	return h.Div(
-		h.Class("relative"),
+		h.Class("relative max-w-[90vw]"),
 		h.Div(
 			h.UnsafeRaw(props.Code),
 			h.Class("hidden"),

@@ -69,6 +69,6 @@ func renderCodeToString(snippet *Snippet) *h.Element {
 		Code:         source,
 		Lang:         "go",
 		CustomStyles: []string{"border-radius: 0.5rem;"},
-		WrapLines:    true,
+		WrapLines:    false,
 	})
 }

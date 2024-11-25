@@ -76,7 +76,7 @@ func viewSourceButton(snippet *Snippet) *h.Element {
 
 func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 	return h.Div(
-		h.Class("flex flex-col mx-auto items-center gap-6 max-w-[90vw] md:max-w-[75vw] xl:max-w-4xl px-8"),
+		h.Class("flex flex-col mx-auto items-center gap-6 w-full max-w-[90vw] md:max-w-[75vw] xl:max-w-4xl px-8"),
 		h.Div(
 			h.Class("flex flex-col gap-1 w-full"),
 			h.H2(
@@ -99,8 +99,8 @@ func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 			),
 		),
 		h.Div(
-			h.ClassX("", map[string]bool{
-				"mb-6 border px-8 py-4 rounded-md shadow-sm border-slate-200 w-full": snippet.externalRoute == "",
+			h.ClassX("w-full", map[string]bool{
+				"mb-6 border px-8 py-4 rounded-md shadow-sm border-slate-200": snippet.externalRoute == "",
 			}),
 			h.IfElse(
 				snippet.externalRoute != "",
@@ -108,10 +108,10 @@ func snippetView(ctx *h.RequestContext, snippet *Snippet) *h.Element {
 					h.Class("relative"),
 					h.IFrame(
 						snippet.externalRoute,
-						h.Class("h-full min-h-[800px] w-[50vw] rounded"),
+						h.Class("h-full min-h-[800px] max-w-[90vw] w-full rounded"),
 					),
 					h.A(
-						h.Class("w-[50vw] rounded absolute top-0 left-0 h-full bg-gray-800 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center cursor-pointer"),
+						h.Class("max-w-[90vw] w-full rounded absolute top-0 left-0 h-full bg-gray-800 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center cursor-pointer"),
 						h.Href(
 							snippet.externalRoute,
 						),
