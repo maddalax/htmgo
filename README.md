@@ -48,7 +48,3 @@ View documentation on [htmgo.dev](https://htmgo.dev/docs).
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=maddalax/htmgo&type=Date)](https://star-history.com/#maddalax/htmgo&Date)
-
-
-
-
