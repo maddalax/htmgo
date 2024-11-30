@@ -6,6 +6,18 @@ import (
 	"htmgo-site/ui"
 )
 
+const ComponentExampleSnippet = `func Card(ctx *h.RequestContext) *h.Element {
+	service := tasks.NewService(ctx.ServiceLocator())
+	cards, _ := service.List()
+
+	return h.Div(
+		h.Id("task-card"),
+		h.Class("bg-white w-full rounded shadow-md"),
+		CardBody(cards),
+	)
+}
+`
+
 func Components(ctx *h.RequestContext) *h.Page {
 	return DocPage(
 		ctx,
@@ -29,7 +41,7 @@ func Components(ctx *h.RequestContext) *h.Page {
 func ComponentExample() *h.Element {
 	return h.Div(
 		Text("Example:"),
-		ui.GoCodeSnippet(PagesSnippet),
+		ui.GoCodeSnippet(ComponentExampleSnippet),
 		Text(`
 			My card component here fetches all my tasks I have on my list, and renders each task.
 	        If you are familiar with React, then you would likely place this fetch logic inside of a useEffect or (useQuery library) so it is not constantly re-fetched as the component re-renders.
