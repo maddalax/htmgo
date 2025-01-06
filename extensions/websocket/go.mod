@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/gobwas/ws v1.4.0
-	github.com/maddalax/htmgo/framework v1.0.6-0.20250106162449-4f537567ad5a
+	github.com/maddalax/htmgo/framework v1.0.6-0.20250106162619-24b41a7604a5
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
 	github.com/stretchr/testify v1.9.0
 )
