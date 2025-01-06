@@ -135,6 +135,7 @@ type AppOpts struct {
 	LiveReload     bool
 	ServiceLocator *service.Locator
 	Register       func(app *App)
+	Port           int
 }
 
 type App struct {
@@ -229,6 +230,15 @@ func (app *App) start() {
 	}
 
 	port := ":3000"
+
+	if os.Getenv("PORT") != "" {
+		port = fmt.Sprintf(":%s", os.Getenv("PORT"))
+	}
+
+	if app.Opts.Port != 0 {
+		port = fmt.Sprintf(":%d", app.Opts.Port)
+	}
+
 	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
 
 	if err := http.ListenAndServe(port, app.Router); err != nil {
