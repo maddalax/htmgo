@@ -23,7 +23,6 @@ func main() {
 
 	h.Start(h.AppOpts{
 		ServiceLocator: locator,
-		Port:           3002,
 		LiveReload:     true,
 		Register: func(app *h.App) {
 

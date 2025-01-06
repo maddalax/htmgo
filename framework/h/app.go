@@ -230,13 +230,20 @@ func (app *App) start() {
 	}
 
 	port := ":3000"
+	isDefaultPort := true
 
 	if os.Getenv("PORT") != "" {
 		port = fmt.Sprintf(":%s", os.Getenv("PORT"))
+		isDefaultPort = false
 	}
 
 	if app.Opts.Port != 0 {
 		port = fmt.Sprintf(":%d", app.Opts.Port)
+		isDefaultPort = false
+	}
+
+	if isDefaultPort {
+		slog.Info("Using default port 3000, set PORT environment variable to change it or use AppOpts.Port")
 	}
 
 	slog.Info(fmt.Sprintf("Server started at localhost%s", port))
