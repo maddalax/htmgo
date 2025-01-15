@@ -20,6 +20,12 @@ func WithDocType() RenderOpt {
 	}
 }
 
+func WithNonce(nonce string) RenderOpt {
+	return func(context *RenderContext, opt *RenderOptions) {
+		context.nonce = nonce
+	}
+}
+
 // Render renders the given node recursively, and returns the resulting string.
 func Render(node Ren, opts ...RenderOpt) string {
 	builder := &strings.Builder{}

@@ -2,10 +2,11 @@ package h
 
 import (
 	"fmt"
-	"github.com/maddalax/htmgo/framework/hx"
 	"html"
 	"html/template"
 	"strings"
+
+	"github.com/maddalax/htmgo/framework/hx"
 )
 
 type CustomElement = string
@@ -44,16 +45,17 @@ type RenderContext struct {
 	builder        *strings.Builder
 	scripts        []ScriptEntry
 	currentElement *Element
+	nonce          string
 }
 
 func (ctx *RenderContext) AddScript(funcName string, body string) {
 	script := fmt.Sprintf(`
-	<script id="%s">
+	<script id="%s" nonce="%s">
 		function %s(self, event) {
 				let e = event;
 				%s
 		}
-	</script>`, funcName, funcName, body)
+	</script>`, funcName, ctx.nonce, funcName, body)
 
 	ctx.scripts = append(ctx.scripts, ScriptEntry{
 		Body:    script,
