@@ -18,7 +18,14 @@ func MakeBuildable() {
 func Build() {
 	MakeBuildable()
 
-	process.RunOrExit(process.NewRawCommand("", "mkdir -p ./dist"))
+	_ = os.RemoveAll("./dist")
+
+	err := os.Mkdir("./dist", 0755)
+
+	if err != nil {
+		fmt.Println("Error creating dist directory", err)
+		os.Exit(1)
+	}
 
 	if os.Getenv("SKIP_GO_BUILD") != "1" {
 		process.RunOrExit(process.NewRawCommand("", fmt.Sprintf("go build -tags prod -o ./dist")))

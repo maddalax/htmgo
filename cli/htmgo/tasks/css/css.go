@@ -78,7 +78,7 @@ func downloadTailwindCli() {
 		log.Fatal(fmt.Sprintf("Unsupported OS/ARCH: %s/%s", os, arch))
 	}
 	fileName := fmt.Sprintf(`tailwindcss-%s`, distro)
-	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/latest/download/%s`, fileName)
+	url := fmt.Sprintf(`https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.16/%s`, fileName)
 
 	cmd := fmt.Sprintf(`curl -LO %s`, url)
 	process.Run(process.NewRawCommand("tailwind-cli-download", cmd, process.ExitOnError))
