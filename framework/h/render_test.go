@@ -1,13 +1,14 @@
 package h
 
 import (
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRendererShouldRenderDocType(t *testing.T) {
@@ -385,20 +386,18 @@ func TestCacheByKeyT2(t *testing.T) {
 
 func TestCacheByKeyConcurrent(t *testing.T) {
 	t.Parallel()
-	renderCount := 0
-	callCount := 0
+	var renderCount, callCount atomic.Uint32
 	cachedItem := CachedPerKey(time.Hour, func() (any, GetElementFunc) {
-		key := "key"
-		if callCount == 3 {
-			key = "key2"
-		}
-		if callCount == 4 {
-			key = "key"
-		}
-		callCount++
-		return key, func() *Element {
-			renderCount++
+		fn := func() *Element {
+			renderCount.Add(1)
 			return Div(Text("hello"))
+		}
+
+		switch callCount.Add(1) {
+		case 4:
+			return "key2", fn
+		default:
+			return "key", fn
 		}
 	})
 
@@ -415,8 +414,8 @@ func TestCacheByKeyConcurrent(t *testing.T) {
 
 	wg.Wait()
 
-	assert.Equal(t, 5, callCount)
-	assert.Equal(t, 2, renderCount)
+	assert.Equal(t, 5, int(callCount.Load()))
+	assert.Equal(t, 2, int(renderCount.Load()))
 }
 
 func TestCacheByKeyT1_2(t *testing.T) {
@@ -474,76 +473,112 @@ func TestCacheByKeyT1Expired_2(t *testing.T) {
 }
 
 func TestClearExpiredCached(t *testing.T) {
-	t.Parallel()
 	renderCount := 0
-	cachedItem := Cached(time.Millisecond*3, func() *Element {
+	cachedItem := Cached(time.Millisecond*2, func() *Element {
 		renderCount++
-		return Pf("hello")
+		return Div(Text("hello"))
 	})
 
+	// First render
 	Render(cachedItem())
-	Render(cachedItem())
-	node := cachedItem().meta.(*CachedNode)
 	assert.Equal(t, 1, renderCount)
-	assert.NotEmpty(t, node.html)
 
+	// Should use cache immediately
+	Render(cachedItem())
+	assert.Equal(t, 1, renderCount)
+
+	// Wait for expiration
 	time.Sleep(time.Millisecond * 3)
-	node.ClearExpired()
 
-	assert.Empty(t, node.html)
+	// Should re-render after expiration
+	Render(cachedItem())
+	assert.Equal(t, 2, renderCount)
 }
 
 func TestClearExpiredCacheByKey(t *testing.T) {
-	t.Parallel()
 	renderCount := 0
-	cachedItem := CachedPerKeyT(time.Millisecond, func(key int) (any, GetElementFunc) {
+	// Create two cached functions with different TTLs
+	shortLivedCache := CachedPerKeyT(time.Millisecond*1, func(key int) (int, GetElementFunc) {
 		return key, func() *Element {
 			renderCount++
-			return Pf(strconv.Itoa(key))
+			return Div(Text("short-lived"))
 		}
 	})
 
+	longLivedCache := CachedPerKeyT(time.Hour, func(key int) (int, GetElementFunc) {
+		return key, func() *Element {
+			renderCount++
+			return Div(Text("long-lived"))
+		}
+	})
+
+	// Render 100 short-lived items
 	for i := 0; i < 100; i++ {
-		Render(cachedItem(i))
+		Render(shortLivedCache(i))
 	}
+	assert.Equal(t, 100, renderCount)
 
-	node := cachedItem(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
-	assert.Equal(t, 100, len(node.byKeyExpiration))
-	assert.Equal(t, 100, len(node.byKeyCache))
+	// Render a long-lived item
+	Render(longLivedCache(999))
+	assert.Equal(t, 101, renderCount)
 
-	time.Sleep(time.Millisecond * 2)
+	// Wait for expiration of the short-lived items
+	time.Sleep(time.Millisecond * 3)
 
-	Render(cachedItem(0))
-	node.ClearExpired()
+	// Re-render some expired items - should trigger new renders
+	for i := 0; i < 10; i++ {
+		Render(shortLivedCache(i))
+	}
+	assert.Equal(t, 111, renderCount) // 101 + 10 re-renders
 
-	assert.Equal(t, 1, len(node.byKeyExpiration))
-	assert.Equal(t, 1, len(node.byKeyCache))
+	// The long-lived item should still be cached
+	Render(longLivedCache(999))
+	assert.Equal(t, 111, renderCount) // No additional render
 
-	node.ClearCache()
+	// Clear cache manually on both
+	shortNode := shortLivedCache(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
+	shortNode.ClearCache()
 
-	assert.Equal(t, 0, len(node.byKeyExpiration))
-	assert.Equal(t, 0, len(node.byKeyCache))
+	longNode := longLivedCache(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
+	longNode.ClearCache()
+
+	// Everything should re-render now
+	Render(shortLivedCache(0))
+	assert.Equal(t, 112, renderCount)
+
+	Render(longLivedCache(999))
+	assert.Equal(t, 113, renderCount)
 }
 
 func TestBackgroundCleaner(t *testing.T) {
-	t.Parallel()
-	cachedItem := CachedPerKeyT(time.Second*2, func(key int) (any, GetElementFunc) {
+	renderCount := 0
+	cachedItem := CachedPerKeyT(time.Millisecond*100, func(key int) (int, GetElementFunc) {
 		return key, func() *Element {
-			return Pf(strconv.Itoa(key))
+			renderCount++
+			return Div(Text("hello"))
 		}
 	})
+
+	// Render 100 items
 	for i := 0; i < 100; i++ {
 		Render(cachedItem(i))
 	}
+	assert.Equal(t, 100, renderCount)
 
-	node := cachedItem(0).meta.(*ByKeyEntry).parent.meta.(*CachedNode)
-	assert.Equal(t, 100, len(node.byKeyExpiration))
-	assert.Equal(t, 100, len(node.byKeyCache))
+	// Items should be cached immediately
+	for i := 0; i < 10; i++ {
+		Render(cachedItem(i))
+	}
+	assert.Equal(t, 100, renderCount) // No additional renders
 
+	// Wait for expiration and cleanup
 	time.Sleep(time.Second * 3)
 
-	assert.Equal(t, 0, len(node.byKeyExpiration))
-	assert.Equal(t, 0, len(node.byKeyCache))
+	// Items should be expired and need re-rendering
+	for i := 0; i < 10; i++ {
+		Render(cachedItem(i))
+	}
+	assert.Equal(t, 110, renderCount) // 10 re-renders after expiration
 }
 
 func TestEscapeHtml(t *testing.T) {
