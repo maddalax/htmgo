@@ -38,7 +38,7 @@ func ServerSentEvents(ctx *h.RequestContext) *h.Page {
 			ui.GoCodeSnippet(SseClearInputExample),
 			NextStep(
 				"mt-4",
-				PrevBlock("Caching Per Key", DocPath("/performance/caching-per-key")),
+				PrevBlock("Custom Cache Stores", DocPath("/performance/pluggable-caches")),
 				NextBlock("HTMX extensions", DocPath("/htmx-extensions/overview")),
 			),
 		),
