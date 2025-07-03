@@ -59,6 +59,7 @@ var sections = []Section{
 		Pages: []*Page{
 			{Title: "Caching Globally", Path: DocPath("/performance/caching-globally")},
 			{Title: "Caching Per Key", Path: DocPath("/performance/caching-per-key")},
+			{Title: "Custom Cache Stores", Path: DocPath("/performance/pluggable-caches")},
 		},
 	},
 	{

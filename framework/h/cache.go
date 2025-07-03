@@ -1,21 +1,19 @@
 package h
 
 import (
-	"flag"
-	"log/slog"
-	"sync"
 	"time"
+
+	"github.com/maddalax/htmgo/framework/h/cache"
 )
 
+// A single key to represent the cache entry for non-per-key components.
+const _singleCacheKey = "__htmgo_single_cache_key__"
+
 type CachedNode struct {
-	cb              func() *Element
-	isByKey         bool
-	byKeyCache      map[any]*Entry
-	byKeyExpiration map[any]time.Time
-	mutex           sync.Mutex
-	duration        time.Duration
-	expiration      time.Time
-	html            string
+	cb       func() *Element
+	isByKey  bool
+	duration time.Duration
+	cache    cache.Store[any, string]
 }
 
 type Entry struct {
@@ -35,33 +33,45 @@ type GetElementFuncT2WithKey[K comparable, T any, T2 any] func(T, T2) (K, GetEle
 type GetElementFuncT3WithKey[K comparable, T any, T2 any, T3 any] func(T, T2, T3) (K, GetElementFunc)
 type GetElementFuncT4WithKey[K comparable, T any, T2 any, T3 any, T4 any] func(T, T2, T3, T4) (K, GetElementFunc)
 
-func startExpiredCacheCleaner(node *CachedNode) {
-	isTests := flag.Lookup("test.v") != nil
-	go func() {
-		for {
-			if isTests {
-				time.Sleep(time.Second)
-			} else {
-				time.Sleep(time.Minute)
-			}
-			node.ClearExpired()
-		}
-	}()
+// CacheOption defines a function that configures a CachedNode.
+type CacheOption func(*CachedNode)
+
+// WithCacheStore allows providing a custom cache implementation for a cached component.
+func WithCacheStore(store cache.Store[any, string]) CacheOption {
+	return func(c *CachedNode) {
+		c.cache = store
+	}
+}
+
+// DefaultCacheProvider is a package-level function that creates a default cache instance.
+// Initially, this uses a TTL-based map cache, but could be swapped for an LRU cache later.
+// Advanced users can override this for the entire application.
+var DefaultCacheProvider = func() cache.Store[any, string] {
+	return cache.NewTTLStore[any, string]()
 }
 
 // Cached caches the given element for the given duration. The element is only rendered once, and then cached for the given duration.
 // Please note this element is globally cached, and not per unique identifier / user.
-// Use CachedPerKey to cache elements per unqiue identifier.
-func Cached(duration time.Duration, cb GetElementFunc) func() *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			cb:       cb,
-			html:     "",
-			duration: duration,
-		},
+// Use CachedPerKey to cache elements per unique identifier.
+func Cached(duration time.Duration, cb GetElementFunc, opts ...CacheOption) func() *Element {
+	node := &CachedNode{
+		cb:       cb,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func() *Element {
 		return element
 	}
@@ -69,17 +79,25 @@ func Cached(duration time.Duration, cb GetElementFunc) func() *Element {
 
 // CachedPerKey caches the given element for the given duration. The element is only rendered once per key, and then cached for the given duration.
 // The element is cached by the unique identifier that is returned by the callback function.
-func CachedPerKey[K comparable](duration time.Duration, cb GetElementFuncWithKey[K]) func() *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			isByKey:  true,
-			cb:       nil,
-			html:     "",
-			duration: duration,
-		},
+func CachedPerKey[K comparable](duration time.Duration, cb GetElementFuncWithKey[K], opts ...CacheOption) func() *Element {
+	node := &CachedNode{
+		isByKey:  true,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func() *Element {
 		key, componentFunc := cb()
 		return &Element{
@@ -101,17 +119,25 @@ type ByKeyEntry struct {
 
 // CachedPerKeyT caches the given element for the given duration. The element is only rendered once per key, and then cached for the given duration.
 // The element is cached by the unique identifier that is returned by the callback function.
-func CachedPerKeyT[K comparable, T any](duration time.Duration, cb GetElementFuncTWithKey[K, T]) func(T) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			isByKey:  true,
-			cb:       nil,
-			html:     "",
-			duration: duration,
-		},
+func CachedPerKeyT[K comparable, T any](duration time.Duration, cb GetElementFuncTWithKey[K, T], opts ...CacheOption) func(T) *Element {
+	node := &CachedNode{
+		isByKey:  true,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T) *Element {
 		key, componentFunc := cb(data)
 		return &Element{
@@ -127,17 +153,25 @@ func CachedPerKeyT[K comparable, T any](duration time.Duration, cb GetElementFun
 
 // CachedPerKeyT2 caches the given element for the given duration. The element is only rendered once per key, and then cached for the given duration.
 // The element is cached by the unique identifier that is returned by the callback function.
-func CachedPerKeyT2[K comparable, T any, T2 any](duration time.Duration, cb GetElementFuncT2WithKey[K, T, T2]) func(T, T2) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			isByKey:  true,
-			cb:       nil,
-			html:     "",
-			duration: duration,
-		},
+func CachedPerKeyT2[K comparable, T any, T2 any](duration time.Duration, cb GetElementFuncT2WithKey[K, T, T2], opts ...CacheOption) func(T, T2) *Element {
+	node := &CachedNode{
+		isByKey:  true,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2) *Element {
 		key, componentFunc := cb(data, data2)
 		return &Element{
@@ -153,17 +187,25 @@ func CachedPerKeyT2[K comparable, T any, T2 any](duration time.Duration, cb GetE
 
 // CachedPerKeyT3 caches the given element for the given duration. The element is only rendered once per key, and then cached for the given duration.
 // The element is cached by the unique identifier that is returned by the callback function.
-func CachedPerKeyT3[K comparable, T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3WithKey[K, T, T2, T3]) func(T, T2, T3) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			isByKey:  true,
-			cb:       nil,
-			html:     "",
-			duration: duration,
-		},
+func CachedPerKeyT3[K comparable, T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3WithKey[K, T, T2, T3], opts ...CacheOption) func(T, T2, T3) *Element {
+	node := &CachedNode{
+		isByKey:  true,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2, data3 T3) *Element {
 		key, componentFunc := cb(data, data2, data3)
 		return &Element{
@@ -179,17 +221,25 @@ func CachedPerKeyT3[K comparable, T any, T2 any, T3 any](duration time.Duration,
 
 // CachedPerKeyT4 caches the given element for the given duration. The element is only rendered once per key, and then cached for the given duration.
 // The element is cached by the unique identifier that is returned by the callback function.
-func CachedPerKeyT4[K comparable, T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetElementFuncT4WithKey[K, T, T2, T3, T4]) func(T, T2, T3, T4) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			isByKey:  true,
-			cb:       nil,
-			html:     "",
-			duration: duration,
-		},
+func CachedPerKeyT4[K comparable, T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetElementFuncT4WithKey[K, T, T2, T3, T4], opts ...CacheOption) func(T, T2, T3, T4) *Element {
+	node := &CachedNode{
+		isByKey:  true,
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2, data3 T3, data4 T4) *Element {
 		key, componentFunc := cb(data, data2, data3, data4)
 		return &Element{
@@ -205,19 +255,27 @@ func CachedPerKeyT4[K comparable, T any, T2 any, T3 any, T4 any](duration time.D
 
 // CachedT caches the given element for the given duration. The element is only rendered once, and then cached for the given duration.
 // Please note this element is globally cached, and not per unique identifier / user.
-// Use CachedPerKey to cache elements per unqiue identifier.
-func CachedT[T any](duration time.Duration, cb GetElementFuncT[T]) func(T) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			html:     "",
-			duration: duration,
-			mutex:    sync.Mutex{},
-		},
+// Use CachedPerKey to cache elements per unique identifier.
+func CachedT[T any](duration time.Duration, cb GetElementFuncT[T], opts ...CacheOption) func(T) *Element {
+	node := &CachedNode{
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T) *Element {
-		element.meta.(*CachedNode).cb = func() *Element {
+		node.cb = func() *Element {
 			return cb(data)
 		}
 		return element
@@ -226,18 +284,27 @@ func CachedT[T any](duration time.Duration, cb GetElementFuncT[T]) func(T) *Elem
 
 // CachedT2 caches the given element for the given duration. The element is only rendered once, and then cached for the given duration.
 // Please note this element is globally cached, and not per unique identifier / user.
-// Use CachedPerKey to cache elements per unqiue identifier.
-func CachedT2[T any, T2 any](duration time.Duration, cb GetElementFuncT2[T, T2]) func(T, T2) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			html:     "",
-			duration: duration,
-		},
+// Use CachedPerKey to cache elements per unique identifier.
+func CachedT2[T any, T2 any](duration time.Duration, cb GetElementFuncT2[T, T2], opts ...CacheOption) func(T, T2) *Element {
+	node := &CachedNode{
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2) *Element {
-		element.meta.(*CachedNode).cb = func() *Element {
+		node.cb = func() *Element {
 			return cb(data, data2)
 		}
 		return element
@@ -246,18 +313,27 @@ func CachedT2[T any, T2 any](duration time.Duration, cb GetElementFuncT2[T, T2])
 
 // CachedT3 caches the given element for the given duration. The element is only rendered once, and then cached for the given duration.
 // Please note this element is globally cached, and not per unique identifier / user.
-// Use CachedPerKey to cache elements per unqiue identifier.
-func CachedT3[T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3[T, T2, T3]) func(T, T2, T3) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			html:     "",
-			duration: duration,
-		},
+// Use CachedPerKey to cache elements per unique identifier.
+func CachedT3[T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3[T, T2, T3], opts ...CacheOption) func(T, T2, T3) *Element {
+	node := &CachedNode{
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2, data3 T3) *Element {
-		element.meta.(*CachedNode).cb = func() *Element {
+		node.cb = func() *Element {
 			return cb(data, data2, data3)
 		}
 		return element
@@ -266,18 +342,27 @@ func CachedT3[T any, T2 any, T3 any](duration time.Duration, cb GetElementFuncT3
 
 // CachedT4 caches the given element for the given duration. The element is only rendered once, and then cached for the given duration.
 // Please note this element is globally cached, and not per unique identifier / user.
-// Use CachedPerKey to cache elements per unqiue identifier.
-func CachedT4[T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetElementFuncT4[T, T2, T3, T4]) func(T, T2, T3, T4) *Element {
-	element := &Element{
-		tag: CachedNodeTag,
-		meta: &CachedNode{
-			html:     "",
-			duration: duration,
-		},
+// Use CachedPerKey to cache elements per unique identifier.
+func CachedT4[T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetElementFuncT4[T, T2, T3, T4], opts ...CacheOption) func(T, T2, T3, T4) *Element {
+	node := &CachedNode{
+		duration: duration,
 	}
-	startExpiredCacheCleaner(element.meta.(*CachedNode))
+
+	for _, opt := range opts {
+		opt(node)
+	}
+
+	if node.cache == nil {
+		node.cache = DefaultCacheProvider()
+	}
+
+	element := &Element{
+		tag:  CachedNodeTag,
+		meta: node,
+	}
+
 	return func(data T, data2 T2, data3 T3, data4 T4) *Element {
-		element.meta.(*CachedNode).cb = func() *Element {
+		node.cb = func() *Element {
 			return cb(data, data2, data3, data4)
 		}
 		return element
@@ -286,70 +371,24 @@ func CachedT4[T any, T2 any, T3 any, T4 any](duration time.Duration, cb GetEleme
 
 // ClearCache clears the cached HTML of the element. This is called automatically by the framework.
 func (c *CachedNode) ClearCache() {
-	c.html = ""
-	if c.byKeyCache != nil {
-		for key := range c.byKeyCache {
-			delete(c.byKeyCache, key)
-		}
-	}
-	if c.byKeyExpiration != nil {
-		for key := range c.byKeyExpiration {
-			delete(c.byKeyExpiration, key)
-		}
-	}
+	c.cache.Purge()
 }
 
-// ClearExpired clears all expired cached HTML of the element. This is called automatically by the framework.
+// ClearExpired is deprecated and does nothing. Cache expiration is now handled by the Store implementation.
 func (c *CachedNode) ClearExpired() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	deletedCount := 0
-	if c.isByKey {
-		if c.byKeyCache != nil && c.byKeyExpiration != nil {
-			for key := range c.byKeyCache {
-				expir, ok := c.byKeyExpiration[key]
-				if ok && expir.Before(time.Now()) {
-					delete(c.byKeyCache, key)
-					delete(c.byKeyExpiration, key)
-					deletedCount++
-				}
-			}
-		}
-	} else {
-		now := time.Now()
-		expiration := c.expiration
-		if c.html != "" && expiration.Before(now) {
-			c.html = ""
-			deletedCount++
-		}
-	}
-
-	if deletedCount > 0 {
-		slog.Debug("Deleted expired cache entries", slog.Int("count", deletedCount))
-	}
+	// No-op for backward compatibility
 }
 
 func (c *CachedNode) Render(ctx *RenderContext) {
 	if c.isByKey {
 		panic("CachedPerKey should not be rendered directly")
 	} else {
-		c.mutex.Lock()
-		defer c.mutex.Unlock()
-
-		now := time.Now()
-		expiration := c.expiration
-
-		if expiration.IsZero() || expiration.Before(now) {
-			c.html = ""
-			c.expiration = now.Add(c.duration)
-		}
-
-		if c.html != "" {
-			ctx.builder.WriteString(c.html)
-		} else {
-			c.html = Render(c.cb())
-			ctx.builder.WriteString(c.html)
-		}
+		// For simple cached components, we use a single key
+		// Use GetOrCompute for atomic check-and-set
+		html := c.cache.GetOrCompute(_singleCacheKey, func() string {
+			return Render(c.cb())
+		}, c.duration)
+		ctx.builder.WriteString(html)
 	}
 }
 
@@ -357,47 +396,9 @@ func (c *ByKeyEntry) Render(ctx *RenderContext) {
 	key := c.key
 	parentMeta := c.parent.meta.(*CachedNode)
 
-	parentMeta.mutex.Lock()
-	defer parentMeta.mutex.Unlock()
-
-	if parentMeta.byKeyCache == nil {
-		parentMeta.byKeyCache = make(map[any]*Entry)
-	}
-
-	if parentMeta.byKeyExpiration == nil {
-		parentMeta.byKeyExpiration = make(map[any]time.Time)
-	}
-
-	var setAndWrite = func() {
-		html := Render(c.cb())
-		parentMeta.byKeyCache[key] = &Entry{
-			expiration: parentMeta.expiration,
-			html:       html,
-		}
-		ctx.builder.WriteString(html)
-	}
-
-	expEntry, ok := parentMeta.byKeyExpiration[key]
-
-	if !ok {
-		parentMeta.byKeyExpiration[key] = time.Now().Add(parentMeta.duration)
-	} else {
-		// key is expired
-		if expEntry.Before(time.Now()) {
-			parentMeta.byKeyExpiration[key] = time.Now().Add(parentMeta.duration)
-			setAndWrite()
-			return
-		}
-	}
-
-	entry := parentMeta.byKeyCache[key]
-
-	// not in cache
-	if entry == nil {
-		setAndWrite()
-		return
-	}
-
-	// exists in cache and not expired
-	ctx.builder.WriteString(entry.html)
+	// Use GetOrCompute for atomic check-and-set
+	html := parentMeta.cache.GetOrCompute(key, func() string {
+		return Render(c.cb())
+	}, parentMeta.duration)
+	ctx.builder.WriteString(html)
 }

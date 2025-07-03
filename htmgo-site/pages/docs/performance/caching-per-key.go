@@ -32,10 +32,22 @@ func CachingPerKey(ctx *h.RequestContext) *h.Page {
         The arguments passed into cached component <b>DO NOT</b> affect the cache key. The only thing that affects the cache key is the key returned by the GetElementFuncWithKey function.
         Ensure the declaration of the cached component is outside the function that uses it. This is to prevent the component from being redeclared on each request.
 			`),
+			Text(`
+				<b>New: Custom Cache Stores with Atomic Guarantees</b><br/>
+				htmgo now supports pluggable cache stores with built-in concurrency protection. The framework uses an atomic 
+				GetOrCompute method that ensures only one goroutine computes a value for any given key, preventing duplicate 
+				expensive operations like database queries or complex renders. This eliminates race conditions that could 
+				previously cause the same content to be rendered multiple times.
+			`),
+			Text(`
+				You can implement custom caching backends like Redis, Memcached, or memory-bounded stores. 
+				This helps prevent memory exhaustion attacks and enables distributed caching.
+				See <a href="/docs/performance/pluggable-caches" class="text-blue-500 hover:text-blue-400">Creating Custom Cache Stores</a> for more details.
+			`),
 			NextStep(
 				"mt-4",
 				PrevBlock("Caching Globally", DocPath("/performance/caching-globally")),
-				NextBlock("Pushing Data", DocPath("/pushing-data/sse")),
+				NextBlock("Custom Cache Stores", DocPath("/performance/pluggable-caches")),
 			),
 		),
 	)
