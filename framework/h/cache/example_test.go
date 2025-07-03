@@ -142,13 +142,7 @@ func (a *DistributedCacheAdapter) Set(key any, value string, ttl time.Duration) 
 	a.cache.data[keyStr] = value
 }
 
-func (a *DistributedCacheAdapter) Get(key any) (string, bool) {
-	a.cache.mutex.RLock()
-	defer a.cache.mutex.RUnlock()
-	keyStr := fmt.Sprintf("htmgo:%v", key)
-	val, ok := a.cache.data[keyStr]
-	return val, ok
-}
+
 
 func (a *DistributedCacheAdapter) Delete(key any) {
 	a.cache.mutex.Lock()
@@ -165,6 +159,25 @@ func (a *DistributedCacheAdapter) Purge() {
 
 func (a *DistributedCacheAdapter) Close() {
 	// Clean up connections in real implementation
+}
+
+func (a *DistributedCacheAdapter) GetOrCompute(key any, compute func() string, ttl time.Duration) string {
+	a.cache.mutex.Lock()
+	defer a.cache.mutex.Unlock()
+	
+	keyStr := fmt.Sprintf("htmgo:%v", key)
+	
+	// Check if exists
+	if val, ok := a.cache.data[keyStr]; ok {
+		return val
+	}
+	
+	// Compute and store
+	value := compute()
+	a.cache.data[keyStr] = value
+	// In a real implementation, you'd also set TTL in Redis
+	
+	return value
 }
 
 // Example demonstrates creating a custom cache adapter

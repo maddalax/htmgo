@@ -43,23 +43,28 @@ func (s *TTLStore[K, V]) Set(key K, value V, ttl time.Duration) {
 	}
 }
 
-// Get retrieves an entry from the cache.
-func (s *TTLStore[K, V]) Get(key K) (V, bool) {
-	s.mutex.RLock()
-	defer s.mutex.RUnlock()
 
-	var zero V
-	e, ok := s.cache[key]
-	if !ok {
-		return zero, false
+
+// GetOrCompute atomically gets an existing value or computes and stores a new value.
+func (s *TTLStore[K, V]) GetOrCompute(key K, compute func() V, ttl time.Duration) V {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Check if exists and not expired
+	if e, ok := s.cache[key]; ok && time.Now().Before(e.expiration) {
+		return e.value
 	}
 
-	// Check if expired
-	if time.Now().After(e.expiration) {
-		return zero, false
+	// Compute while holding lock
+	value := compute()
+
+	// Store the result
+	s.cache[key] = &entry[V]{
+		value:      value,
+		expiration: time.Now().Add(ttl),
 	}
 
-	return e.value, true
+	return value
 }
 
 // Delete removes an entry from the cache.

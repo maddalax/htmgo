@@ -12,9 +12,10 @@ type Store[K comparable, V any] interface {
 	// Set adds or updates an entry in the cache. The implementation should handle the TTL.
 	Set(key K, value V, ttl time.Duration)
 
-	// Get retrieves an entry from the cache. The boolean return value indicates
-	// whether the key was found and has not expired.
-	Get(key K) (V, bool)
+	// GetOrCompute atomically gets an existing value or computes and stores a new value.
+	// This method prevents duplicate computation when multiple goroutines request the same key.
+	// The compute function is called only if the key is not found or has expired.
+	GetOrCompute(key K, compute func() V, ttl time.Duration) V
 
 	// Delete removes an entry from the cache.
 	Delete(key K)

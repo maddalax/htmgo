@@ -19,14 +19,35 @@ The previous caching mechanism relied exclusively on Time-To-Live (TTL) expirati
 The new system introduces a generic `Store[K comparable, V any]` interface:
 
 ```go
+package main
+
+import "time"
+
 type Store[K comparable, V any] interface {
-Set(key K, value V, ttl time.Duration)
-Get(key K) (V, bool)
-Delete(key K)
-Purge()
-Close()
+	// Set adds or updates an entry in the cache with the given TTL
+	Set(key K, value V, ttl time.Duration)
+
+	// GetOrCompute atomically gets an existing value or computes and stores a new value
+	// This prevents duplicate computation when multiple goroutines request the same key
+	GetOrCompute(key K, compute func() V, ttl time.Duration) V
+
+	// Delete removes an entry from the cache
+	Delete(key K)
+
+	// Purge removes all items from the cache
+	Purge()
+
+	// Close releases any resources used by the cache
+	Close()
 }
 ```
+
+### Atomic Guarantees
+
+The `GetOrCompute` method provides **atomic guarantees** to prevent cache stampedes and duplicate computations:
+- When multiple goroutines request the same uncached key simultaneously, only one will execute the compute function
+- Other goroutines will wait and receive the computed result
+- This eliminates race conditions that could cause duplicate expensive operations like database queries or renders
 
 ## Usage
 
@@ -36,13 +57,13 @@ By default, htmgo continues to use a TTL-based cache for backward compatibility:
 
 ```go
 // No changes needed - works exactly as before
-UserProfile := h.CachedPerKey(
-15*time.Minute,
-func (userID int) (int, h.GetElementFunc) {
-return userID, func () *h.Element {
-return h.Div(h.Text("User profile"))
-}
-},
+UserProfile := h.CachedPerKeyT(
+  15*time.Minute,
+  func(userID int) (int, h.GetElementFunc) {
+	return userID, func() *h.Element {
+		return h.Div(h.Text("User profile"))
+	}
+  },
 )
 ```
 
@@ -51,23 +72,28 @@ return h.Div(h.Text("User profile"))
 You can provide your own cache implementation using the `WithStore` option:
 
 ```go
+package main
+
 import (
-"github.com/maddalax/htmgo/framework/h"
-"github.com/maddalax/htmgo/framework/h/cache"
+	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/h/cache"
+	"time"
 )
 
-// Create a memory-bounded LRU cache
-lruCache := cache.NewLRUStore[any, string](10000) // Max 10,000 items
+var (
+	// Create a memory-bounded LRU cache
+	lruCache = cache.NewLRUStore[any, string](10_000) // Max 10,000 items
 
-// Use it with a cached component
-UserProfile := h.CachedPerKey(
-15*time.Minute,
-func (userID int) (int, h.GetElementFunc) {
-return userID, func () *h.Element {
-return h.Div(h.Text("User profile"))
-}
-},
-h.WithStore(lruCache), // Pass the custom cache
+	// Use it with a cached component
+	UserProfile = h.CachedPerKeyT(
+		15*time.Minute,
+		func (userID int) (int, h.GetElementFunc) {
+			return userID, func () *h.Element {
+				return h.Div(h.Text("User profile"))
+			}
+		},
+		h.WithStore(lruCache), // Pass the custom cache
+	)
 )
 ```
 
@@ -76,11 +102,18 @@ h.WithStore(lruCache), // Pass the custom cache
 You can override the default cache provider for your entire application:
 
 ```go
+package main
+
+import (
+	"github.com/maddalax/htmgo/framework/h"
+	"github.com/maddalax/htmgo/framework/h/cache"
+)
+
 func init() {
-// All cached components will use LRU by default
-h.DefaultCacheProvider = func () cache.Store[any, string] {
-return cache.NewLRUStore[any, string](50000)
-}
+	// All cached components will use LRU by default
+	h.DefaultCacheProvider = func () cache.Store[any, string] {
+		return cache.NewLRUStore[any, string](50_000)
+	}
 }
 ```
 
@@ -97,9 +130,9 @@ Here's an example of integrating the high-performance `go-freelru` library:
 
 ```go
 import (
-"time"
-"github.com/elastic/go-freelru"
-"github.com/maddalax/htmgo/framework/h/cache"
+  "time"
+  "github.com/elastic/go-freelru"
+  "github.com/maddalax/htmgo/framework/h/cache"
 )
 
 type FreeLRUAdapter[K comparable, V any] struct {
@@ -119,8 +152,18 @@ func (s *FreeLRUAdapter[K, V]) Set(key K, value V, ttl time.Duration) {
 s.lru.Add(key, value)
 }
 
-func (s *FreeLRUAdapter[K, V]) Get(key K) (V, bool) {
-return s.lru.Get(key)
+func (s *FreeLRUAdapter[K, V]) GetOrCompute(key K, compute func() V, ttl time.Duration) V {
+    // Check if exists in cache
+    if val, ok := s.lru.Get(key); ok {
+        return val
+    }
+    
+    // Not in cache, compute and store
+    // Note: This simple implementation doesn't provide true atomic guarantees
+    // For production use, you'd need additional synchronization
+    value := compute()
+    s.lru.Add(key, value)
+    return value
 }
 
 func (s *FreeLRUAdapter[K, V]) Delete(key K) {
@@ -149,13 +192,21 @@ keyStr := fmt.Sprintf("%s:%v", s.prefix, key)
 s.client.Set(context.Background(), keyStr, value, ttl)
 }
 
-func (s *RedisStore) Get(key any) (string, bool) {
-keyStr := fmt.Sprintf("%s:%v", s.prefix, key)
-val, err := s.client.Get(context.Background(), keyStr).Result()
-if err == redis.Nil {
-return "", false
-}
-return val, err == nil
+func (s *RedisStore) GetOrCompute(key any, compute func() string, ttl time.Duration) string {
+    keyStr := fmt.Sprintf("%s:%v", s.prefix, key)
+    ctx := context.Background()
+    
+    // Try to get from Redis
+    val, err := s.client.Get(ctx, keyStr).Result()
+    if err == nil {
+        return val
+    }
+    
+    // Not in cache, compute new value
+    // For true atomic guarantees, use Redis SET with NX option
+    value := compute()
+    s.client.Set(ctx, keyStr, value, ttl)
+    return value
 }
 
 // ... implement other methods
@@ -211,9 +262,17 @@ return regexp.MustCompile(`[^a-zA-Z0-9_-]`).ReplaceAllString(key, "")
 ## Performance Considerations
 
 1. **TTLStore**: Best for small caches with predictable key patterns
-2. **LRUStore**: Good general-purpose choice with memory bounds
+2. **LRUStore**: Good general-purpose choice with memory bounds  
 3. **Third-party stores**: Consider `go-freelru` or `theine-go` for high-performance needs
 4. **Distributed stores**: Use Redis/Memcached for multi-instance deployments
+5. **Atomic Operations**: The `GetOrCompute` method prevents duplicate computations, significantly improving performance under high concurrency
+
+### Concurrency Benefits
+
+The atomic `GetOrCompute` method provides significant performance benefits:
+- **Prevents Cache Stampedes**: When a popular cache entry expires, only one goroutine will recompute it
+- **Reduces Load**: Expensive operations (database queries, API calls, complex renders) are never duplicated
+- **Improves Response Times**: Waiting goroutines get results faster than computing themselves
 
 ## Best Practices
 
@@ -222,6 +281,8 @@ return regexp.MustCompile(`[^a-zA-Z0-9_-]`).ReplaceAllString(key, "")
 3. **Monitor cache metrics**: Track hit rates, evictions, and memory usage
 4. **Handle cache failures gracefully**: Caches should enhance, not break functionality
 5. **Close caches properly**: Call `Close()` during graceful shutdown
+6. **Implement atomic guarantees**: Ensure your `GetOrCompute` implementation prevents concurrent computation
+7. **Test concurrent access**: Verify your cache handles simultaneous requests correctly
 
 ## Future Enhancements
 

@@ -384,15 +384,11 @@ func (c *CachedNode) Render(ctx *RenderContext) {
 		panic("CachedPerKey should not be rendered directly")
 	} else {
 		// For simple cached components, we use a single key
-		html, found := c.cache.Get(_singleCacheKey)
-		if found {
-			ctx.builder.WriteString(html)
-		} else {
-			// Render and cache
-			html = Render(c.cb())
-			c.cache.Set(_singleCacheKey, html, c.duration)
-			ctx.builder.WriteString(html)
-		}
+		// Use GetOrCompute for atomic check-and-set
+		html := c.cache.GetOrCompute(_singleCacheKey, func() string {
+			return Render(c.cb())
+		}, c.duration)
+		ctx.builder.WriteString(html)
 	}
 }
 
@@ -400,15 +396,9 @@ func (c *ByKeyEntry) Render(ctx *RenderContext) {
 	key := c.key
 	parentMeta := c.parent.meta.(*CachedNode)
 
-	// Try to get from cache
-	html, found := parentMeta.cache.Get(key)
-	if found {
-		ctx.builder.WriteString(html)
-		return
-	}
-
-	// Not in cache, render and store
-	html = Render(c.cb())
-	parentMeta.cache.Set(key, html, parentMeta.duration)
+	// Use GetOrCompute for atomic check-and-set
+	html := parentMeta.cache.GetOrCompute(key, func() string {
+		return Render(c.cb())
+	}, parentMeta.duration)
 	ctx.builder.WriteString(html)
 }

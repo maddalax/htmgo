@@ -84,29 +84,48 @@ func (s *LRUStore[K, V]) Set(key K, value V, ttl time.Duration) {
 	}
 }
 
-// Get retrieves an entry from the cache.
-// Returns the value and true if found and not expired, zero value and false otherwise.
-func (s *LRUStore[K, V]) Get(key K) (V, bool) {
+// GetOrCompute atomically gets an existing value or computes and stores a new value.
+func (s *LRUStore[K, V]) GetOrCompute(key K, compute func() V, ttl time.Duration) V {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	var zero V
-	elem, exists := s.cache[key]
-	if !exists {
-		return zero, false
-	}
-
-	entry := elem.Value.(*lruEntry[K, V])
-
-	// Check if expired
-	if time.Now().After(entry.expiration) {
+	// Check if key already exists
+	if elem, exists := s.cache[key]; exists {
+		entry := elem.Value.(*lruEntry[K, V])
+		
+		// Check if expired
+		if time.Now().Before(entry.expiration) {
+			// Move to front (mark as recently used)
+			s.lru.MoveToFront(elem)
+			return entry.value
+		}
+		
+		// Expired, remove it
 		s.removeElement(elem)
-		return zero, false
 	}
 
-	// Move to front (mark as recently used)
-	s.lru.MoveToFront(elem)
-	return entry.value, true
+	// Compute the value while holding the lock
+	value := compute()
+	expiration := time.Now().Add(ttl)
+
+	// Add new entry
+	entry := &lruEntry[K, V]{
+		key:        key,
+		value:      value,
+		expiration: expiration,
+	}
+	elem := s.lru.PushFront(entry)
+	s.cache[key] = elem
+
+	// Evict oldest if over capacity
+	if s.lru.Len() > s.maxSize {
+		oldest := s.lru.Back()
+		if oldest != nil {
+			s.removeElement(oldest)
+		}
+	}
+
+	return value
 }
 
 // Delete removes an entry from the cache.

@@ -3,7 +3,6 @@ package h
 import (
 	"strings"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -386,18 +385,20 @@ func TestCacheByKeyT2(t *testing.T) {
 
 func TestCacheByKeyConcurrent(t *testing.T) {
 	t.Parallel()
-	var renderCount, callCount atomic.Uint32
+	renderCount := 0
+	callCount := 0
 	cachedItem := CachedPerKey(time.Hour, func() (any, GetElementFunc) {
-		fn := func() *Element {
-			renderCount.Add(1)
-			return Div(Text("hello"))
+		key := "key"
+		if callCount == 3 {
+			key = "key2"
 		}
-
-		switch callCount.Add(1) {
-		case 4:
-			return "key2", fn
-		default:
-			return "key", fn
+		if callCount == 4 {
+			key = "key"
+		}
+		callCount++
+		return key, func() *Element {
+			renderCount++
+			return Div(Text("hello"))
 		}
 	})
 
@@ -414,8 +415,8 @@ func TestCacheByKeyConcurrent(t *testing.T) {
 
 	wg.Wait()
 
-	assert.Equal(t, 5, int(callCount.Load()))
-	assert.Equal(t, 2, int(renderCount.Load()))
+	assert.Equal(t, 5, callCount)
+	assert.Equal(t, 2, renderCount)
 }
 
 func TestCacheByKeyT1_2(t *testing.T) {

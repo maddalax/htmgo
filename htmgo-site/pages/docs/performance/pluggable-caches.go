@@ -13,7 +13,7 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 			h.Class("flex flex-col gap-3"),
 			Title("Creating Custom Cache Stores"),
 			Text(`
-				htmgo now supports pluggable cache stores, allowing you to use any caching backend or implement custom caching strategies.
+				htmgo supports pluggable cache stores, allowing you to use any caching backend or implement custom caching strategies.
 				This feature enables better control over memory usage, distributed caching support, and protection against memory exhaustion attacks.
 			`),
 
@@ -24,6 +24,22 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 			ui.GoCodeSnippet(CacheStoreInterface),
 			Text(`
 				The interface is generic, supporting any comparable key type and any value type.
+			`),
+			Text(`
+				<b>Important:</b> The <code>GetOrCompute</code> method provides <b>atomic guarantees</b>.
+				When multiple goroutines request the same key simultaneously, only one will execute the compute function,
+				preventing duplicate expensive operations like database queries or complex computations.
+			`),
+
+			SubTitle("Technical: The Race Condition Fix"),
+			Text(`
+				The previous implementation had a time-of-check to time-of-use (TOCTOU) race condition:
+			`),
+			Text(`
+				With GetOrCompute, the entire check-compute-store operation happens atomically while holding
+				the lock, eliminating the race window completely.
+			`),
+			Text(`
 				The <b>Close()</b> method allows for cleanup of resources when the cache is no longer needed.
 			`),
 
@@ -65,7 +81,12 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 			SubTitle("Migration Guide"),
 			Text(`
 				<b>Good news!</b> Existing htmgo applications require <b>no changes</b> to work with the new cache system.
-				The default behavior remains exactly the same. However, if you want to take advantage of the new features:
+				The default behavior remains exactly the same, with improved concurrency guarantees.
+				The framework uses the atomic GetOrCompute method internally, preventing race conditions
+				that could cause duplicate renders.
+			`),
+			Text(`
+				If you want to take advantage of custom cache stores:
 			`),
 
 			StepTitle("Before (existing code):"),
@@ -79,7 +100,9 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 				<b>1. Resource Management:</b> Always implement the Close() method if your cache uses external resources.
 			`),
 			Text(`
-				<b>2. Thread Safety:</b> Ensure your cache implementation is thread-safe as it will be accessed concurrently.
+				<b>2. Thread Safety:</b> The GetOrCompute method must be thread-safe and provide atomic guarantees.
+				This means when multiple goroutines call GetOrCompute with the same key simultaneously,
+				only one should execute the compute function.
 			`),
 			Text(`
 				<b>3. Memory Bounds:</b> Consider implementing size limits to prevent unbounded memory growth.
@@ -89,6 +112,10 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 			`),
 			Text(`
 				<b>5. Monitoring:</b> Consider adding metrics to track cache hit rates and performance.
+			`),
+			Text(`
+				<b>6. Atomic Operations:</b> Always use GetOrCompute for cache retrieval to ensure proper
+				concurrency handling and prevent cache stampedes.
 			`),
 
 			SubTitle("Common Use Cases"),
@@ -116,6 +143,13 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 				you to implement bounded caches. Always consider using size-limited caches in production environments
 				where untrusted input could influence cache keys.
 			`),
+			Text(`
+				<b>Concurrency Note:</b> The GetOrCompute method eliminates race conditions that could occur
+				in the previous implementation. When multiple goroutines request the same uncached key via
+				GetOrCompute method simultaneously,	only one will execute the expensive render operation,
+				while others wait for the result. This prevents "cache stampedes" where many goroutines
+				simultaneously compute the same expensive value.
+			`),
 
 			NextStep(
 				"mt-4",
@@ -128,10 +162,21 @@ func PluggableCaches(ctx *h.RequestContext) *h.Page {
 
 const CacheStoreInterface = `
 type Store[K comparable, V any] interface {
-    Get(key K) (V, bool)
-    Set(key K, value V)
+    // Set adds or updates an entry in the cache with the given TTL
+    Set(key K, value V, ttl time.Duration)
+
+    // GetOrCompute atomically gets an existing value or computes and stores a new value
+    // This is the primary method for cache retrieval and prevents duplicate computation
+    GetOrCompute(key K, compute func() V, ttl time.Duration) V
+
+    // Delete removes an entry from the cache
     Delete(key K)
-    Close() error
+
+    // Purge removes all items from the cache
+    Purge()
+
+    // Close releases any resources used by the cache
+    Close()
 }
 `
 
@@ -183,40 +228,52 @@ func NewRedisStore[K comparable, V any](client *redis.Client, prefix string, ttl
     }
 }
 
-func (r *RedisStore[K, V]) Get(key K) (V, bool) {
-    var zero V
+func (r *RedisStore[K, V]) Set(key K, value V, ttl time.Duration) {
     ctx := context.Background()
-    
-    // Create Redis key
     redisKey := fmt.Sprintf("%s:%v", r.prefix, key)
-    
-    // Get value from Redis
-    data, err := r.client.Get(ctx, redisKey).Bytes()
-    if err != nil {
-        return zero, false
-    }
-    
-    // Deserialize value
-    var value V
-    if err := json.Unmarshal(data, &value); err != nil {
-        return zero, false
-    }
-    
-    return value, true
-}
 
-func (r *RedisStore[K, V]) Set(key K, value V) {
-    ctx := context.Background()
-    redisKey := fmt.Sprintf("%s:%v", r.prefix, key)
-    
     // Serialize value
     data, err := json.Marshal(value)
     if err != nil {
         return
     }
-    
+
     // Set in Redis with TTL
-    r.client.Set(ctx, redisKey, data, r.ttl)
+    r.client.Set(ctx, redisKey, data, ttl)
+}
+
+func (r *RedisStore[K, V]) GetOrCompute(key K, compute func() V, ttl time.Duration) V {
+    ctx := context.Background()
+    redisKey := fmt.Sprintf("%s:%v", r.prefix, key)
+
+    // Try to get from Redis first
+    data, err := r.client.Get(ctx, redisKey).Bytes()
+    if err == nil {
+        // Found in cache, deserialize
+        var value V
+        if err := json.Unmarshal(data, &value); err == nil {
+            return value
+        }
+    }
+
+    // Not in cache or error, compute new value
+    value := compute()
+
+    // Serialize and store
+    if data, err := json.Marshal(value); err == nil {
+        r.client.Set(ctx, redisKey, data, ttl)
+    }
+
+    return value
+}
+
+func (r *RedisStore[K, V]) Purge() {
+    ctx := context.Background()
+    // Delete all keys with our prefix
+    iter := r.client.Scan(ctx, 0, r.prefix+"*", 0).Iterator()
+    for iter.Next(ctx) {
+        r.client.Del(ctx, iter.Val())
+    }
 }
 
 func (r *RedisStore[K, V]) Delete(key K) {
@@ -225,8 +282,8 @@ func (r *RedisStore[K, V]) Delete(key K) {
     r.client.Del(ctx, redisKey)
 }
 
-func (r *RedisStore[K, V]) Close() error {
-    return r.client.Close()
+func (r *RedisStore[K, V]) Close() {
+    r.client.Close()
 }
 
 // Usage
@@ -357,14 +414,14 @@ func (t *TieredCache[K, V]) Get(key K) (V, bool) {
     if val, ok := t.l1.Get(key); ok {
         return val, true
     }
-    
+
     // Check L2
     if val, ok := t.l2.Get(key); ok {
         // Populate L1 for next time
         t.l1.Set(key, val)
         return val, true
     }
-    
+
     var zero V
     return zero, false
 }
