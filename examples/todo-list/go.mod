@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	entgo.io/ent v0.14.1
 	github.com/google/uuid v1.6.0
-	github.com/maddalax/htmgo/framework v1.0.6-0.20250106162619-24b41a7604a5
+	github.com/maddalax/htmgo/framework v1.0.7-0.20250703190716-06f01b3d7c1b
 	github.com/mattn/go-sqlite3 v1.14.23
 )
 
