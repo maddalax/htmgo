@@ -188,7 +188,7 @@ lruCache := cache.NewLRUStore[string, string](10000) // Max 10k items
 var CachedUserProfile = h.CachedPerKeyT(
     15*time.Minute,
     getUserProfile,
-    h.WithStore(lruCache), // Pass the custom store
+    h.WithCacheStore(lruCache), // Pass the custom store
 )
 `
 
@@ -300,7 +300,7 @@ redisCache := NewRedisStore[string, string](
 var CachedUserData = h.CachedPerKeyT(
     15*time.Minute,
     getUserData,
-    h.WithStore(redisCache),
+    h.WithCacheStore(redisCache),
 )
 `
 
@@ -312,7 +312,7 @@ ttlCache := cache.NewTTLStore[string, string]()
 var CachedData = h.Cached(
     5*time.Minute,
     getData,
-    h.WithStore(ttlCache),
+    h.WithCacheStore(ttlCache),
 )
 `
 
@@ -328,7 +328,7 @@ var CachedUserProfile = h.CachedPerKeyT(
             return renderUserProfile(userID)
         }
     },
-    h.WithStore(lruCache),
+    h.WithCacheStore(lruCache),
 )
 `
 
@@ -351,13 +351,13 @@ memoryCache := cache.NewLRUStore[any, string](10000)
 
 var CachedDashboard = h.Cached(10*time.Minute, func() *h.Element {
     return renderDashboard()
-}, h.WithStore(memoryCache))
+}, h.WithCacheStore(memoryCache))
 
 var CachedUserData = h.CachedPerKeyT(15*time.Minute, func(userID string) (string, h.GetElementFunc) {
     return userID, func() *h.Element {
         return renderUserData(userID)
     }
-}, h.WithStore(memoryCache))
+}, h.WithCacheStore(memoryCache))
 `
 
 const DistributedCacheExample = `
@@ -395,7 +395,7 @@ var CachedSearchResults = h.CachedPerKeyT(
             return performSearch(normalized)
         }
     },
-    h.WithStore(boundedCache),
+    h.WithCacheStore(boundedCache),
 )
 `
 

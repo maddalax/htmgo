@@ -81,7 +81,7 @@ func ExampleCachedPerKeyT() {
 }
 
 // Example demonstrates using a memory-bounded LRU cache
-func ExampleWithStore_lru() {
+func ExampleWithCacheStore_lru() {
 	// Create an LRU cache that holds maximum 1000 items
 	lruStore := cache.NewLRUStore[any, string](1000)
 	defer lruStore.Close()
@@ -100,7 +100,7 @@ func ExampleWithStore_lru() {
 				)
 			}
 		},
-		h.WithStore(lruStore), // Use custom cache store
+		h.WithCacheStore(lruStore), // Use custom cache store
 	)
 
 	// Render many products
@@ -142,8 +142,6 @@ func (a *DistributedCacheAdapter) Set(key any, value string, ttl time.Duration) 
 	a.cache.data[keyStr] = value
 }
 
-
-
 func (a *DistributedCacheAdapter) Delete(key any) {
 	a.cache.mutex.Lock()
 	defer a.cache.mutex.Unlock()
@@ -164,19 +162,19 @@ func (a *DistributedCacheAdapter) Close() {
 func (a *DistributedCacheAdapter) GetOrCompute(key any, compute func() string, ttl time.Duration) string {
 	a.cache.mutex.Lock()
 	defer a.cache.mutex.Unlock()
-	
+
 	keyStr := fmt.Sprintf("htmgo:%v", key)
-	
+
 	// Check if exists
 	if val, ok := a.cache.data[keyStr]; ok {
 		return val
 	}
-	
+
 	// Compute and store
 	value := compute()
 	a.cache.data[keyStr] = value
 	// In a real implementation, you'd also set TTL in Redis
-	
+
 	return value
 }
 
@@ -192,7 +190,7 @@ func ExampleDistributedCacheAdapter() {
 	// Use it with a cached component
 	SharedComponent := h.Cached(10*time.Minute, func() *h.Element {
 		return h.Div(h.Text("Shared across all servers"))
-	}, h.WithStore(adapter))
+	}, h.WithCacheStore(adapter))
 
 	html := h.Render(SharedComponent())
 	fmt.Printf("Cached in distributed store: %v\n", len(distCache.data) > 0)

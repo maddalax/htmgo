@@ -36,8 +36,8 @@ type GetElementFuncT4WithKey[K comparable, T any, T2 any, T3 any, T4 any] func(T
 // CacheOption defines a function that configures a CachedNode.
 type CacheOption func(*CachedNode)
 
-// WithStore allows providing a custom cache implementation for a cached component.
-func WithStore(store cache.Store[any, string]) CacheOption {
+// WithCacheStore allows providing a custom cache implementation for a cached component.
+func WithCacheStore(store cache.Store[any, string]) CacheOption {
 	return func(c *CachedNode) {
 		c.cache = store
 	}

@@ -69,7 +69,7 @@ UserProfile := h.CachedPerKeyT(
 
 ### Using a Custom Cache
 
-You can provide your own cache implementation using the `WithStore` option:
+You can provide your own cache implementation using the `WithCacheStore` option:
 
 ```go
 package main
@@ -92,7 +92,7 @@ var (
 				return h.Div(h.Text("User profile"))
 			}
 		},
-		h.WithStore(lruCache), // Pass the custom cache
+		h.WithCacheStore(lruCache), // Pass the custom cache
 	)
 )
 ```
@@ -240,7 +240,7 @@ cache := cache.NewLRUStore[any, string](100_000)
 UserContent := h.CachedPerKey(
 5*time.Minute,
 getUserContent,
-h.WithStore(cache),
+h.WithCacheStore(cache),
 )
 ```
 

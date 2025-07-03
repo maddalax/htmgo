@@ -46,7 +46,7 @@ func TestCached_WithCustomStore(t *testing.T) {
 	CachedDiv := Cached(1*time.Hour, func() *Element {
 		callCount++
 		return Div(Text(fmt.Sprintf("Rendered %d times", callCount)))
-	}, WithStore(lruStore))
+	}, WithCacheStore(lruStore))
 
 	// First render
 	html1 := Render(CachedDiv())
@@ -115,7 +115,7 @@ func TestCachedPerKey_WithLRUStore(t *testing.T) {
 			renderCounts[userID]++
 			return Div(Text(fmt.Sprintf("User %d", userID)))
 		}
-	}, WithStore(lruStore))
+	}, WithCacheStore(lruStore))
 
 	// Render 2 users - fill cache to capacity
 	Render(UserProfile(1))
@@ -214,7 +214,7 @@ func TestCachedPerKeyT_WithCustomStore(t *testing.T) {
 				P(Text(a.Content)),
 			)
 		}
-	}, WithStore(ttlStore))
+	}, WithCacheStore(ttlStore))
 
 	article1 := Article{ID: 1, Title: "First", Content: "Content 1"}
 	article2 := Article{ID: 2, Title: "Second", Content: "Content 2"}
@@ -275,7 +275,7 @@ func TestCachedPerKey_ConcurrentAccess(t *testing.T) {
 			time.Sleep(10 * time.Millisecond)
 			return Div(Text(fmt.Sprintf("User %d", userID)))
 		}
-	}, WithStore(lruStore))
+	}, WithCacheStore(lruStore))
 
 	const numGoroutines = 50
 	const numUsers = 20
@@ -419,7 +419,7 @@ func TestCachedNode_ClearCache(t *testing.T) {
 	CachedDiv := Cached(1*time.Hour, func() *Element {
 		callCount++
 		return Div(Text("Content"))
-	}, WithStore(lruStore))
+	}, WithCacheStore(lruStore))
 
 	// Render and cache
 	element := CachedDiv()
